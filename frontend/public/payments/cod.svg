@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 88 32" fill="none" role="img" aria-label="دفع عند الاستلام">
+  <rect width="88" height="32" rx="4" fill="#F7F5F2" stroke="#E8E4DF"/>
+  <rect x="8" y="8" width="16" height="16" rx="3" fill="#1F6B4E"/>
+  <path d="M12 18h8M12 15h8M14 12h4" stroke="#fff" stroke-width="1.2" stroke-linecap="round"/>
+  <text x="30" y="14" fill="#1A1614" font-family="Arial,sans-serif" font-size="7" font-weight="700">COD</text>
+  <text x="30" y="22" fill="#6B6560" font-family="Arial,sans-serif" font-size="6">عند الاستلام</text>
+</svg>

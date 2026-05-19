@@ -1,0 +1,42 @@
+services:
+  api:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./backend/.env
+    environment:
+      DATABASE_URL: postgresql://nafas:nafas@db:5432/nafas_kw
+      FRONTEND_ORIGIN: http://localhost:8080
+    depends_on:
+      db:
+        condition: service_healthy
+
+  web:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_URL: http://localhost:8000
+    ports:
+      - "8080:80"
+    depends_on:
+      - api
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: nafas
+      POSTGRES_PASSWORD: nafas
+      POSTGRES_DB: nafas_kw
+    ports:
+      - "5432:5432"
+    volumes:
+      - nafas_pg:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U nafas -d nafas_kw"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  nafas_pg:
