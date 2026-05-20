@@ -5,10 +5,11 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y --no-install-recommends libpq-dev gcc \
     && rm -rf /var/lib/apt/lists/*
 
-COPY requirements.txt .
+# Build context must be the **repository root** (Easypanel, CI). For local compose see docker-compose.yml.
+COPY backend/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY . .
+COPY backend/ .
 
 RUN chmod +x entrypoint.sh
 
