@@ -15,8 +15,8 @@ const NAV_GROUPS: { label: string; items: { id: AdminSection; label: string; hin
   {
     label: 'Dashboard',
     items: [
+      { id: 'live', label: 'Live View', hint: 'Real-time map & globe' },
       { id: 'overview', label: 'Overview' },
-      { id: 'live', label: 'Live View', hint: 'Real-time map' },
       { id: 'analytics', label: 'Analytics', hint: 'Visitors & funnel' },
     ],
   },

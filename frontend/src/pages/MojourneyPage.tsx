@@ -36,7 +36,17 @@ export function MojourneyPage() {
   const [apiKey, setApiKey] = useState('')
   const [loginMode, setLoginMode] = useState<LoginMode>('loading')
   const [unlocked, setUnlocked] = useState(() => Boolean(getStoredAdminKey()))
-  const [section, setSection] = useState<AdminSection>('overview')
+  const [section, setSection] = useState<AdminSection>(() => {
+    if (typeof window !== 'undefined' && window.location.hash === '#live') return 'live'
+    return 'overview'
+  })
+
+  const goSection = useCallback((s: AdminSection) => {
+    setSection(s)
+    if (typeof window !== 'undefined') {
+      window.location.hash = s === 'overview' ? '' : s
+    }
+  }, [])
   const [ping, setPing] = useState<{
     ok: boolean
     admin_configured: boolean
@@ -287,7 +297,7 @@ export function MojourneyPage() {
   return (
     <AdminShell
       section={section}
-      onSection={setSection}
+      onSection={goSection}
       onLogout={() => void onLogout()}
       apiStatus={<div className="text-xs text-slate-400">{apiStatus}</div>}
     >
@@ -339,7 +349,7 @@ export function MojourneyPage() {
               <button
                 key={id}
                 type="button"
-                onClick={() => setSection(id)}
+                onClick={() => goSection(id)}
                 className="rounded-lg border border-slate-800 bg-slate-900/40 px-4 py-3 text-left text-sm text-slate-300 hover:border-amber-500/40 hover:text-amber-200 transition-colors"
               >
                 {label}
