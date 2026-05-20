@@ -7,6 +7,7 @@ import { AboutPage } from './pages/AboutPage'
 import { ContactPage } from './pages/ContactPage'
 import { PoliciesPage } from './pages/PoliciesPage'
 import { ThankYouPage } from './pages/ThankYouPage'
+import { MojourneyPage } from './pages/MojourneyPage'
 
 export default function App() {
   return (
@@ -20,6 +21,7 @@ export default function App() {
         <Route path="/policies" element={<PoliciesPage />} />
       </Route>
       <Route path="/thank-you" element={<ThankYouPage />} />
+      <Route path="/mojourney" element={<MojourneyPage />} />
     </Routes>
   )
 }

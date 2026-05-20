@@ -1,4 +1,5 @@
-/** Kuwait governorates — standard COD delivery addressing. */
+/** Kuwait governorates for delivery addressing. */
+
 export const KUWAIT_GOVERNORATES = [
   'العاصمة',
   'حولي',

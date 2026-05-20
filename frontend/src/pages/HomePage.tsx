@@ -1,14 +1,13 @@
 import { Link } from 'react-router-dom'
 import { ProductCard } from '../components/ProductCard'
 import { ProductImage } from '../components/ProductImage'
-import { PRODUCTS } from '../data/products'
-import { ReviewCard } from '../components/ReviewCard'
+import { ENTRY_BUNDLE_PRICE_USD, PRODUCTS } from '../data/products'
+import { ReviewsSection } from '../components/ReviewsSection'
 import { PaymentMethods } from '../components/PaymentMethods'
 import { TrustProcess } from '../components/TrustProcess'
 import { TrustHighlights } from '../components/TrustHighlights'
 import { RatingSummary } from '../components/RatingSummary'
 import { FAQ } from '../components/FAQ'
-import { REVIEWS } from '../data/socialProof'
 import { useScarcity } from '../hooks/useScarcity'
 import { InventoryNote } from '../components/InventoryNote'
 import { BusinessTrust } from '../components/BusinessTrust'
@@ -18,17 +17,17 @@ import { IMAGES } from '../data/images'
 const PAIN_POINTS = [
   {
     t: 'الدورة',
-    d: 'مغص يوقفج عن الشغل — حزام حرارة لاسلكي (USB) على البطن أول يومين',
+    d: 'مغص يخليج تلغين خططك. حزام حرارة من أول يومين يفرق.',
     img: IMAGES.pain.cycle,
   },
   {
     t: 'الظهر',
-    d: 'التكييف والقيادة — ممدد ظهر بثلاث مستويات (بدون كهرباء)',
+    d: 'تكييف الشغل والقيادة. ممدد ظهر بثلاث مستويات يفك الضغط بعد الدوام.',
     img: IMAGES.pain.back,
   },
   {
     t: 'الرقبة',
-    d: 'التلفون والحجاب — مدلك رقبة لاصق بنبضات قبل النوم',
+    d: 'تلفون وحجاب. مدلك لاصق قبل النوم يريح الرقبة والنوم.',
     img: IMAGES.pain.neck,
   },
 ]
@@ -41,13 +40,13 @@ export function HomePage() {
       <section className="section bg-white border-b border-surface-border">
         <div className="container-narrow grid md:grid-cols-2 gap-10 items-center">
           <div>
-            <p className="section-label">نفس · الكويت · COD</p>
+            <p className="section-label">نفس، الكويت، ادفعي عند الباب</p>
             <h1 className="font-display text-4xl md:text-[2.75rem] font-bold leading-tight text-ink">
-              خذي نفس… من غير ما تتحملين الألم بصمت
+              ألم تعرفينه. راحة تلحقين فيها على شهرج.
             </h1>
             <p className="mt-4 text-lg text-surface-muted leading-relaxed">
-              بوكس واحد فيه حرارة وتدليك لثلاث مناطق — توصيل كويت، دفع عند الباب، وتأكيد هاتفي قبل
-              الشحن
+              بوكس واحد فيه حرارة وتدليك لثلاث مناطق. توصيل داخل الكويت، ادفعي عند الباب بعد ما تشوفين
+              الطرد، ونتصل قبل الشحن.
             </p>
             <div className="mt-5">
               <RatingSummary />
@@ -56,7 +55,7 @@ export function HomePage() {
               <TrustHighlights />
             </div>
             <Link to="/collection" className="btn-primary inline-block mt-6 text-lg">
-              اختاري باقتج — من {usdToKwd(49).toFixed(1)} د.ك
+              اختاري باقتج، من {usdToKwd(ENTRY_BUNDLE_PRICE_USD).toFixed(1)} د.ك
             </Link>
             <div className="mt-5 pt-5 border-t border-surface-border">
               <PaymentMethods variant="compact" />
@@ -92,39 +91,21 @@ export function HomePage() {
         <BusinessTrust />
       </section>
 
-      <section className="section bg-cream">
-        <div className="container-narrow">
-          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-8">
-            <div>
-              <p className="section-label">آراء العملاء</p>
-              <h2 className="section-title">تجارب من الكويت</h2>
-              <p className="text-sm text-surface-muted mt-2">
-                صور المنتج والاستخدام — مو صور موديل
-              </p>
-            </div>
-            <RatingSummary />
-          </div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {REVIEWS.map((r) => (
-              <ReviewCard key={r.id} review={r} />
-            ))}
-          </div>
-        </div>
-      </section>
+      <ReviewsSection page="home" />
 
       <section className="section bg-white border-y border-surface-border">
         <div className="container-narrow text-center max-w-2xl mx-auto">
           <p className="section-label">الفرق</p>
-          <h2 className="section-title">نظام واحد — مو قطعة وحدة</h2>
+          <h2 className="section-title">نظام واحد، مو قطعة وحدة</h2>
           <p className="mt-4 text-surface-muted leading-relaxed">
-            حزام حرارة لاسلكي + ممدد ظهر + مدلك رقبة لاصق في بوكس واحد — ثلاث قطع مختلفة، نظام واحد.
+            حزام حرارة لاسلكي + ممدد ظهر + مدلك رقبة لاصق في بوكس واحد، ثلاث قطع مختلفة، نظام واحد.
           </p>
           <ul className="mt-6 text-sm text-left inline-block space-y-2 text-surface-muted">
             <li className="flex gap-2">
               <span className="text-trust-green">✓</span> استبدال 7 أيام عند وجود عيب
             </li>
             <li className="flex gap-2">
-              <span className="text-trust-green">✓</span> ليس علاجاً طبياً — راحة منزلية فقط
+              <span className="text-trust-green">✓</span> ليس علاجاً طبياً، راحة منزلية فقط
             </li>
             <li className="flex gap-2">
               <span className="text-trust-green">✓</span> تأكيد هاتفي قبل الشحن
@@ -162,21 +143,21 @@ export function HomePage() {
                 <tr className="border-b border-surface-border">
                   <td className="py-3 px-4">مناطق الألم</td>
                   <td className="text-center py-3">1</td>
-                  <td className="text-center py-3 font-semibold">3–4</td>
+                  <td className="text-center py-3 font-semibold">3-4</td>
                 </tr>
                 <tr className="border-b border-surface-border">
                   <td className="py-3 px-4">تأكيد هاتفي</td>
-                  <td className="text-center py-3 text-surface-muted">—</td>
+                  <td className="text-center py-3 text-surface-muted">لا</td>
                   <td className="text-center py-3 text-trust-green">✓</td>
                 </tr>
                 <tr className="border-b border-surface-border">
-                  <td className="py-3 px-4">COD مخصص</td>
-                  <td className="text-center py-3 text-surface-muted">—</td>
+                  <td className="py-3 px-4">ادفعي عند الباب (مخصص)</td>
+                  <td className="text-center py-3 text-surface-muted">لا</td>
                   <td className="text-center py-3 text-trust-green">✓</td>
                 </tr>
                 <tr>
                   <td className="py-3 px-4">بوكس هدية</td>
-                  <td className="text-center py-3 text-surface-muted">—</td>
+                  <td className="text-center py-3 text-surface-muted">لا</td>
                   <td className="text-center py-3 text-trust-green">✓</td>
                 </tr>
               </tbody>
@@ -190,9 +171,9 @@ export function HomePage() {
       <section className="container-narrow pb-20 text-center">
         <PaymentMethods variant="row" showCaption />
         <Link to="/collection" className="btn-primary text-base px-10 mt-8 inline-block">
-          ابدئي الآن — من {usdToKwd(49).toFixed(1)} د.ك
+          ابدئي الآن، من {usdToKwd(ENTRY_BUNDLE_PRICE_USD).toFixed(1)} د.ك
         </Link>
-        <p className="text-xs text-surface-muted mt-3">دفع عند الاستلام فقط · الكويت</p>
+        <p className="text-xs text-surface-muted mt-3">ادفعي عند الباب فقط، داخل الكويت</p>
       </section>
     </>
   )

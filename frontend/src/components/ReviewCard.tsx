@@ -1,44 +1,31 @@
 import { Stars } from './Stars'
 import type { Review } from '../data/socialProof'
 
+/** RTL list style: text + stars on the left, portrait on the right. */
 export function ReviewCard({ review }: { review: Review }) {
   return (
-    <article className="card overflow-hidden flex flex-col">
-      <div className="relative aspect-[16/10] bg-cream">
+    <article className="card flex flex-row items-stretch gap-4 p-4 md:p-5">
+      {/* RTL: first column = right side = customer photo */}
+      <div className="shrink-0 order-1">
         <img
-          src={review.photo}
-          alt={review.photoCaption}
-          className="absolute inset-0 w-full h-full object-cover"
+          src={review.avatar}
+          alt={review.name}
+          width={80}
+          height={80}
+          className="w-16 h-16 md:w-20 md:h-20 rounded-full object-cover object-[center_20%] border-2 border-white shadow-sm ring-1 ring-surface-border/80"
           loading="lazy"
+          decoding="async"
         />
-        <span className="absolute bottom-2 right-2 text-[10px] bg-ink/70 text-white px-2 py-0.5 rounded">
-          {review.photoCaption}
-        </span>
       </div>
-      <div className="p-5 flex flex-col flex-1">
-        <div className="flex gap-3">
-          <div
-            className="w-9 h-9 rounded-full bg-rose-light text-rose-brand flex items-center justify-center text-xs font-semibold shrink-0"
-            aria-hidden
-          >
-            {review.initials}
-          </div>
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="font-semibold text-sm text-ink">{review.name}</span>
-              <span className="text-[10px] text-trust-green font-medium border border-trust-green/20 bg-trust-green/5 px-1.5 py-0.5 rounded">
-                عميلة · {review.area}
-              </span>
-            </div>
-            <p className="text-[11px] text-surface-muted mt-0.5">
-              {review.date} · {review.product}
-            </p>
-          </div>
-        </div>
-        <div className="mt-3 pt-3 border-t border-surface-border">
-          <Stars count={review.rating} />
-          <p className="mt-2 text-sm text-ink/85 leading-relaxed">{review.text}</p>
-        </div>
+
+      {/* RTL: second column = left side = review content */}
+      <div className="flex-1 min-w-0 order-2 flex flex-col justify-center text-right">
+        <Stars count={review.rating} />
+        <p className="mt-2 text-sm text-ink/90 leading-relaxed">{review.text}</p>
+        <p className="mt-3 text-xs font-semibold text-ink">{review.name}</p>
+        <p className="text-[11px] text-surface-muted mt-0.5">
+          عميلة، {review.area} · {review.date} · {review.product}
+        </p>
       </div>
     </article>
   )

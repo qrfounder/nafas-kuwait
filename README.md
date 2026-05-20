@@ -10,6 +10,16 @@ Khaleeji women's pain-relief bundles. COD-only checkout. TikTok/Snap ads → **n
 | `backend/` | FastAPI + PostgreSQL (`nafas_kw`) |
 | `sheets/` | Google Apps Script + CSV template for orders |
 
+## Mojourney admin (`/mojourney`)
+
+Internal dashboard: orders, product URLs, UTM builder, pixel checklist.
+
+**Sign-in (default):** username `admin`, password `Huhu*201` — defined in `backend/app/config.py` and **overridable** with env `MOJOURNEY_ADMIN_USER` / `MOJOURNEY_ADMIN_PASSWORD`. Change the password before production.
+
+After login, the API issues a **session token** (12h, in-memory on the server) sent as `X-Admin-Key`. Optional legacy: set **`ADMIN_API_KEY`** only (no password) to use a single long key in the UI instead.
+
+`GET /api/admin/ping` — no auth. `POST /api/admin/login` — JSON `{ "username", "password" }`. `POST /api/admin/logout` — clears server session when you send the current `X-Admin-Key`.
+
 ## Quick start (local)
 
 ```bash

@@ -1,41 +1,57 @@
-const METHODS = [
-  { src: '/payments/cod.svg', alt: 'دفع عند الاستلام', label: 'COD' },
-  { src: '/payments/knet.svg', alt: 'KNET', label: 'KNET' },
-  { src: '/payments/kuwait-delivery.svg', alt: 'توصيل الكويت', label: 'توصيل' },
-  { src: '/payments/phone-confirm.svg', alt: 'تأكيد هاتفي', label: 'تأكيد' },
-]
+import {
+  PAYMENT_METHODS,
+  PAYMENT_METHODS_COMPACT,
+  type PaymentMethod,
+} from '../data/paymentMethods'
 
 type Props = {
   variant?: 'row' | 'compact' | 'footer'
   showCaption?: boolean
 }
 
+/** Standard e-commerce badge size (Shopify payment_icons ratio). */
+const BADGE_W = 46
+const BADGE_H = 30
+
+function PaymentBadge({ method }: { method: PaymentMethod }) {
+  return (
+    <img
+      src={method.src}
+      alt={method.alt}
+      width={BADGE_W}
+      height={BADGE_H}
+      className="h-full w-full object-contain object-center p-0.5"
+      loading="lazy"
+      decoding="async"
+    />
+  )
+}
+
 export function PaymentMethods({ variant = 'row', showCaption = false }: Props) {
-  const imgClass =
-    variant === 'compact' ? 'h-7 w-auto' : variant === 'footer' ? 'h-6 w-auto' : 'h-8 w-auto'
+  const methods = variant === 'row' ? PAYMENT_METHODS : PAYMENT_METHODS_COMPACT
+  const gap = variant === 'footer' ? 'gap-2' : 'gap-2.5'
 
   return (
     <div className={variant === 'row' ? 'w-full' : ''}>
-      {showCaption && variant === 'row' && (
+      {showCaption && (
         <p className="text-xs text-surface-muted text-center mb-3">
-          الدفع عند الاستلام · KNET مع المندوب · بدون بطاقة أونلاين
+          ادفعي عند الباب. كاش أو KNET مع المندوب. فيزا وماستركارد عند التسليم إذا متوفرة
         </p>
       )}
       <div
-        className={`flex flex-wrap items-center justify-center gap-2 ${
-          variant === 'footer' ? 'opacity-90' : ''
-        }`}
+        className={`flex flex-wrap items-center justify-center ${gap}`}
+        role="list"
+        aria-label="طرق الدفع المقبولة"
       >
-        {METHODS.map((m) => (
-          <img
-            key={m.label}
-            src={m.src}
-            alt={m.alt}
-            className={imgClass}
-            loading="lazy"
-            width={88}
-            height={32}
-          />
+        {methods.map((m) => (
+          <span
+            key={m.id}
+            role="listitem"
+            className="inline-flex items-center justify-center rounded-md overflow-hidden bg-white border border-black/[0.08] shadow-[0_1px_2px_rgba(0,0,0,0.06)]"
+            style={{ width: BADGE_W, height: BADGE_H, minWidth: BADGE_W, minHeight: BADGE_H }}
+          >
+            <PaymentBadge method={m} />
+          </span>
         ))}
       </div>
     </div>

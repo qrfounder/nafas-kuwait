@@ -1,4 +1,5 @@
 import { FormEvent, useState } from 'react'
+import { Logo } from '../components/Logo'
 import { submitContact } from '../lib/api'
 
 export function ContactPage() {
@@ -17,16 +18,19 @@ export function ContactPage() {
       })
       setSent(true)
     } catch {
-      setError('ما قدرنا نرسل — جربي واتساب')
+      setError('ما قدرنا نرسل، حاولي مرة ثانية أو اتصلي بعد التأكيد على طلبج')
     }
   }
 
   return (
     <div className="container-narrow max-w-lg py-12">
+      <div className="flex justify-start mb-4">
+        <Logo compact />
+      </div>
       <p className="section-label">تواصل</p>
       <h1 className="section-title mb-6">تواصلي معنا</h1>
       {sent ? (
-        <p className="text-trust-green font-medium">وصلتنا رسالتج — بنرد عليج قريب إن شاء الله</p>
+        <p className="text-trust-green font-medium">وصلتنا رسالتج، بنرد عليج قريب إن شاء الله</p>
       ) : (
         <form onSubmit={onSubmit} className="space-y-4 card p-6">
           <input
@@ -61,7 +65,9 @@ export function ContactPage() {
           </button>
         </form>
       )}
-      <p className="mt-8 text-sm text-surface-muted text-center">أو واتساب: +965 XXXX XXXX (حدّثي الرقم)</p>
+      <p className="mt-8 text-sm text-surface-muted text-center">
+        للطلبات الجديدة، الأفضل تكملين من صفحة المنتج. هالنموذج للاستفسار بعد الطلب.
+      </p>
     </div>
   )
 }

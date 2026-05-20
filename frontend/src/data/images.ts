@@ -1,18 +1,18 @@
-/** Product imagery — real SKUs in /public/products; bundles use lifestyle fallbacks */
-
-const u = (id: string, w = 800) =>
-  `https://images.unsplash.com/${id}?auto=format&fit=crop&w=${w}&q=80`
+/** Product imagery: catalog PNGs + emotional heroes for marketing */
 
 const local = (path: string) => `/products/${path}`
+const emotional = (path: string) => `/products/emotional/${path}`
+const reviewFace = (name: string) => `/reviews/review-${name}.webp`
 
 export const IMAGES = {
-  hero: local('period-belt.png'),
-  heroAlt: local('lumbar.png'),
+  /** Homepage hero — 3-piece system, before/after mood */
+  hero: emotional('home/hero.png'),
+  heroAlt: emotional('home/pain-back.png'),
 
   products: {
-    'cycle-relief': local('period-belt.png'),
-    'body-relief': local('head-massager-lifestyle.png'),
-    'mother-gift': local('knee-sleeves.png'),
+    'cycle-relief': emotional('cycle-relief/hero.png'),
+    'body-relief': emotional('body-relief/hero.png'),
+    'mother-gift': emotional('mother-gift/hero.png'),
   } as Record<string, string>,
 
   skus: {
@@ -21,22 +21,32 @@ export const IMAGES = {
     neck: local('neck.png'),
     'head-massager': local('head-massager.png'),
     'knee-sleeves': local('knee-sleeves.png'),
-    'gift-box': u('photo-1513885535751-8b923fbd345f', 600),
+    'gift-box': local('gift-box.png'),
   } as Record<string, string>,
 
+  /** Homepage «تعرفين هالألم؟» cards */
   pain: {
-    cycle: local('period-belt.png'),
-    back: local('lumbar.png'),
-    neck: local('neck.png'),
+    cycle: emotional('home/pain-cycle.png'),
+    back: emotional('home/pain-back.png'),
+    neck: emotional('home/pain-neck.png'),
   },
 
-  reviews: {
-    heat: local('period-belt.png'),
-    gift: local('knee-sleeves-box.png'),
-    box: u('photo-1584308663914-8258c762c90d', 500),
-    massage: local('neck.png'),
-    cod: u('photo-1586528116311-ad8dd3c8310d', 500),
-    family: local('period-belt-lifestyle.png'),
+  /** Kuwait customer portraits — one unique face per review (WebP 200px). */
+  reviewFaces: {
+    sara: reviewFace('sara'),
+    fatima: reviewFace('fatima'),
+    noura: reviewFace('noura'),
+    mariam: reviewFace('mariam'),
+    haya: reviewFace('haya'),
+    dalal: reviewFace('dalal'),
+    reem: reviewFace('reem'),
+    lulu: reviewFace('lulu'),
+    shaikha: reviewFace('shaikha'),
+    amal: reviewFace('amal'),
+    moudi: reviewFace('moudi'),
+    aisha: reviewFace('aisha'),
+    mona: reviewFace('mona'),
+    zainab: reviewFace('zainab'),
   },
 }
 
@@ -46,4 +56,9 @@ export function productImage(slug: string): string {
 
 export function skuImage(sku: string): string {
   return IMAGES.skus[sku] ?? IMAGES.hero
+}
+
+/** Emotional showcase: product centered on before/after mood background. */
+export function skuShowcaseImage(sku: string): string {
+  return `/products/emotional/sku/${sku}-showcase.png`
 }

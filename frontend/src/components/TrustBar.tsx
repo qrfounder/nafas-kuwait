@@ -1,7 +1,7 @@
 export function TrustBar() {
   const items = [
-    { label: 'دفع عند الاستلام', sub: 'بدون بطاقة' },
-    { label: 'توصيل الكويت', sub: '24–48 ساعة' },
+    { label: 'ادفعي عند الباب', sub: 'بدون بطاقة' },
+    { label: 'توصيل الكويت', sub: 'غالباً ١–٧ أيام' },
     { label: 'تأكيد هاتفي', sub: 'قبل الشحن' },
   ]
 
@@ -13,7 +13,7 @@ export function TrustBar() {
             <span className="w-1 h-1 rounded-full bg-trust-green shrink-0" aria-hidden />
             <span>
               <span className="font-semibold text-ink">{item.label}</span>
-              <span className="hidden sm:inline text-surface-muted"> · {item.sub}</span>
+              <span className="hidden sm:inline text-surface-muted">، {item.sub}</span>
             </span>
           </span>
         ))}

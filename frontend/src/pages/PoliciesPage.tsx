@@ -1,17 +1,18 @@
 import { Link } from 'react-router-dom'
+import { Logo } from '../components/Logo'
 
 const sections = [
   {
     title: 'الشحن والتوصيل',
-    body: 'نوصّل داخل الكويت خلال 24–48 ساعة لمعظم المناطق بعد تأكيد الطلب هاتفياً. عنوان التوصيل يُؤكَّد عند الطلب وعند المكالمة.',
+    body: 'نوصّل داخل الكويت. عنوان التوصيل يُؤكَّد بالمكالمة. غالباً يستغرق وصول الطرد بين يوم وسبعة أيام بعد التأكيد، حسب المنطقة والمندوب.',
   },
   {
     title: 'الدفع',
-    body: 'الدفع عند الاستلام فقط (COD). لا نطلب بطاقة ائتمان أونلاين. يمكن الدفع كاش أو KNET حسب إمكانية مندوب التوصيل.',
+    body: 'ادفعي عند الباب فقط. ما نطلب بطاقة أونلاين. تقدرين تدفعين كاش أو KNET مع المندوب حسب المتاح.',
   },
   {
     title: 'الاستبدال',
-    body: 'إذا وصل المنتج معيباً، تواصلي معنا خلال 7 أيام من الاستلام عبر واتساب أو صفحة التواصل — نرتب الاستبدال.',
+    body: 'إذا وصل المنتج معيباً، تواصلي معنا خلال 7 أيام من الاستلام عبر صفحة التواصل، نرتب الاستبدال.',
   },
   {
     title: 'إخلاء مسؤولية',
@@ -26,6 +27,9 @@ const sections = [
 export function PoliciesPage() {
   return (
     <div className="container-narrow py-12 max-w-2xl">
+      <div className="flex justify-start mb-4">
+        <Logo compact />
+      </div>
       <p className="section-label">السياسات</p>
       <h1 className="font-display text-3xl font-bold text-ink mb-8">سياسات المتجر</h1>
       <div className="space-y-8">

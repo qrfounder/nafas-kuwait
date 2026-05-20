@@ -4,7 +4,6 @@ import { Footer } from './Footer'
 import { CartDrawer } from './CartDrawer'
 import { CheckoutModal } from './CheckoutModal'
 import { PostCheckoutUpsell } from './PostCheckoutUpsell'
-import { WhatsAppButton } from './WhatsAppButton'
 import { useState } from 'react'
 
 export function Layout() {
@@ -37,7 +36,6 @@ export function Layout() {
           onDone={() => setUpsellState(null)}
         />
       )}
-      <WhatsAppButton />
     </div>
   )
 }

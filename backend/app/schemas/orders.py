@@ -12,10 +12,10 @@ class CartLineIn(BaseModel):
 class CreateOrderIn(BaseModel):
     customer_name: str = Field(min_length=2, max_length=200)
     customer_phone: str
-    governorate: str = Field(min_length=2, max_length=64)
-    area: str = Field(min_length=2, max_length=128)
-    block: str = Field(min_length=1, max_length=32)
-    street: str = Field(min_length=2, max_length=128)
+    governorate: str = Field(default="بانتظار التأكيد الهاتفي", max_length=64)
+    area: str = Field(default="بانتظار التأكيد الهاتفي", max_length=128)
+    block: str = Field(default="-", max_length=32)
+    street: str = Field(default="بانتظار التأكيد الهاتفي", max_length=128)
     building: str | None = Field(default=None, max_length=64)
     delivery_notes: str | None = Field(default=None, max_length=500)
     product_slug: str

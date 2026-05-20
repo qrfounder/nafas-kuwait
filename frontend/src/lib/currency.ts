@@ -1,4 +1,4 @@
-/** USD list prices → KWD display (Kuwait COD stores show د.ك first). */
+/** Internal list units × USD_TO_KWD → د.ك display (Kuwait COD). Keep in sync with `data/products.ts`. */
 export const USD_TO_KWD = 0.31
 
 export function usdToKwd(usd: number): number {

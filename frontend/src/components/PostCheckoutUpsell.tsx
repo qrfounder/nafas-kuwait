@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react'
 import { acceptUpsell } from '../lib/api'
 import { getLastEventId, trackPurchase } from '../lib/analytics'
+import { formatKwd } from '../lib/currency'
 import { useNavigate } from 'react-router-dom'
+import { Logo } from './Logo'
 
 type Upsell = { sku: string; title_ar: string; anchor: number; price: number }
 
@@ -59,11 +61,14 @@ export function PostCheckoutUpsell({
   return (
     <div className="fixed inset-0 z-[80] bg-ink/80 flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl max-w-lg w-full p-8 text-center">
-        <p className="text-gold-accent font-bold mb-2">عرض حصري — ينتهي خلال {seconds} ثانية</p>
+        <div className="flex justify-center mb-5">
+          <Logo compact />
+        </div>
+        <p className="text-gold-accent font-bold mb-2">إضافة اختيارية مع طلبج ({seconds} ث)</p>
         <h3 className="font-display text-2xl font-bold mb-4">{upsell.title_ar}</h3>
-        <p className="text-ink/50 line-through text-lg">${upsell.anchor}</p>
-        <p className="text-4xl font-bold text-rose-brand my-2">${upsell.price}</p>
-        <p className="text-sm text-ink/70 mb-6">خصم 50% — بس مع هالطلب، ما راح يتكرر</p>
+        <p className="text-ink/50 line-through text-lg">{formatKwd(upsell.anchor)}</p>
+        <p className="text-4xl font-bold text-rose-brand my-2">{formatKwd(upsell.price)}</p>
+        <p className="text-sm text-ink/70 mb-6">سعر خاص مع هالطلب فقط. تقدرين تتخطين بدون ما يتأخر الشحن.</p>
         <div className="flex flex-col gap-3">
           <button type="button" disabled={loading} onClick={accept} className="btn-primary w-full">
             نعم أضيفيه لطلبي

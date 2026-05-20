@@ -14,6 +14,11 @@ class Settings(BaseSettings):
     snap_capi_token: str = ""
     frontend_origin: str = "http://localhost:5173"
     api_public_url: str = "http://localhost:8000"
+    # Mojourney: optional legacy API header (scripts); browser uses login + session.
+    admin_api_key: str = ""
+    mojourney_admin_user: str = "admin"
+    # Override in production via MOJOURNEY_ADMIN_PASSWORD in .env
+    mojourney_admin_password: str = "Huhu*201"
 
 
 settings = Settings()

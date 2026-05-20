@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react'
 import { useCart } from '../context/CartContext'
-import { CROSS_SELLS } from '../data/products'
+import { BundleContents } from './BundleContents'
+import { CROSS_SELLS, singlesInBundle, SKU_LABELS } from '../data/products'
+import { skuImage } from '../data/images'
 import { formatKwd } from '../lib/currency'
 import { trackInitiateCheckout } from '../lib/analytics'
 
@@ -9,23 +10,28 @@ export function CartDrawer() {
     cartOpen,
     setCartOpen,
     setCheckoutOpen,
+    product,
+    tier,
+    singleSku,
+    singleQty,
+    purchaseMode,
     lines,
     subtotal,
     crossSells,
     toggleCrossSell,
   } = useCart()
-  const [timer, setTimer] = useState(600)
-
-  useEffect(() => {
-    if (!cartOpen) return
-    const id = setInterval(() => setTimer((t) => (t > 0 ? t - 1 : 0)), 1000)
-    return () => clearInterval(id)
-  }, [cartOpen])
 
   if (!cartOpen) return null
 
-  const mins = Math.floor(timer / 60)
-  const secs = timer % 60
+  const bundleExtras =
+    product && purchaseMode === 'bundle'
+      ? CROSS_SELLS.filter((c) => !product.includes.includes(c.sku))
+      : []
+
+  const singleExtras =
+    product && purchaseMode === 'single' && singleSku
+      ? singlesInBundle(product).filter((s) => s.sku !== singleSku)
+      : []
 
   return (
     <>
@@ -37,25 +43,40 @@ export function CartDrawer() {
             ×
           </button>
         </div>
-        <p className="px-4 py-2 text-sm bg-gold-accent/20 text-ink">
-          ⏱ السلة محجوزة: {String(mins).padStart(2, '0')}:{String(secs).padStart(2, '0')}
+        <p className="px-4 py-2 text-sm bg-cream border-b border-surface-border text-surface-muted">
+          تقدرين تكملين الطلب الآن أو ترجعين لاحقاً. ادفعي عند الباب بعد ما تشوفين الطرد.
         </p>
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
           {lines.length === 0 ? (
-            <p className="text-center text-ink/60 py-8">السلة فاضية — اختاري باقتج من المنتج</p>
+            <p className="text-center text-ink/60 py-8">السلة فاضية، اختاري باقتج من المنتج</p>
           ) : (
-            lines.map((l) => (
-              <div key={l.sku + l.line_type} className="flex justify-between gap-2 border-b pb-3">
-                <span className="text-sm font-medium">{l.title_ar}</span>
-                <span className="font-bold text-rose-brand">{formatKwd(l.price_usd)}</span>
-              </div>
-            ))
+            <>
+              {product && purchaseMode === 'bundle' && tier && (
+                <BundleContents includes={product.includes} boxCount={tier.tier} layout="buy-panel" />
+              )}
+              {product && purchaseMode === 'single' && singleSku && (
+                <>
+                  <BundleContents includes={[singleSku]} boxCount={1} layout="buy-panel" />
+                  {singleQty > 1 && (
+                    <p className="text-xs text-rose-brand/90 font-medium text-center -mt-2 mb-1">
+                      الكمية في الطلب: {singleQty === 2 ? '٢' : '٣'} قطع من نفس المنتج
+                    </p>
+                  )}
+                </>
+              )}
+              {lines.map((l) => (
+                <div key={l.sku + l.line_type} className="flex justify-between gap-2 border-b pb-3">
+                  <span className="text-sm font-medium">{l.title_ar}</span>
+                  <span className="font-bold text-rose-brand">{formatKwd(l.price_usd)}</span>
+                </div>
+              ))}
+            </>
           )}
-          {lines.length > 0 && (
+          {bundleExtras.length > 0 && (
             <div className="pt-4">
               <p className="font-semibold mb-3 text-sm">أضيفي مع طلبج (اختياري):</p>
               <div className="space-y-2">
-                {CROSS_SELLS.map((c) => (
+                {bundleExtras.map((c) => (
                   <label
                     key={c.sku}
                     className="flex items-center gap-3 p-3 rounded-xl border border-rose-brand/20 cursor-pointer hover:bg-white"
@@ -65,6 +86,38 @@ export function CartDrawer() {
                       checked={!!crossSells[c.sku]}
                       onChange={() => toggleCrossSell(c.sku)}
                       className="w-5 h-5 accent-rose-brand"
+                    />
+                    <img
+                      src={skuImage(c.sku)}
+                      alt={SKU_LABELS[c.sku] ?? c.title_ar}
+                      className="w-12 h-12 object-contain shrink-0 rounded-lg border border-surface-border bg-cream p-0.5"
+                    />
+                    <span className="flex-1 text-sm">{c.title_ar}</span>
+                    <span className="text-rose-brand font-bold">+{formatKwd(c.price)}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+          )}
+          {singleExtras.length > 0 && (
+            <div className="pt-4">
+              <p className="font-semibold mb-3 text-sm">تكميل اختياري (قطعة إضافية):</p>
+              <div className="space-y-2">
+                {singleExtras.map((c) => (
+                  <label
+                    key={c.sku}
+                    className="flex items-center gap-3 p-3 rounded-xl border border-rose-brand/20 cursor-pointer hover:bg-white"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={!!crossSells[c.sku]}
+                      onChange={() => toggleCrossSell(c.sku)}
+                      className="w-5 h-5 accent-rose-brand"
+                    />
+                    <img
+                      src={skuImage(c.sku)}
+                      alt={SKU_LABELS[c.sku] ?? c.title_ar}
+                      className="w-12 h-12 object-contain shrink-0 rounded-lg border border-surface-border bg-cream p-0.5"
                     />
                     <span className="flex-1 text-sm">{c.title_ar}</span>
                     <span className="text-rose-brand font-bold">+{formatKwd(c.price)}</span>
@@ -89,7 +142,7 @@ export function CartDrawer() {
               setCheckoutOpen(true)
             }}
           >
-            إتمام الطلب — دفع عند الاستلام
+            إتمام الطلب، ادفعي عند الباب
           </button>
         </div>
       </aside>

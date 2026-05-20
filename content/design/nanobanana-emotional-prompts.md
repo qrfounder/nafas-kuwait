@@ -4,10 +4,16 @@ Generate **2K**, aspect **4:3** (hero, before, after, unboxing) or **21:9** (tra
 
 **Brand:** Nafas (نفس) · rose `#8B3A52` · cream `#F7F5F2` · gold accent · soft luxury wellness · Kuwait home aesthetic · modest Khaleeji woman (hijab optional) · **no text in image** · no medical claims · cinematic editorial.
 
+**Hero rule (required):** Split before/after emotional background (cool pain left, warm relief right). **Real product large in center (50–60% of frame)** on white/cream card, sharp focus. Product from `frontend/public/products/` reference. Background is mood only, not a second product photo.
+
+**pain-before / pain-after (required):** Full cinematic lifestyle scenes (woman + environment + light), not flat color gradients. Same modest Khaleeji casting vibe as hero; **no text**; 4:3; export to paths below. The repo script `scripts/build_emotional_heroes.py` **does not** overwrite existing `pain-before.png` / `pain-after.png` (use `--force-mood-panels` only for emergency placeholders).
+
 **Output paths** (save exactly):
 
 ```
 frontend/public/products/emotional/{bundle}/{scene}.png
+frontend/public/products/emotional/home/hero.png
+frontend/public/products/emotional/home/pain-{cycle,back,neck}.png
 ```
 
 | Bundle slug | Scenes |

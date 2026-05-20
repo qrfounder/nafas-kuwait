@@ -53,7 +53,7 @@ export function EmotionalImage({
           const img = ev.currentTarget
           if (!img.dataset.fallback) {
             img.dataset.fallback = '1'
-            img.src = '/products/period-belt.png'
+            img.src = '/products/emotional/home/hero.png'
           }
         }}
       />
