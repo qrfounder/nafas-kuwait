@@ -1,5 +1,6 @@
 import { useCart } from '../context/CartContext'
 import { BundleContents } from './BundleContents'
+import { AD_LANDING_SLUG } from '../data/adLanding'
 import { CROSS_SELLS, singlesInBundle, SKU_LABELS } from '../data/products'
 import { skuImage } from '../data/images'
 import { formatKwd } from '../lib/currency'
@@ -22,6 +23,8 @@ export function CartDrawer() {
   } = useCart()
 
   if (!cartOpen) return null
+
+  const adLanding = product?.slug === AD_LANDING_SLUG
 
   const bundleExtras =
     product && purchaseMode === 'bundle'
@@ -52,11 +55,16 @@ export function CartDrawer() {
           ) : (
             <>
               {product && purchaseMode === 'bundle' && tier && (
-                <BundleContents includes={product.includes} boxCount={tier.tier} layout="buy-panel" />
+                <BundleContents
+                  includes={product.includes}
+                  boxCount={tier.tier}
+                  layout="buy-panel"
+                  textOnly={adLanding}
+                />
               )}
               {product && purchaseMode === 'single' && singleSku && (
                 <>
-                  <BundleContents includes={[singleSku]} boxCount={1} layout="buy-panel" />
+                  <BundleContents includes={[singleSku]} boxCount={1} layout="buy-panel" textOnly={adLanding} />
                   {singleQty > 1 && (
                     <p className="text-xs text-rose-brand/90 font-medium text-center -mt-2 mb-1">
                       الكمية في الطلب: {singleQty === 2 ? '٢' : '٣'} قطع من نفس المنتج
@@ -87,11 +95,13 @@ export function CartDrawer() {
                       onChange={() => toggleCrossSell(c.sku)}
                       className="w-5 h-5 accent-rose-brand"
                     />
-                    <img
-                      src={skuImage(c.sku)}
-                      alt={SKU_LABELS[c.sku] ?? c.title_ar}
-                      className="w-12 h-12 object-contain shrink-0 rounded-lg border border-surface-border bg-cream p-0.5"
-                    />
+                    {!adLanding && (
+                      <img
+                        src={skuImage(c.sku)}
+                        alt={SKU_LABELS[c.sku] ?? c.title_ar}
+                        className="w-12 h-12 object-contain shrink-0 rounded-lg border border-surface-border bg-cream p-0.5"
+                      />
+                    )}
                     <span className="flex-1 text-sm">{c.title_ar}</span>
                     <span className="text-rose-brand font-bold">+{formatKwd(c.price)}</span>
                   </label>
@@ -114,11 +124,13 @@ export function CartDrawer() {
                       onChange={() => toggleCrossSell(c.sku)}
                       className="w-5 h-5 accent-rose-brand"
                     />
-                    <img
-                      src={skuImage(c.sku)}
-                      alt={SKU_LABELS[c.sku] ?? c.title_ar}
-                      className="w-12 h-12 object-contain shrink-0 rounded-lg border border-surface-border bg-cream p-0.5"
-                    />
+                    {!adLanding && (
+                      <img
+                        src={skuImage(c.sku)}
+                        alt={SKU_LABELS[c.sku] ?? c.title_ar}
+                        className="w-12 h-12 object-contain shrink-0 rounded-lg border border-surface-border bg-cream p-0.5"
+                      />
+                    )}
                     <span className="flex-1 text-sm">{c.title_ar}</span>
                     <span className="text-rose-brand font-bold">+{formatKwd(c.price)}</span>
                   </label>

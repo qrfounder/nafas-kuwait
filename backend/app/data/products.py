@@ -1,6 +1,20 @@
 """Product catalog، pain bundles only (Nafas Kuwait). Prices mirror frontend/src/data/products.ts."""
 
 PRODUCTS = {
+    "test": {
+        "slug": "test",
+        "title_ar": "مجموعة نفس للراحة المنزلية",
+        "subtitle_ar": "أجهزة راحة منزلية — حرارة، ممدد ظهر، مدلك رقبة (ليس علاجاً طبياً)",
+        "base_price": 125,
+        "anchor_single": 177,
+        "tiers": [
+            {"tier": 1, "label_ar": "بوكس واحد", "price": 125, "anchor": 177, "badge": None},
+            {"tier": 2, "label_ar": "بوكسين", "price": 209, "anchor": 250, "badge": None},
+            {"tier": 3, "label_ar": "3 بوكسات", "price": 279, "anchor": 375, "badge": None},
+        ],
+        "includes": ["period-belt", "lumbar", "neck"],
+        "post_upsell": {"sku": "head-massager", "title_ar": "عصابة مساج الرأس الكهربائية", "anchor": 74, "price": 52},
+    },
     "cycle-relief": {
         "slug": "cycle-relief",
         "title_ar": "نظام راحة الدورة",
@@ -59,3 +73,23 @@ SKU_LABELS = {
     "knee-sleeves": "دعامة ضغط للركبة (تريكو)",
     "gift-box": "تغليف هدية فاخر",
 }
+
+SKU_HINTS = {
+    "period-belt": "لاسلكي، ٣ أوضاع حرارة واهتزاز، يشحن بالكابل",
+    "lumbar": "بلاستيك، ٣ مستويات، بدون كهرباء",
+    "neck": "لوحة لاصقة صغيرة، نبضات، مو وسادة كبيرة",
+    "head-massager": "عصابة على الجبهة، نبضات خفيفة، وضعان، يشحن بالكابل",
+    "knee-sleeves": "تريكو ضغط، حماية الرضفة، مانع انزلاق، زوج للركبتين",
+    "gift-box": "تغليف هدية جاهز",
+}
+
+SINGLE_SKU_PRICES = {
+    "period-belt": {"price": 62, "anchor": 72},
+    "lumbar": {"price": 55, "anchor": 64},
+    "neck": {"price": 60, "anchor": 69},
+    "head-massager": {"price": 64, "anchor": 74},
+    "knee-sleeves": {"price": 58, "anchor": 67},
+    "gift-box": {"price": 40, "anchor": 48},
+}
+
+DEFAULT_SKU_QUANTITY = 50

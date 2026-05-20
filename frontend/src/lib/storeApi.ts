@@ -27,11 +27,23 @@ export type StoreProduct = {
   active?: boolean
 }
 
+export type StoreSku = {
+  sku: string
+  label_ar: string
+  hint_ar: string
+  price: number
+  anchor: number
+  quantity: number
+  active: boolean
+  image_url: string
+}
+
 export type StoreBootstrap = {
   shop_url: string
   pixels: StorePixels
   redirects: StoreRedirect[]
   products: StoreProduct[]
+  skus: StoreSku[]
   macro_help: Record<string, string>
 }
 

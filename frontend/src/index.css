@@ -3,9 +3,6 @@
 @tailwind utilities;
 
 @layer base {
-  html {
-    scroll-behavior: smooth;
-  }
   body {
     @apply bg-cream text-ink font-body antialiased text-[15px] leading-relaxed;
   }

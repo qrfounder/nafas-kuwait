@@ -25,7 +25,10 @@ export function ProductCard({ product }: { product: Product }) {
         <p className="mt-4 text-2xl">
           <PriceFrom usd={product.base_price} />
         </p>
-        <Link to={`/product/${product.slug}`} className="btn-primary text-center mt-4 block">
+        <Link
+          to={`/product/${product.slug}#purchase-offer`}
+          className="btn-primary text-center mt-4 block"
+        >
           عرض الباقة والقطع
         </Link>
       </div>

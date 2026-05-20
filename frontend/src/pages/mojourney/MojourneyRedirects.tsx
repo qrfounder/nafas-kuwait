@@ -11,6 +11,7 @@ import {
 const MACROS = [
   { k: '{{shop}}', d: 'Full shop URL' },
   { k: '{{product:cycle-relief}}', d: 'Product page (change slug)' },
+  { k: '/product/test', d: 'Ad landing (before switch)' },
   { k: '/product/body-relief', d: 'Relative path' },
 ]
 

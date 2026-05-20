@@ -61,6 +61,20 @@ export function getUsageSteps(slug: string): string {
 
 export const PRODUCTS: Product[] = [
   {
+    slug: 'test',
+    title_ar: 'مجموعة نفس للراحة المنزلية',
+    subtitle_ar: 'أجهزة راحة منزلية — حرارة، ممدد ظهر، مدلك رقبة (ليس علاجاً طبياً)',
+    base_price: 125,
+    anchor_single: 177,
+    tiers: [
+      { tier: 1, label_ar: 'بوكس واحد', price: 125, anchor: 177, badge: null },
+      { tier: 2, label_ar: 'بوكسين', price: 209, anchor: 250, badge: null },
+      { tier: 3, label_ar: '3 بوكسات', price: 279, anchor: 375, badge: null },
+    ],
+    includes: ['period-belt', 'lumbar', 'neck'],
+    post_upsell: { sku: 'head-massager', title_ar: 'عصابة مساج الرأس الكهربائية', anchor: 74, price: 52 },
+  },
+  {
     slug: 'cycle-relief',
     title_ar: 'نظام راحة الدورة',
     subtitle_ar: 'الألم اللي تتحملينه بصمت كل شهر، فيه حل بالبيت',
@@ -128,20 +142,40 @@ export function sumSinglePrices(skus: string[]) {
   return skus.reduce((s, sku) => s + (SINGLE_SKU_PRICES[sku]?.price ?? 0), 0)
 }
 
-export function singlesInBundle(product: Product) {
+export type SkuCatalogEntry = {
+  sku: string
+  title_ar: string
+  hint_ar: string
+  price: number
+  anchor: number
+}
+
+export function singlesInBundle(product: Product, catalog?: Record<string, SkuCatalogEntry>) {
   return product.includes
-    .filter((sku) => SINGLE_SKU_PRICES[sku])
-    .map((sku) => ({
-      sku,
-      title_ar: SKU_LABELS[sku],
-      hint_ar: SKU_HINTS[sku],
-      ...SINGLE_SKU_PRICES[sku],
-    }))
+    .filter((sku) => catalog?.[sku] || SINGLE_SKU_PRICES[sku])
+    .map((sku) => {
+      const c = catalog?.[sku]
+      const fallback = SINGLE_SKU_PRICES[sku]
+      return {
+        sku,
+        title_ar: c?.title_ar ?? SKU_LABELS[sku],
+        hint_ar: c?.hint_ar ?? SKU_HINTS[sku] ?? '',
+        price: c?.price ?? fallback?.price ?? 0,
+        anchor: c?.anchor ?? fallback?.anchor ?? 0,
+      }
+    })
 }
 
 export function getProduct(slug: string) {
   return PRODUCTS.find((p) => p.slug === slug)
 }
 
+/** Storefront listing (excludes ad-only landing slug). */
+export function getCatalogProducts() {
+  return PRODUCTS.filter((p) => p.slug !== 'test')
+}
+
 /** Lowest bundle tier-1 price (for homepage «من … د.ك»). */
-export const ENTRY_BUNDLE_PRICE_USD = Math.min(...PRODUCTS.map((p) => p.tiers[0]?.price ?? p.base_price))
+export const ENTRY_BUNDLE_PRICE_USD = Math.min(
+  ...getCatalogProducts().map((p) => p.tiers[0]?.price ?? p.base_price),
+)

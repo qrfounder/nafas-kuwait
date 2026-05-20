@@ -8,16 +8,18 @@ import {
   type ReactNode,
 } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { PRODUCTS, type Product } from '../data/products'
-import { fetchStoreBootstrap, type StoreBootstrap, type StoreProduct } from '../lib/storeApi'
+import { getCatalogProducts, PRODUCTS, type Product } from '../data/products'
+import { fetchStoreBootstrap, type StoreBootstrap, type StoreProduct, type StoreSku } from '../lib/storeApi'
 import { initAnalyticsFromPixels } from '../lib/analytics'
 
 type StoreContextValue = {
   ready: boolean
   bootstrap: StoreBootstrap | null
   products: Product[]
+  skus: StoreSku[]
   shopUrl: string
   getProduct: (slug: string) => Product | undefined
+  getSku: (sku: string) => StoreSku | undefined
 }
 
 const StoreContext = createContext<StoreContextValue | null>(null)
@@ -83,14 +85,28 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
   const products = useMemo(() => {
     if (bootstrap?.products?.length) {
-      return bootstrap.products.map(toProduct)
+      return bootstrap.products.filter((p) => p.slug !== 'test').map(toProduct)
     }
-    return PRODUCTS
+    return getCatalogProducts()
   }, [bootstrap])
 
+  const skus = useMemo(() => bootstrap?.skus ?? [], [bootstrap])
+
+  const getSku = useCallback(
+    (sku: string) => skus.find((s) => s.sku === sku && s.active),
+    [skus],
+  )
+
   const getProduct = useCallback(
-    (slug: string) => products.find((p) => p.slug === slug),
-    [products],
+    (slug: string) => {
+      if (bootstrap?.products?.length) {
+        const hit = bootstrap.products.find((p) => p.slug === slug)
+        if (hit) return toProduct(hit)
+      }
+      const base = PRODUCTS.find((p) => p.slug === slug)
+      return base
+    },
+    [bootstrap],
   )
 
   const value = useMemo(
@@ -98,10 +114,12 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       ready,
       bootstrap,
       products,
+      skus,
       shopUrl: bootstrap?.shop_url || (typeof window !== 'undefined' ? window.location.origin : ''),
       getProduct,
+      getSku,
     }),
-    [ready, bootstrap, products, getProduct],
+    [ready, bootstrap, products, skus, getProduct, getSku],
   )
 
   return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>

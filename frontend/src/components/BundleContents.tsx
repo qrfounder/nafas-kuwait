@@ -7,6 +7,8 @@ type Props = {
   layout?: 'gallery' | 'buy-panel' | 'cards' | 'preview'
   priority?: boolean
   galleryTitle?: string
+  /** No product photos (ad landing / policy-safe checkout). */
+  textOnly?: boolean
 }
 
 function tierNote(boxCount: number) {
@@ -74,6 +76,7 @@ export function BundleContents({
   layout = 'cards',
   priority = false,
   galleryTitle,
+  textOnly = false,
 }: Props) {
   const count = includes.length
   const gridCols =
@@ -121,7 +124,9 @@ export function BundleContents({
     return (
       <div className="rounded-xl border border-surface-border bg-white p-3 space-y-2">
         <div className="flex items-baseline justify-between gap-2">
-          <p className="text-sm font-semibold text-ink">شنو يوصلج بالضبط</p>
+          <p className="text-sm font-semibold text-ink">
+            {textOnly ? 'محتويات الطلب (وصف نصي)' : 'شنو يوصلج بالضبط'}
+          </p>
           <span className="text-[10px] text-surface-muted shrink-0">
             {count} {count === 1 ? 'قطعة' : count === 2 ? 'قطعتين' : 'قطع'}
           </span>
@@ -129,8 +134,8 @@ export function BundleContents({
         {tierNote(boxCount)}
         <ul className="space-y-2.5">
           {includes.map((sku) => (
-            <li key={sku} className="flex gap-3 items-start">
-              <SkuVisual sku={sku} size="md" priority={priority} />
+            <li key={sku} className={textOnly ? 'text-sm leading-relaxed' : 'flex gap-3 items-start'}>
+              {!textOnly && <SkuVisual sku={sku} size="md" priority={priority} />}
               <div className="min-w-0 flex-1 pt-0.5">
                 <p className="text-sm font-medium text-ink leading-snug">{SKU_LABELS[sku]}</p>
                 {SKU_HINTS[sku] && (

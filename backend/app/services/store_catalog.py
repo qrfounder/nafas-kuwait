@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 from app.config import settings
 from app.data.products import PRODUCTS
 from app.models.store import ProductOverride, Redirect, StoreSettings
+from app.services.sku_catalog import list_skus_merged
 
 MACRO_HELP = {
     "{{shop}}": "رابط المتجر (مثال: https://naffas.shop)",
@@ -68,10 +69,12 @@ def merge_product(base: dict, override: ProductOverride | None) -> dict:
     return p
 
 
-def list_products_merged(db: Session) -> list[dict]:
+def list_products_merged(db: Session, *, include_ad_landing: bool = False) -> list[dict]:
     overrides = {o.slug: o for o in db.query(ProductOverride).all()}
     out: list[dict] = []
     for slug, base in PRODUCTS.items():
+        if slug == "test" and not include_ad_landing:
+            continue
         o = overrides.get(slug)
         if o and not o.active:
             continue
@@ -114,6 +117,7 @@ def bootstrap_payload(db: Session) -> dict:
             "snap": cfg.snap_pixel_id or "",
         },
         "redirects": list_redirects_resolved(db),
-        "products": list_products_merged(db),
+        "products": list_products_merged(db, include_ad_landing=False),
+        "skus": list_skus_merged(db, cfg.shop_url.rstrip("/")),
         "macro_help": MACRO_HELP,
     }

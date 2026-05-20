@@ -46,3 +46,18 @@ class AdminProductOut(BaseModel):
     has_override: bool
     post_upsell: dict | None = None
     includes: list[str] = []
+
+
+class SkuInventoryIn(BaseModel):
+    label_ar: str = Field(min_length=1, max_length=256)
+    hint_ar: str | None = Field(default=None, max_length=512)
+    price: float = Field(ge=0)
+    anchor: float = Field(ge=0)
+    quantity: int = Field(ge=0, le=99999)
+    active: bool = True
+
+
+class AdminSkuOut(SkuInventoryIn):
+    sku: str
+    image_url: str
+    has_override: bool = False

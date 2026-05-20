@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useLocation, useParams } from 'react-router-dom'
+import { scrollToSection } from '../lib/scroll'
 import {
   SINGLE_SKU_PRICES,
   singlesInBundle,
@@ -24,6 +25,7 @@ import type { ReviewPage } from '../data/socialProof'
 import { useStore } from '../context/StoreContext'
 
 export function ProductPage() {
+  const { hash } = useLocation()
   const { slug } = useParams<{ slug: string }>()
   const { getProduct } = useStore()
   const product = slug ? getProduct(slug) : undefined
@@ -47,6 +49,11 @@ export function ProductPage() {
       trackViewContent(product.slug, product.base_price)
     }
   }, [product])
+
+  useEffect(() => {
+    if (!product || !selectedTier || hash !== '#purchase-offer') return
+    scrollToSection('purchase-offer', { behavior: 'instant', maxAttempts: 8 })
+  }, [product, selectedTier, hash])
 
   if (!product || !selectedTier || !emotional) {
     return <p className="text-center py-20 text-surface-muted">المنتج غير موجود</p>
@@ -77,6 +84,10 @@ export function ProductPage() {
     setCartOpen(true)
   }
 
+  const scrollToOffer = () => {
+    scrollToSection('purchase-offer', { behavior: 'smooth' })
+  }
+
   return (
     <div className="pb-24">
       <div className="container-narrow py-6 grid md:grid-cols-2 gap-10 items-start">
@@ -91,7 +102,16 @@ export function ProductPage() {
           <RatingSummary compact />
           <h1 className="font-display text-3xl md:text-4xl font-bold mt-2 text-ink">{product.title_ar}</h1>
           <p className="text-surface-muted mt-2 leading-relaxed">{product.subtitle_ar}</p>
-          <div className="mt-4">
+          <div
+            id="purchase-offer"
+            className="mt-6 scroll-mt-24 rounded-2xl border-2 border-rose-brand/30 bg-gradient-to-b from-rose-light/60 via-rose-light/25 to-white p-4 sm:p-5 shadow-md ring-2 ring-rose-brand/10"
+          >
+            <p className="text-center text-[11px] font-bold uppercase tracking-wider text-rose-brand mb-1">
+              اختاري عرضج
+            </p>
+            <p className="text-center text-xs text-surface-muted mb-4 leading-relaxed">
+              البوكس الكامل أو قطعة واحدة — ادفعي عند الباب
+            </p>
             <PurchasePanel
               product={product}
               mode={purchaseMode}
@@ -179,16 +199,8 @@ export function ProductPage() {
             {purchaseMode === 'single' ? `قطعة ×${singleQty}` : 'البوكس'}، ادفعي عند الباب
           </span>
         </div>
-        <button
-          type="button"
-          onClick={() =>
-            purchaseMode === 'single'
-              ? selectedSingle && addSingle(selectedSingle)
-              : addBundle()
-          }
-          className="btn-primary text-sm py-2.5 px-5"
-        >
-          أضيفي للسلة
+        <button type="button" onClick={scrollToOffer} className="btn-primary text-sm py-2.5 px-5">
+          اختاري العرض
         </button>
       </div>
     </div>

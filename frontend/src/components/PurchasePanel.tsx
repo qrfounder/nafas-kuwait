@@ -1,5 +1,7 @@
+import { useMemo } from 'react'
 import type { Product, Tier } from '../data/products'
-import { singlesInBundle, sumSinglePrices, SKU_HINTS, SKU_LABELS } from '../data/products'
+import { singlesInBundle, SKU_HINTS, SKU_LABELS } from '../data/products'
+import { useStore } from '../context/StoreContext'
 import { BundleContents } from './BundleContents'
 import { InventoryNote } from './InventoryNote'
 import { Price } from './Price'
@@ -38,14 +40,32 @@ export function PurchasePanel({
   onAddBundle,
   onAddSingle,
 }: Props) {
-  const singles = singlesInBundle(product)
-  const singlesTotal = sumSinglePrices(product.includes)
-  const bundlePrice = product.tiers[0].price
+  const { skus } = useStore()
+  const skuCatalog = useMemo(
+    () =>
+      Object.fromEntries(
+        skus.map((s) => [
+          s.sku,
+          { sku: s.sku, title_ar: s.label_ar, hint_ar: s.hint_ar, price: s.price, anchor: s.anchor },
+        ]),
+      ),
+    [skus],
+  )
+  const singles = singlesInBundle(product, skuCatalog)
+
+  const modeTabClass = (active: boolean) =>
+    [
+      'relative flex flex-1 flex-col items-center justify-center gap-1 rounded-xl px-3 py-3.5 text-center transition-all duration-200 min-h-[4.5rem]',
+      active
+        ? 'border-2 border-rose-brand bg-white text-ink shadow-md shadow-rose-brand/15 ring-2 ring-rose-brand/20'
+        : 'border border-surface-border/90 bg-white/50 text-surface-muted hover:border-rose-brand/40 hover:bg-rose-light/30 hover:text-ink hover:shadow-sm',
+    ].join(' ')
 
   return (
     <div className="space-y-4">
+      <p className="text-center text-[11px] font-semibold text-surface-muted">اختاري طريقة الطلب</p>
       <div
-        className="flex rounded-xl border border-surface-border bg-cream p-1"
+        className="grid grid-cols-2 gap-2 sm:gap-3 rounded-2xl border border-rose-brand/15 bg-cream/80 p-2 shadow-inner"
         role="tablist"
         aria-label="طريقة الشراء"
       >
@@ -53,23 +73,53 @@ export function PurchasePanel({
           type="button"
           role="tab"
           aria-selected={mode === 'bundle'}
-          className={`flex-1 py-2.5 px-3 rounded-lg text-sm font-semibold transition ${
-            mode === 'bundle' ? 'bg-white text-ink shadow-sm' : 'text-surface-muted'
-          }`}
+          className={modeTabClass(mode === 'bundle')}
           onClick={() => onModeChange('bundle')}
         >
-          البوكس الكامل
+          {mode === 'bundle' && (
+            <span
+              className="absolute top-2 end-2 h-2 w-2 rounded-full bg-rose-brand shadow-sm"
+              aria-hidden
+            />
+          )}
+          <span
+            className={`flex h-9 w-9 items-center justify-center rounded-lg text-xs font-bold transition-colors ${
+              mode === 'bundle' ? 'bg-rose-brand text-white' : 'bg-cream border border-surface-border text-surface-muted'
+            }`}
+            aria-hidden
+          >
+            بوكس
+          </span>
+          <span className="text-sm font-bold leading-tight">البوكس الكامل</span>
+          <span className={`text-[10px] leading-snug ${mode === 'bundle' ? 'text-rose-brand/90' : 'text-surface-muted'}`}>
+            كل القطع مع بعض
+          </span>
         </button>
         <button
           type="button"
           role="tab"
           aria-selected={mode === 'single'}
-          className={`flex-1 py-2.5 px-3 rounded-lg text-sm font-semibold transition ${
-            mode === 'single' ? 'bg-white text-ink shadow-sm' : 'text-surface-muted'
-          }`}
+          className={modeTabClass(mode === 'single')}
           onClick={() => onModeChange('single')}
         >
-          قطعة واحدة
+          {mode === 'single' && (
+            <span
+              className="absolute top-2 end-2 h-2 w-2 rounded-full bg-rose-brand shadow-sm"
+              aria-hidden
+            />
+          )}
+          <span
+            className={`flex h-9 w-9 items-center justify-center rounded-lg text-xs font-bold transition-colors ${
+              mode === 'single' ? 'bg-rose-brand text-white' : 'bg-cream border border-surface-border text-surface-muted'
+            }`}
+            aria-hidden
+          >
+            ١
+          </span>
+          <span className="text-sm font-bold leading-tight">قطعة واحدة</span>
+          <span className={`text-[10px] leading-snug ${mode === 'single' ? 'text-rose-brand/90' : 'text-surface-muted'}`}>
+            اختاري قطعة بس
+          </span>
         </button>
       </div>
 
@@ -81,11 +131,6 @@ export function PurchasePanel({
             layout="buy-panel"
             priority
           />
-          {singlesTotal > bundlePrice && (
-            <p className="text-[11px] text-surface-muted leading-relaxed">
-              القطع لوحدها تقريباً {formatKwd(singlesTotal)}. البوكس الكامل {formatKwd(bundlePrice)}.
-            </p>
-          )}
           <InventoryNote stockLeft={stockLeft} compact />
           <div className="space-y-2">
             <p className="font-semibold text-sm text-ink">اختاري الكمية:</p>

@@ -8,13 +8,17 @@ from app.database import get_db
 from app.models.store import ProductOverride, Redirect
 from app.schemas.store import (
     AdminProductOut,
+    AdminSkuOut,
     PixelSettingsIn,
     PixelSettingsOut,
     ProductOverrideIn,
     RedirectIn,
     RedirectOut,
+    SkuInventoryIn,
 )
+from app.services.sku_catalog import list_skus_merged
 from app.services.store_catalog import expand_macros, get_settings, list_products_merged, merge_product
+from app.models.sku_inventory import SkuInventory
 
 from app.api.admin import _require_admin_key
 
@@ -195,6 +199,53 @@ def admin_products(_: None = Depends(_require_admin_key), db: Session = Depends(
             )
         )
     return out
+
+
+@router.get("/skus", response_model=list[AdminSkuOut])
+def admin_skus(_: None = Depends(_require_admin_key), db: Session = Depends(get_db)):
+    cfg = get_settings(db)
+    rows = list_skus_merged(db, cfg.shop_url.rstrip("/"))
+    return [AdminSkuOut(**r) for r in rows]
+
+
+@router.put("/skus/{sku}", response_model=AdminSkuOut)
+def update_sku(
+    sku: str,
+    body: SkuInventoryIn,
+    _: None = Depends(_require_admin_key),
+    db: Session = Depends(get_db),
+):
+    from app.data.products import SKU_LABELS
+
+    if sku not in SKU_LABELS:
+        raise HTTPException(404, "SKU not in catalog")
+    row = db.query(SkuInventory).filter(SkuInventory.sku == sku).first()
+    if not row:
+        from app.services.sku_catalog import ensure_sku_rows
+
+        ensure_sku_rows(db)
+        row = db.query(SkuInventory).filter(SkuInventory.sku == sku).first()
+    row.label_ar = body.label_ar.strip()
+    row.hint_ar = (body.hint_ar or "").strip() or None
+    row.price = body.price
+    row.anchor = body.anchor
+    row.quantity = body.quantity
+    row.active = body.active
+    db.commit()
+    db.refresh(row)
+    cfg = get_settings(db)
+    base = cfg.shop_url.rstrip("/")
+    return AdminSkuOut(
+        sku=sku,
+        label_ar=row.label_ar,
+        hint_ar=row.hint_ar or "",
+        price=row.price,
+        anchor=row.anchor,
+        quantity=row.quantity,
+        active=row.active,
+        image_url=f"{base}/products/{sku}.png",
+        has_override=True,
+    )
 
 
 @router.put("/products/{slug}", response_model=AdminProductOut)
