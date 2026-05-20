@@ -2,10 +2,14 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { AdminShell, type AdminSection } from './mojourney/AdminShell'
 import { MojourneyAnalytics } from './mojourney/MojourneyAnalytics'
+import { MojourneyLiveView } from './mojourney/MojourneyLiveView'
 import { MojourneyPixels } from './mojourney/MojourneyPixels'
-import { MojourneyProductsAdmin } from './mojourney/MojourneyProductsAdmin'
+import { MojourneyProductsHub } from './mojourney/MojourneyProductsHub'
 import { MojourneyRedirects } from './mojourney/MojourneyRedirects'
-import { PRODUCTS } from '../data/products'
+import { AD_LANDING_SLUG } from '../data/adLanding'
+import { getCatalogProducts } from '../data/products'
+
+const CATALOG_FOR_LINKS = getCatalogProducts()
 import {
   adminPing,
   clearStoredAdminKey,
@@ -292,7 +296,7 @@ export function MojourneyPage() {
           {error}
         </div>
       )}
-      {loading && section !== 'analytics' && (
+      {loading && section !== 'analytics' && section !== 'live' && (
         <p className="text-sm text-slate-400 mb-4">Loading…</p>
       )}
 
@@ -322,14 +326,35 @@ export function MojourneyPage() {
               </div>
             </div>
           </div>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            {(
+              [
+                ['live', 'Live View'],
+                ['analytics', 'Analytics'],
+                ['orders', 'Orders'],
+                ['products', 'Products & SKUs'],
+                ['links', 'Campaign links'],
+              ] as const
+            ).map(([id, label]) => (
+              <button
+                key={id}
+                type="button"
+                onClick={() => setSection(id)}
+                className="rounded-lg border border-slate-800 bg-slate-900/40 px-4 py-3 text-left text-sm text-slate-300 hover:border-amber-500/40 hover:text-amber-200 transition-colors"
+              >
+                {label}
+              </button>
+            ))}
+          </div>
           <p className="text-sm text-slate-400 max-w-2xl leading-relaxed">
-            Orders include UTM and source fields when customers complete checkout. Use{' '}
-            <strong className="text-slate-200">Analytics</strong> for visitor behavior,{' '}
-            <strong className="text-slate-200">Orders</strong> for customer details, and{' '}
-            <strong className="text-slate-200">Campaign Links</strong> to build tracked URLs.
+            Ad landing URL:{' '}
+            <span className="font-mono text-amber-200/90">{baseUrl}/product/{AD_LANDING_SLUG}</span> — after
+            approval, redirect it in <strong className="text-slate-200">Redirects</strong>.
           </p>
         </div>
       )}
+
+      {section === 'live' && <MojourneyLiveView onError={setError} />}
 
       {section === 'analytics' && <MojourneyAnalytics onError={setError} />}
 
@@ -374,7 +399,7 @@ export function MojourneyPage() {
         </div>
       )}
 
-      {section === 'products' && <MojourneyProductsAdmin onError={setError} />}
+        {section === 'products' && <MojourneyProductsHub onError={setError} />}
       {section === 'redirects' && <MojourneyRedirects onError={setError} />}
 
       {section === 'links' && (
@@ -394,7 +419,8 @@ export function MojourneyPage() {
                   <option value="/about">About</option>
                   <option value="/contact">Contact</option>
                   <option value="/policies">Policies</option>
-                  {PRODUCTS.map((p) => (
+                  <option value={`/product/${AD_LANDING_SLUG}`}>Ad landing (/product/test)</option>
+                  {CATALOG_FOR_LINKS.map((p) => (
                     <option key={p.slug} value={`/product/${p.slug}`}>
                       {p.title_ar}
                     </option>

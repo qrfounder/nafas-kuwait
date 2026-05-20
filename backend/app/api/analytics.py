@@ -20,7 +20,8 @@ from app.schemas.analytics import (
     TrackEventOut,
 )
 from app.services.analytics_range import parse_range, utc_now
-from app.services.geo import client_ip, resolve_geo
+from app.services.geo import client_ip, resolve_geo, resolve_geo_full
+from app.services.live_sessions import upsert_heartbeat
 
 logger = logging.getLogger(__name__)
 
@@ -56,13 +57,14 @@ def _rate_ok(ip: str | None) -> bool:
 @router.post("/track", response_model=TrackEventOut)
 async def track_event(body: TrackEventIn, request: Request, db: Session = Depends(get_db)):
     if body.event_type not in ALLOWED_EVENTS:
-        return TrackEventOut(ok=False)
+        raise HTTPException(400, "Invalid event_type")
 
     ip = client_ip(request)
     if not _rate_ok(ip):
         return TrackEventOut(ok=True)
 
-    country, city = await resolve_geo(request, ip)
+    geo = await resolve_geo_full(request, ip)
+    country, city = geo.country, geo.city
     ua = request.headers.get("user-agent")
     if ua and len(ua) > 500:
         ua = ua[:500]
@@ -89,6 +91,30 @@ async def track_event(body: TrackEventIn, request: Request, db: Session = Depend
     )
     db.add(row)
     db.commit()
+
+    stage = "browsing"
+    if body.event_type == "add_to_cart":
+        stage = "cart"
+    elif body.event_type in ("checkout_visit", "checkout_form_start"):
+        stage = "checkout"
+    elif body.event_type == "purchase":
+        stage = "purchased"
+
+    upsert_heartbeat(
+        session_id=body.session_id,
+        visitor_id=body.visitor_id,
+        path=body.path or "/",
+        stage=stage,
+        country=country,
+        city=city,
+        lat=geo.lat,
+        lng=geo.lng,
+        ip_address=ip,
+        is_returning=False,
+        utm_source=body.utm_source,
+        product_slug=body.product_slug,
+    )
+
     return TrackEventOut(ok=True)
 
 

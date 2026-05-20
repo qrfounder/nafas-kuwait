@@ -144,6 +144,19 @@ export type AdminProduct = {
   tiers: { tier: number; label_ar: string; price: number; anchor: number; badge: string | null }[]
   product_url: string
   has_override: boolean
+  includes?: string[]
+}
+
+export type AdminSku = {
+  sku: string
+  label_ar: string
+  hint_ar: string
+  price: number
+  anchor: number
+  quantity: number
+  active: boolean
+  image_url: string
+  has_override: boolean
 }
 
 function adminHeaders(key: string) {
@@ -207,6 +220,24 @@ export async function fetchAdminProducts(key: string): Promise<AdminProduct[]> {
   return parseAdminJson(res)
 }
 
+export async function fetchAdminSkus(key: string): Promise<AdminSku[]> {
+  const res = await fetch(`${API}/api/admin/skus`, { headers: adminHeaders(key) })
+  return parseAdminJson(res)
+}
+
+export async function saveAdminSku(
+  key: string,
+  sku: string,
+  body: Omit<AdminSku, 'sku' | 'image_url' | 'has_override'>,
+): Promise<AdminSku> {
+  const res = await fetch(`${API}/api/admin/skus/${sku}`, {
+    method: 'PUT',
+    headers: adminHeaders(key),
+    body: JSON.stringify(body),
+  })
+  return parseAdminJson(res)
+}
+
 export type AnalyticsFunnel = {
   page_view: number
   view_content: number
@@ -258,6 +289,52 @@ export async function fetchAdminAnalytics(
   if (opts.from) q.set('from', opts.from)
   if (opts.to) q.set('to', opts.to)
   const res = await fetch(`${API}/api/admin/analytics/report?${q}`, { headers: adminHeaders(key) })
+  return parseAdminJson(res)
+}
+
+export type LiveVisitor = {
+  session_id: string
+  visitor_id: string
+  path: string
+  stage: string
+  country: string | null
+  city: string | null
+  lat: number | null
+  lng: number | null
+  ip_address: string | null
+  is_returning: boolean
+  utm_source: string | null
+  product_slug: string | null
+  last_seen: string
+  seconds_ago: number
+}
+
+export type LiveMarker = {
+  lat: number
+  lng: number
+  stage: string
+  city: string | null
+  country: string | null
+}
+
+export type LiveSnapshot = {
+  updated_at: string
+  visitors_now: number
+  funnel: Record<string, number>
+  visitors: LiveVisitor[]
+  markers: LiveMarker[]
+  locations: { city: string | null; country: string | null; count: number }[]
+  today_orders: number
+  today_sessions: number
+  today_sales_usd: number
+  returning_now: number
+  new_now: number
+  hourly_sessions: { hour: string; sessions: number; orders: number }[]
+  hourly_orders: { hour: string; sessions: number; orders: number }[]
+}
+
+export async function fetchAdminLive(key: string): Promise<LiveSnapshot> {
+  const res = await fetch(`${API}/api/admin/live/snapshot`, { headers: adminHeaders(key) })
   return parseAdminJson(res)
 }
 

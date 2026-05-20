@@ -1,8 +1,11 @@
 import { Routes, Route } from 'react-router-dom'
 import { AnalyticsTracker } from './components/AnalyticsTracker'
+import { LiveHeartbeat } from './components/LiveHeartbeat'
+import { ScrollToTop } from './components/ScrollToTop'
 import { Layout } from './components/Layout'
 import { HomePage } from './pages/HomePage'
 import { CollectionPage } from './pages/CollectionPage'
+import { AdSafeProductPage } from './pages/AdSafeProductPage'
 import { ProductPage } from './pages/ProductPage'
 import { AboutPage } from './pages/AboutPage'
 import { ContactPage } from './pages/ContactPage'
@@ -13,11 +16,14 @@ import { MojourneyPage } from './pages/MojourneyPage'
 export default function App() {
   return (
     <>
+      <ScrollToTop />
       <AnalyticsTracker />
+      <LiveHeartbeat />
       <Routes>
         <Route element={<Layout />}>
           <Route path="/" element={<HomePage />} />
           <Route path="/collection" element={<CollectionPage />} />
+          <Route path="/product/test" element={<AdSafeProductPage />} />
           <Route path="/product/:slug" element={<ProductPage />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/contact" element={<ContactPage />} />

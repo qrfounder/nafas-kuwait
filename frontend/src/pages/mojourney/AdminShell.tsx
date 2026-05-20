@@ -3,6 +3,7 @@ import type { ReactNode } from 'react'
 
 export type AdminSection =
   | 'overview'
+  | 'live'
   | 'analytics'
   | 'orders'
   | 'products'
@@ -10,27 +11,28 @@ export type AdminSection =
   | 'links'
   | 'pixels'
 
-const NAV_GROUPS: { label: string; items: { id: AdminSection; label: string }[] }[] = [
+const NAV_GROUPS: { label: string; items: { id: AdminSection; label: string; hint?: string }[] }[] = [
   {
     label: 'Dashboard',
     items: [
       { id: 'overview', label: 'Overview' },
-      { id: 'analytics', label: 'Analytics' },
+      { id: 'live', label: 'Live View', hint: 'Real-time map' },
+      { id: 'analytics', label: 'Analytics', hint: 'Visitors & funnel' },
     ],
   },
   {
-    label: 'Store',
+    label: 'Catalog',
     items: [
       { id: 'orders', label: 'Orders' },
-      { id: 'products', label: 'Products' },
-      { id: 'redirects', label: 'Redirects' },
+      { id: 'products', label: 'Products', hint: 'SKUs + bundles' },
+      { id: 'redirects', label: 'Redirects', hint: 'URLs & ads' },
     ],
   },
   {
     label: 'Marketing',
     items: [
-      { id: 'links', label: 'Campaign Links' },
-      { id: 'pixels', label: 'Pixels & Tracking' },
+      { id: 'links', label: 'Campaign links' },
+      { id: 'pixels', label: 'Pixels' },
     ],
   },
 ]
@@ -54,7 +56,7 @@ type Props = {
 export function AdminShell({ section, onSection, onLogout, apiStatus, children }: Props) {
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col md:flex-row" dir="ltr">
-      <aside className="border-b md:border-b-0 md:border-r border-slate-800 md:w-60 shrink-0 md:min-h-screen p-4 flex flex-col gap-4">
+      <aside className="border-b md:border-b-0 md:border-r border-slate-800 md:w-64 shrink-0 md:min-h-screen p-4 flex flex-col gap-4">
         <div className="px-2">
           <p className="text-[10px] uppercase tracking-widest text-slate-500">Nafas Kuwait</p>
           <p className="font-display text-lg font-bold text-white">Mojourney Admin</p>
@@ -72,13 +74,16 @@ export function AdminShell({ section, onSection, onLogout, apiStatus, children }
                     key={item.id}
                     type="button"
                     onClick={() => onSection(item.id)}
-                    className={`rounded-lg px-3 py-2 text-left text-sm transition-colors ${
+                    className={`rounded-lg px-3 py-2 text-left transition-colors ${
                       section === item.id
                         ? 'bg-slate-800 text-amber-200'
                         : 'text-slate-300 hover:bg-slate-800/60'
                     }`}
                   >
-                    {item.label}
+                    <span className="text-sm block">{item.label}</span>
+                    {item.hint && (
+                      <span className="text-[10px] text-slate-500 block">{item.hint}</span>
+                    )}
                   </button>
                 ))}
               </div>
@@ -94,12 +99,17 @@ export function AdminShell({ section, onSection, onLogout, apiStatus, children }
         >
           Sign out
         </button>
-        <Link to="/" className="rounded-lg px-3 py-2 text-sm text-amber-400/90 hover:bg-slate-800/60">
-          View storefront
+        <Link
+          to="/"
+          target="_blank"
+          rel="noreferrer"
+          className="rounded-lg px-3 py-2 text-sm text-amber-400/90 hover:bg-slate-800/60"
+        >
+          View storefront ↗
         </Link>
       </aside>
 
-      <main className="flex-1 p-4 md:p-8 overflow-auto">
+      <main className="flex-1 p-4 md:p-8 overflow-auto min-w-0">
         <header className="flex flex-wrap items-center justify-between gap-3 mb-8">
           <h2 className="font-display text-xl md:text-2xl font-bold text-white">{sectionTitle(section)}</h2>
           {apiStatus}
