@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 import { ProductCard } from '../components/ProductCard'
 import { ProductImage } from '../components/ProductImage'
-import { ENTRY_BUNDLE_PRICE_USD, PRODUCTS } from '../data/products'
+import { useStoreProducts } from '../context/StoreContext'
 import { ReviewsSection } from '../components/ReviewsSection'
 import { PaymentMethods } from '../components/PaymentMethods'
 import { TrustProcess } from '../components/TrustProcess'
@@ -33,7 +33,9 @@ const PAIN_POINTS = [
 ]
 
 export function HomePage() {
+  const products = useStoreProducts()
   const { stockLeft } = useScarcity()
+  const entryPrice = Math.min(...products.map((p) => p.tiers[0]?.price ?? p.base_price))
 
   return (
     <>
@@ -55,7 +57,7 @@ export function HomePage() {
               <TrustHighlights />
             </div>
             <Link to="/collection" className="btn-primary inline-block mt-6 text-lg">
-              اختاري باقتج، من {usdToKwd(ENTRY_BUNDLE_PRICE_USD).toFixed(1)} د.ك
+              اختاري باقتج، من {usdToKwd(entryPrice).toFixed(1)} د.ك
             </Link>
             <div className="mt-5 pt-5 border-t border-surface-border">
               <PaymentMethods variant="compact" />
@@ -119,7 +121,7 @@ export function HomePage() {
           <InventoryNote stockLeft={stockLeft} />
           <h2 className="section-title text-center mt-6 mb-10">باقات نفس</h2>
           <div className="grid md:grid-cols-3 gap-6">
-            {PRODUCTS.map((p) => (
+            {products.map((p) => (
               <ProductCard key={p.slug} product={p} />
             ))}
           </div>
@@ -171,7 +173,7 @@ export function HomePage() {
       <section className="container-narrow pb-20 text-center">
         <PaymentMethods variant="row" showCaption />
         <Link to="/collection" className="btn-primary text-base px-10 mt-8 inline-block">
-          ابدئي الآن، من {usdToKwd(ENTRY_BUNDLE_PRICE_USD).toFixed(1)} د.ك
+          ابدئي الآن، من {usdToKwd(entryPrice).toFixed(1)} د.ك
         </Link>
         <p className="text-xs text-surface-muted mt-3">ادفعي عند الباب فقط، داخل الكويت</p>
       </section>

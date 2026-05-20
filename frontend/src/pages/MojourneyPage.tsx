@@ -1,5 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { MojourneyPixels } from './mojourney/MojourneyPixels'
+import { MojourneyProductsAdmin } from './mojourney/MojourneyProductsAdmin'
+import { MojourneyRedirects } from './mojourney/MojourneyRedirects'
 import { PRODUCTS } from '../data/products'
 import {
   adminPing,
@@ -15,14 +18,15 @@ import {
   type AdminOrdersSummary,
 } from '../lib/mojourneyApi'
 
-type Section = 'overview' | 'orders' | 'products' | 'links' | 'analytics'
+type Section = 'overview' | 'orders' | 'products' | 'redirects' | 'links' | 'tracking'
 
 const SECTIONS: { id: Section; label: string }[] = [
   { id: 'overview', label: 'نظرة عامة' },
-  { id: 'orders', label: 'الطلبات والعملاء' },
-  { id: 'products', label: 'المنتجات والروابط' },
-  { id: 'links', label: 'روابط الحملات' },
-  { id: 'analytics', label: 'التحليلات والبيكسل' },
+  { id: 'orders', label: 'الطلبات' },
+  { id: 'products', label: 'المنتجات' },
+  { id: 'redirects', label: 'التحويلات' },
+  { id: 'links', label: 'روابط UTM' },
+  { id: 'tracking', label: 'البيكسل والتتبع' },
 ]
 
 function copyText(text: string) {
@@ -191,10 +195,6 @@ export function MojourneyPage() {
     if (utmContent.trim()) u.searchParams.set('utm_content', utmContent.trim())
     return u.toString()
   }, [baseUrl, linkPath, utmSource, utmMedium, utmCampaign, utmContent])
-
-  const pixelMeta = Boolean(import.meta.env.VITE_META_PIXEL_ID)
-  const pixelTt = Boolean(import.meta.env.VITE_TIKTOK_PIXEL_ID)
-  const pixelSnap = Boolean(import.meta.env.VITE_SNAP_PIXEL_ID)
 
   if (!unlocked) {
     return (
@@ -416,70 +416,9 @@ export function MojourneyPage() {
           </div>
         )}
 
-        {section === 'products' && (
-          <div className="space-y-4">
-            <p className="text-sm text-slate-400">روابط الصفحات العامة (انسخي والصقي في الإعلانات أو الواتساب).</p>
-            <div className="overflow-x-auto rounded-xl border border-slate-800">
-              <table className="min-w-full text-sm text-right">
-                <thead className="bg-slate-900 text-slate-400 text-xs">
-                  <tr>
-                    <th className="px-3 py-3">المنتج</th>
-                    <th className="px-3 py-3">المسار</th>
-                    <th className="px-3 py-3">رابط كامل</th>
-                    <th className="px-3 py-3 w-24"></th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-800">
-                  <tr>
-                    <td className="px-3 py-2 text-slate-300">الرئيسية</td>
-                    <td className="px-3 py-2 font-mono text-xs">/</td>
-                    <td className="px-3 py-2 font-mono text-xs text-amber-200/80 break-all" dir="ltr">
-                      {baseUrl}/
-                    </td>
-                    <td className="px-3 py-2">
-                      <button
-                        type="button"
-                        onClick={() => copyText(`${baseUrl}/`)}
-                        className="text-xs text-amber-400 hover:underline"
-                      >
-                        نسخ
-                      </button>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td className="px-3 py-2 text-slate-300">المجموعة</td>
-                    <td className="px-3 py-2 font-mono text-xs">/collection</td>
-                    <td className="px-3 py-2 font-mono text-xs text-amber-200/80 break-all" dir="ltr">
-                      {baseUrl}/collection
-                    </td>
-                    <td className="px-3 py-2">
-                      <button type="button" onClick={() => copyText(`${baseUrl}/collection`)} className="text-xs text-amber-400 hover:underline">
-                        نسخ
-                      </button>
-                    </td>
-                  </tr>
-                  {PRODUCTS.map((p) => {
-                    const url = `${baseUrl}/product/${p.slug}`
-                    return (
-                      <tr key={p.slug}>
-                        <td className="px-3 py-2 text-slate-200">{p.title_ar}</td>
-                        <td className="px-3 py-2 font-mono text-xs">/product/{p.slug}</td>
-                        <td className="px-3 py-2 font-mono text-xs text-amber-200/80 break-all" dir="ltr">
-                          {url}
-                        </td>
-                        <td className="px-3 py-2">
-                          <button type="button" onClick={() => copyText(url)} className="text-xs text-amber-400 hover:underline">
-                            نسخ
-                          </button>
-                        </td>
-                      </tr>
-                    )
-                  })}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
+        {section === 'products' && <MojourneyProductsAdmin onError={setError} />}
+
+        {section === 'redirects' && <MojourneyRedirects onError={setError} />}
 
         {section === 'links' && (
           <div className="space-y-8 max-w-3xl">
@@ -577,59 +516,7 @@ export function MojourneyPage() {
           </div>
         )}
 
-        {section === 'analytics' && (
-          <div className="space-y-6 max-w-2xl text-sm text-slate-300 leading-relaxed">
-            <div className="rounded-xl border border-slate-800 bg-slate-900/40 p-5">
-              <h3 className="text-white font-semibold mb-3">بيكسل الواجهة (Vite)</h3>
-              <ul className="space-y-2">
-                <li>Meta (Facebook): {pixelMeta ? '✓ مضبوط' : '○ غير مضبوط'} — VITE_META_PIXEL_ID</li>
-                <li>TikTok: {pixelTt ? '✓ مضبوط' : '○ غير مضبوط'} — VITE_TIKTOK_PIXEL_ID</li>
-                <li>Snapchat: {pixelSnap ? '✓ مضبوط' : '○ غير مضبوط'} — VITE_SNAP_PIXEL_ID</li>
-              </ul>
-              <p className="mt-3 text-xs text-slate-500">
-                القيم تُبنى في الإنتاج داخل الحزمة؛ لا تعرضي لقطات شاشة لملف .env.
-              </p>
-            </div>
-            <div className="rounded-xl border border-slate-800 bg-slate-900/40 p-5">
-              <h3 className="text-white font-semibold mb-3">أحداث تُرسل من الموقع</h3>
-              <ul className="list-disc list-inside space-y-1 text-slate-400">
-                <li>PageView — عند تحميل البيكسل</li>
-                <li>ViewContent — صفحة منتج</li>
-                <li>AddToCart — إضافة للسلة</li>
-                <li>InitiateCheckout — بدء الطلب</li>
-                <li>Purchase / CompletePayment — بعد تأكيد الطلب (مع event_id للربط مع CAPI)</li>
-              </ul>
-            </div>
-            <div className="rounded-xl border border-slate-800 bg-slate-900/40 p-5">
-              <h3 className="text-white font-semibold mb-3">روابط منصّات التحليل</h3>
-              <ul className="space-y-2">
-                <li>
-                  <a
-                    href="https://business.facebook.com/events_manager2"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-amber-400 hover:underline"
-                  >
-                    Meta Events Manager
-                  </a>
-                </li>
-                <li>
-                  <a href="https://ads.tiktok.com/marketing_api/apps" target="_blank" rel="noreferrer" className="text-amber-400 hover:underline">
-                    TikTok Ads (التطبيقات والبيكسل)
-                  </a>
-                </li>
-                <li>
-                  <a href="https://ads.snapchat.com/" target="_blank" rel="noreferrer" className="text-amber-400 hover:underline">
-                    Snapchat Ads Manager
-                  </a>
-                </li>
-              </ul>
-            </div>
-            <p className="text-xs text-slate-500">
-              CAPI (السيرفر) يُضبط من متغيرات السيرفر META_CAPI، TIKTOK، SNAP — راجعي backend/.env.example.
-            </p>
-          </div>
-        )}
+        {section === 'tracking' && <MojourneyPixels onError={setError} />}
       </main>
     </div>
   )

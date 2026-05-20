@@ -115,3 +115,114 @@ export async function fetchAdminOrders(key: string): Promise<AdminOrderRow[]> {
   })
   return parseAdminJson(res)
 }
+
+export type AdminPixels = {
+  shop_url: string
+  meta_pixel_id: string
+  tiktok_pixel_id: string
+  snap_pixel_id: string
+  updated_at?: string | null
+}
+
+export type AdminRedirect = {
+  id: string
+  from_path: string
+  to_path: string
+  to_path_resolved: string
+  status_code: number
+  enabled: boolean
+  note: string | null
+}
+
+export type AdminProduct = {
+  slug: string
+  title_ar: string
+  subtitle_ar: string
+  base_price: number
+  anchor_single: number
+  active: boolean
+  tiers: { tier: number; label_ar: string; price: number; anchor: number; badge: string | null }[]
+  product_url: string
+  has_override: boolean
+}
+
+function adminHeaders(key: string) {
+  return { 'X-Admin-Key': key, 'Content-Type': 'application/json' }
+}
+
+export async function fetchAdminPixels(key: string): Promise<AdminPixels> {
+  const res = await fetch(`${API}/api/admin/settings/pixels`, { headers: adminHeaders(key) })
+  return parseAdminJson(res)
+}
+
+export async function saveAdminPixels(key: string, body: AdminPixels): Promise<AdminPixels> {
+  const res = await fetch(`${API}/api/admin/settings/pixels`, {
+    method: 'PUT',
+    headers: adminHeaders(key),
+    body: JSON.stringify(body),
+  })
+  return parseAdminJson(res)
+}
+
+export async function fetchAdminRedirects(key: string): Promise<AdminRedirect[]> {
+  const res = await fetch(`${API}/api/admin/redirects`, { headers: adminHeaders(key) })
+  return parseAdminJson(res)
+}
+
+export async function createAdminRedirect(
+  key: string,
+  body: Omit<AdminRedirect, 'id' | 'to_path_resolved'>,
+): Promise<AdminRedirect> {
+  const res = await fetch(`${API}/api/admin/redirects`, {
+    method: 'POST',
+    headers: adminHeaders(key),
+    body: JSON.stringify(body),
+  })
+  return parseAdminJson(res)
+}
+
+export async function updateAdminRedirect(
+  key: string,
+  id: string,
+  body: Omit<AdminRedirect, 'id' | 'to_path_resolved'>,
+): Promise<AdminRedirect> {
+  const res = await fetch(`${API}/api/admin/redirects/${id}`, {
+    method: 'PUT',
+    headers: adminHeaders(key),
+    body: JSON.stringify(body),
+  })
+  return parseAdminJson(res)
+}
+
+export async function deleteAdminRedirect(key: string, id: string): Promise<void> {
+  const res = await fetch(`${API}/api/admin/redirects/${id}`, {
+    method: 'DELETE',
+    headers: adminHeaders(key),
+  })
+  await parseAdminJson(res)
+}
+
+export async function fetchAdminProducts(key: string): Promise<AdminProduct[]> {
+  const res = await fetch(`${API}/api/admin/products`, { headers: adminHeaders(key) })
+  return parseAdminJson(res)
+}
+
+export async function saveAdminProduct(
+  key: string,
+  slug: string,
+  body: {
+    title_ar: string
+    subtitle_ar: string
+    base_price: number
+    anchor_single: number
+    active: boolean
+    tiers_json: string | null
+  },
+): Promise<AdminProduct> {
+  const res = await fetch(`${API}/api/admin/products/${slug}`, {
+    method: 'PUT',
+    headers: adminHeaders(key),
+    body: JSON.stringify(body),
+  })
+  return parseAdminJson(res)
+}

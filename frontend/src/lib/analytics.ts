@@ -63,13 +63,13 @@ function initSnap(pixelId: string) {
 
 let loaded = false
 
-export function initAnalyticsDeferred(): void {
+export function initAnalyticsFromPixels(pixels: { meta?: string; tiktok?: string; snap?: string }): void {
   const run = () => {
     if (loaded) return
     loaded = true
-    const meta = import.meta.env.VITE_META_PIXEL_ID
-    const tt = import.meta.env.VITE_TIKTOK_PIXEL_ID
-    const snap = import.meta.env.VITE_SNAP_PIXEL_ID
+    const meta = pixels.meta || import.meta.env.VITE_META_PIXEL_ID
+    const tt = pixels.tiktok || import.meta.env.VITE_TIKTOK_PIXEL_ID
+    const snap = pixels.snap || import.meta.env.VITE_SNAP_PIXEL_ID
     if (meta) initMeta(meta)
     if (tt) initTikTok(tt)
     if (snap) initSnap(snap)
@@ -79,6 +79,11 @@ export function initAnalyticsDeferred(): void {
   } else {
     setTimeout(run, 2500)
   }
+}
+
+/** @deprecated use StoreProvider bootstrap; kept for Mojourney-only loads */
+export function initAnalyticsDeferred(): void {
+  initAnalyticsFromPixels({})
 }
 
 export function trackViewContent(slug: string, value: number) {

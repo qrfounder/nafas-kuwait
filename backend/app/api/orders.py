@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 
 from app.config import settings
 from app.data.products import CROSS_SELLS, PRODUCTS
+from app.services.store_catalog import get_product_merged
 from app.database import get_db
 from app.models.order import Order, OrderLine
 from app.schemas.orders import CreateOrderIn, OrderOut, UpsellIn
@@ -23,7 +24,8 @@ def _order_number() -> str:
 
 @router.post("", response_model=OrderOut)
 async def create_order(body: CreateOrderIn, db: Session = Depends(get_db)):
-    if body.product_slug not in PRODUCTS:
+    product = get_product_merged(db, body.product_slug)
+    if not product:
         raise HTTPException(400, "منتج غير موجود")
     ok, phone, err = validate_kuwait_phone(body.customer_phone)
     if not ok:
@@ -84,12 +86,11 @@ async def create_order(body: CreateOrderIn, db: Session = Depends(get_db)):
     )
     await send_order_to_sheet(order_to_sheet_row(order))
 
-    product = PRODUCTS[body.product_slug]
     return OrderOut(
         order_id=str(order.id),
         order_number=order_num,
         total_usd=order.total_usd,
-        post_upsell=product.get("post_upsell"),
+        post_upsell=product.get("post_upsell"),  # noqa: product from merge above
     )
 
 

@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import {
-  getProduct,
   SINGLE_SKU_PRICES,
   singlesInBundle,
   SKU_TRUST_LINE,
@@ -22,9 +21,11 @@ import { RatingSummary } from '../components/RatingSummary'
 import { formatKwd } from '../lib/currency'
 import { useScarcity } from '../hooks/useScarcity'
 import type { ReviewPage } from '../data/socialProof'
+import { useStore } from '../context/StoreContext'
 
 export function ProductPage() {
   const { slug } = useParams<{ slug: string }>()
+  const { getProduct } = useStore()
   const product = slug ? getProduct(slug) : undefined
   const emotional = slug ? getProductEmotional(slug) : undefined
   const { setBundle, setSinglePiece, setCartOpen } = useCart()

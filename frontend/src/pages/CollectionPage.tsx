@@ -2,9 +2,10 @@ import { ProductCard } from '../components/ProductCard'
 import { PaymentMethods } from '../components/PaymentMethods'
 import { ReviewsSection } from '../components/ReviewsSection'
 import { Logo } from '../components/Logo'
-import { PRODUCTS } from '../data/products'
+import { useStoreProducts } from '../context/StoreContext'
 
 export function CollectionPage() {
+  const products = useStoreProducts()
   return (
     <div className="container-narrow py-12">
       <div className="flex flex-wrap items-end justify-between gap-4 mb-2">
@@ -21,7 +22,7 @@ export function CollectionPage() {
         <PaymentMethods variant="compact" />
       </div>
       <div className="grid md:grid-cols-3 gap-6">
-        {PRODUCTS.map((p) => (
+        {products.map((p) => (
           <ProductCard key={p.slug} product={p} />
         ))}
       </div>
