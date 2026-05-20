@@ -1,4 +1,6 @@
+import { useEffect } from 'react'
 import { useSearchParams, Link } from 'react-router-dom'
+import { trackStoreEvent } from '../lib/visitorAnalytics'
 import { Logo } from '../components/Logo'
 import { ORDER_STEPS } from '../data/socialProof'
 
@@ -6,6 +8,14 @@ export function ThankYouPage() {
   const [params] = useSearchParams()
   const order = params.get('order') || ''
   const upsell = params.get('upsell')
+
+  useEffect(() => {
+    if (!order) return
+    trackStoreEvent('purchase', {
+      path: `/thank-you?order=${order}`,
+      metadata: { order_number: order, upsell: Boolean(upsell) },
+    })
+  }, [order, upsell])
 
   return (
     <div className="min-h-screen bg-cream flex flex-col">

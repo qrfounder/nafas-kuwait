@@ -16,10 +16,10 @@ export function MojourneyPixels({ onError }: { onError: (msg: string) => void })
     if (!k) return
     fetchAdminPixels(k)
       .then(setForm)
-      .catch((e) => onError(e instanceof Error ? e.message : 'خطأ'))
+      .catch((e) => onError(e instanceof Error ? e.message : 'Failed to load pixels'))
   }, [onError])
 
-  if (!form) return <p className="text-sm text-slate-400">جاري التحميل…</p>
+  if (!form) return <p className="text-sm text-slate-400">Loading…</p>
 
   const save = async () => {
     const k = getStoredAdminKey()
@@ -32,7 +32,7 @@ export function MojourneyPixels({ onError }: { onError: (msg: string) => void })
       setForm(next)
       setSaved(true)
     } catch (e) {
-      onError(e instanceof Error ? e.message : 'فشل الحفظ')
+      onError(e instanceof Error ? e.message : 'Save failed')
     } finally {
       setSaving(false)
     }
@@ -41,17 +41,16 @@ export function MojourneyPixels({ onError }: { onError: (msg: string) => void })
   return (
     <div className="space-y-6 max-w-2xl">
       <p className="text-sm text-slate-400 leading-relaxed">
-        البيكسلات تُحمَّل تلقائياً على المتجر من قاعدة البيانات (بدون إعادة بناء). بعد الحفظ، حدّثي صفحة المتجر
-        لتفعيل التتبع: PageView، ViewContent، AddToCart، InitiateCheckout، Purchase.
+        Ad pixels load on the storefront from the database (no rebuild required). After saving, refresh the shop to
+        activate tracking: PageView, ViewContent, AddToCart, InitiateCheckout, Purchase.
       </p>
       <div className="rounded-xl border border-slate-800 bg-slate-900/40 p-5 space-y-4">
         <label className="block text-xs text-slate-400">
-          رابط المتجر (للماكروهات)
+          Shop URL (for redirect macros)
           <input
             value={form.shop_url}
             onChange={(e) => setForm({ ...form, shop_url: e.target.value })}
-            className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white"
-            dir="ltr"
+            className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white font-mono"
           />
         </label>
         <label className="block text-xs text-slate-400">
@@ -60,7 +59,6 @@ export function MojourneyPixels({ onError }: { onError: (msg: string) => void })
             value={form.meta_pixel_id}
             onChange={(e) => setForm({ ...form, meta_pixel_id: e.target.value })}
             className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white font-mono"
-            dir="ltr"
             placeholder="1234567890"
           />
         </label>
@@ -70,7 +68,6 @@ export function MojourneyPixels({ onError }: { onError: (msg: string) => void })
             value={form.tiktok_pixel_id}
             onChange={(e) => setForm({ ...form, tiktok_pixel_id: e.target.value })}
             className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white font-mono"
-            dir="ltr"
           />
         </label>
         <label className="block text-xs text-slate-400">
@@ -79,7 +76,6 @@ export function MojourneyPixels({ onError }: { onError: (msg: string) => void })
             value={form.snap_pixel_id}
             onChange={(e) => setForm({ ...form, snap_pixel_id: e.target.value })}
             className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white font-mono"
-            dir="ltr"
           />
         </label>
         <button
@@ -88,20 +84,22 @@ export function MojourneyPixels({ onError }: { onError: (msg: string) => void })
           onClick={() => void save()}
           className="rounded-lg bg-amber-500/90 px-4 py-2 text-sm font-semibold text-slate-950 hover:bg-amber-400 disabled:opacity-60"
         >
-          {saving ? 'جاري الحفظ…' : 'حفظ البيكسلات'}
+          {saving ? 'Saving…' : 'Save pixels'}
         </button>
-        {saved && <p className="text-sm text-emerald-400">تم الحفظ. حدّثي المتجر لتحميل البيكسل الجديد.</p>}
+        {saved && <p className="text-sm text-emerald-400">Saved. Refresh the storefront to load new pixels.</p>}
       </div>
       <div className="rounded-xl border border-slate-800 bg-slate-900/40 p-5 text-xs text-slate-400">
-        <p className="font-semibold text-slate-200 mb-2">أحداث تُرسل تلقائياً</p>
+        <p className="font-semibold text-slate-200 mb-2">Events sent automatically</p>
         <ul className="list-disc list-inside space-y-1">
-          <li>PageView عند فتح الموقع</li>
-          <li>ViewContent في صفحة المنتج</li>
-          <li>AddToCart عند الإضافة للسلة</li>
-          <li>InitiateCheckout عند فتح الطلب</li>
-          <li>Purchase بعد تأكيد الطلب</li>
+          <li>PageView on site load</li>
+          <li>ViewContent on product pages</li>
+          <li>AddToCart when adding to cart</li>
+          <li>InitiateCheckout when opening checkout</li>
+          <li>Purchase on thank-you page</li>
         </ul>
-        <p className="mt-3">CAPI (السيرفر) ما زال من متغيرات API على Easypanel إن احتجتِه.</p>
+        <p className="mt-3">
+          Server-side CAPI (Meta/TikTok/Snap) can still be configured via API env vars on Easypanel if needed.
+        </p>
       </div>
     </div>
   )

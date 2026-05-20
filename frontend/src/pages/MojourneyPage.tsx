@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { AdminShell, type AdminSection } from './mojourney/AdminShell'
+import { MojourneyAnalytics } from './mojourney/MojourneyAnalytics'
 import { MojourneyPixels } from './mojourney/MojourneyPixels'
 import { MojourneyProductsAdmin } from './mojourney/MojourneyProductsAdmin'
 import { MojourneyRedirects } from './mojourney/MojourneyRedirects'
@@ -18,17 +20,6 @@ import {
   type AdminOrdersSummary,
 } from '../lib/mojourneyApi'
 
-type Section = 'overview' | 'orders' | 'products' | 'redirects' | 'links' | 'tracking'
-
-const SECTIONS: { id: Section; label: string }[] = [
-  { id: 'overview', label: 'نظرة عامة' },
-  { id: 'orders', label: 'الطلبات' },
-  { id: 'products', label: 'المنتجات' },
-  { id: 'redirects', label: 'التحويلات' },
-  { id: 'links', label: 'روابط UTM' },
-  { id: 'tracking', label: 'البيكسل والتتبع' },
-]
-
 function copyText(text: string) {
   void navigator.clipboard.writeText(text).catch(() => {})
 }
@@ -41,7 +32,7 @@ export function MojourneyPage() {
   const [apiKey, setApiKey] = useState('')
   const [loginMode, setLoginMode] = useState<LoginMode>('loading')
   const [unlocked, setUnlocked] = useState(() => Boolean(getStoredAdminKey()))
-  const [section, setSection] = useState<Section>('overview')
+  const [section, setSection] = useState<AdminSection>('overview')
   const [ping, setPing] = useState<{
     ok: boolean
     admin_configured: boolean
@@ -102,7 +93,7 @@ export function MojourneyPage() {
         setPassword('')
         setApiKey('')
       }
-      setError(e instanceof Error ? e.message : 'خطأ')
+      setError(e instanceof Error ? e.message : 'Request failed')
       setSummary(null)
     } finally {
       setLoading(false)
@@ -123,7 +114,7 @@ export function MojourneyPage() {
         setPassword('')
         setApiKey('')
       }
-      setError(e instanceof Error ? e.message : 'خطأ')
+      setError(e instanceof Error ? e.message : 'Request failed')
       setOrders(null)
     } finally {
       setLoading(false)
@@ -154,7 +145,7 @@ export function MojourneyPage() {
         setUnlocked(true)
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'خطأ')
+      setError(err instanceof Error ? err.message : 'Login failed')
     } finally {
       setAuthLoading(false)
     }
@@ -196,24 +187,32 @@ export function MojourneyPage() {
     return u.toString()
   }, [baseUrl, linkPath, utmSource, utmMedium, utmCampaign, utmContent])
 
+  const apiStatus = ping && (
+    <span className={ping.admin_configured ? 'text-emerald-400/90' : 'text-amber-400/90'}>
+      API {ping.ok ? '●' : '○'}{' '}
+      {ping.password_login ? 'Password login' : ping.admin_configured ? 'API key' : 'Not configured'}
+    </span>
+  )
+
   if (!unlocked) {
     return (
-      <div className="min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center p-6" dir="rtl">
+      <div className="min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center p-6" dir="ltr">
         <div className="w-full max-w-md rounded-2xl border border-slate-800 bg-slate-900/80 p-8 shadow-xl">
-          <h1 className="font-display text-2xl font-bold text-white mb-1">Mojourney</h1>
-          {loginMode === 'loading' && <p className="text-sm text-slate-400 mb-6">جاري التحميل…</p>}
+          <h1 className="font-display text-2xl font-bold text-white mb-1">Mojourney Admin</h1>
+          {loginMode === 'loading' && <p className="text-sm text-slate-400 mb-6">Loading…</p>}
           {loginMode === 'none' && (
             <p className="text-sm text-rose-200/90 mb-6">
-              السيرفر غير مهيأ: عيّني <span className="font-mono text-xs">MOJOURNEY_ADMIN_PASSWORD</span> أو{' '}
-              <span className="font-mono text-xs">ADMIN_API_KEY</span> في <span className="font-mono text-xs">backend/.env</span>.
+              Server not configured: set{' '}
+              <span className="font-mono text-xs">MOJOURNEY_ADMIN_PASSWORD</span> or{' '}
+              <span className="font-mono text-xs">ADMIN_API_KEY</span> on the API service.
             </p>
           )}
           {loginMode === 'password' && (
             <>
-              <p className="text-sm text-slate-400 mb-6">لوحة داخلية — اسم مستخدم وكلمة مرور (قابلة للتغيير من السيرفر).</p>
+              <p className="text-sm text-slate-400 mb-6">Sign in with your admin username and password.</p>
               <form onSubmit={onUnlock} className="space-y-4">
                 <label className="block text-sm text-slate-300">
-                  اسم المستخدم
+                  Username
                   <input
                     type="text"
                     autoComplete="username"
@@ -223,7 +222,7 @@ export function MojourneyPage() {
                   />
                 </label>
                 <label className="block text-sm text-slate-300">
-                  كلمة المرور
+                  Password
                   <input
                     type="password"
                     autoComplete="current-password"
@@ -238,17 +237,17 @@ export function MojourneyPage() {
                   disabled={authLoading}
                   className="w-full rounded-lg bg-amber-500/90 py-2.5 text-sm font-semibold text-slate-950 hover:bg-amber-400 transition-colors disabled:opacity-60"
                 >
-                  {authLoading ? 'جاري التحقق…' : 'دخول'}
+                  {authLoading ? 'Signing in…' : 'Sign in'}
                 </button>
               </form>
             </>
           )}
           {loginMode === 'apikey' && (
             <>
-              <p className="text-sm text-slate-400 mb-6">لوحة داخلية — أدخلي مفتاح الإدارة المطابق لـ ADMIN_API_KEY في السيرفر.</p>
+              <p className="text-sm text-slate-400 mb-6">Enter the admin API key (ADMIN_API_KEY on the server).</p>
               <form onSubmit={onUnlock} className="space-y-4">
                 <label className="block text-sm text-slate-300">
-                  مفتاح الإدارة
+                  Admin API key
                   <input
                     type="password"
                     autoComplete="off"
@@ -264,16 +263,17 @@ export function MojourneyPage() {
                   disabled={authLoading}
                   className="w-full rounded-lg bg-amber-500/90 py-2.5 text-sm font-semibold text-slate-950 hover:bg-amber-400 transition-colors disabled:opacity-60"
                 >
-                  {authLoading ? 'جاري التحقق…' : 'دخول'}
+                  {authLoading ? 'Verifying…' : 'Sign in'}
                 </button>
               </form>
             </>
           )}
           <p className="mt-6 text-xs text-slate-500 leading-relaxed">
-            الجلسة تُحفظ في المتصفح فقط (sessionStorage) حتى إغلاق التاب. لا تشاركين رابط هذه الصفحة علناً.
+            Session is stored in this browser only (sessionStorage) until you close the tab. Do not share this URL
+            publicly.
           </p>
           <Link to="/" className="mt-4 inline-block text-sm text-amber-400/90 hover:text-amber-300">
-            ← العودة للمتجر
+            ← Back to store
           </Link>
         </div>
       </div>
@@ -281,243 +281,195 @@ export function MojourneyPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col md:flex-row" dir="rtl">
-      <aside className="border-b md:border-b-0 md:border-l border-slate-800 md:w-56 shrink-0 md:min-h-screen p-4 flex flex-col gap-1">
-        <div className="mb-4 px-2">
-          <p className="text-[10px] uppercase tracking-widest text-slate-500">Nafas</p>
-          <p className="font-display text-lg font-bold text-white">Mojourney</p>
+    <AdminShell
+      section={section}
+      onSection={setSection}
+      onLogout={() => void onLogout()}
+      apiStatus={<div className="text-xs text-slate-400">{apiStatus}</div>}
+    >
+      {error && (
+        <div className="mb-6 rounded-lg border border-rose-500/40 bg-rose-950/40 px-4 py-3 text-sm text-rose-100">
+          {error}
         </div>
-        {SECTIONS.map((s) => (
-          <button
-            key={s.id}
-            type="button"
-            onClick={() => setSection(s.id)}
-            className={`rounded-lg px-3 py-2 text-right text-sm transition-colors ${
-              section === s.id ? 'bg-slate-800 text-amber-200' : 'text-slate-300 hover:bg-slate-800/60'
-            }`}
-          >
-            {s.label}
-          </button>
-        ))}
-        <div className="flex-1" />
-        <button
-          type="button"
-          onClick={() => void onLogout()}
-          className="rounded-lg px-3 py-2 text-right text-sm text-slate-400 hover:bg-slate-800/60"
-        >
-          خروج
-        </button>
-        <Link to="/" className="rounded-lg px-3 py-2 text-sm text-amber-400/90 hover:bg-slate-800/60">
-          المتجر
-        </Link>
-      </aside>
+      )}
+      {loading && section !== 'analytics' && (
+        <p className="text-sm text-slate-400 mb-4">Loading…</p>
+      )}
 
-      <main className="flex-1 p-4 md:p-8 overflow-auto">
-        <header className="flex flex-wrap items-center justify-between gap-3 mb-8">
-          <h2 className="font-display text-xl md:text-2xl font-bold text-white">
-            {SECTIONS.find((x) => x.id === section)?.label}
-          </h2>
-          <div className="flex items-center gap-2 text-xs text-slate-400">
-            {ping && (
-              <span className={ping.admin_configured ? 'text-emerald-400/90' : 'text-amber-400/90'}>
-                API {ping.ok ? '●' : '○'}{' '}
-                {ping.password_login
-                  ? 'تسجيل دخول بكلمة مرور'
-                  : ping.admin_configured
-                    ? 'مفتاح API فقط'
-                    : 'غير مهيأ'}
-              </span>
-            )}
-          </div>
-        </header>
-
-        {error && (
-          <div className="mb-6 rounded-lg border border-rose-500/40 bg-rose-950/40 px-4 py-3 text-sm text-rose-100">
-            {error}
-          </div>
-        )}
-        {loading && <p className="text-sm text-slate-400 mb-4">جاري التحميل…</p>}
-
-        {section === 'overview' && (
-          <div className="space-y-6">
-            <div className="grid sm:grid-cols-3 gap-4">
-              <div className="rounded-xl border border-slate-800 bg-slate-900/50 p-5">
-                <p className="text-xs text-slate-500 mb-1">إجمالي الطلبات</p>
-                <p className="text-3xl font-bold text-white">{summary?.total ?? '—'}</p>
-              </div>
-              <div className="rounded-xl border border-slate-800 bg-slate-900/50 p-5">
-                <p className="text-xs text-slate-500 mb-1">آخر ٢٤ ساعة</p>
-                <p className="text-3xl font-bold text-amber-200">{summary?.last_24h ?? '—'}</p>
-              </div>
-              <div className="rounded-xl border border-slate-800 bg-slate-900/50 p-5">
-                <p className="text-xs text-slate-500 mb-2">حسب الحالة</p>
-                <div className="flex flex-wrap gap-2">
-                  {summary?.by_status &&
-                    Object.entries(summary.by_status).map(([st, n]) => (
-                      <span key={st} className="rounded-md bg-slate-800 px-2 py-1 text-xs text-slate-200">
-                        {st}: {n}
-                      </span>
-                    ))}
-                  {summary && Object.keys(summary.by_status).length === 0 && (
-                    <span className="text-sm text-slate-500">لا بيانات بعد</span>
-                  )}
-                </div>
-              </div>
+      {section === 'overview' && (
+        <div className="space-y-6">
+          <div className="grid sm:grid-cols-3 gap-4">
+            <div className="rounded-xl border border-slate-800 bg-slate-900/50 p-5">
+              <p className="text-xs text-slate-500 mb-1">Total orders</p>
+              <p className="text-3xl font-bold text-white">{summary?.total ?? '—'}</p>
             </div>
-            <p className="text-sm text-slate-400 max-w-2xl leading-relaxed">
-              الطلبات تُسجَّل مع حقول التتبع (utm_source، utm_campaign، المصدر) عند إتمام الطلب من الواجهة. راجعي تبويب
-              «الطلبات والعملاء» للتفاصيل و«روابط الحملات» لبناء روابط جديدة.
-            </p>
-          </div>
-        )}
-
-        {section === 'orders' && (
-          <div className="overflow-x-auto rounded-xl border border-slate-800">
-            <table className="min-w-full text-sm text-right">
-              <thead className="bg-slate-900 text-slate-400 text-xs uppercase tracking-wide">
-                <tr>
-                  <th className="px-3 py-3 font-medium">التاريخ</th>
-                  <th className="px-3 py-3 font-medium">الطلب</th>
-                  <th className="px-3 py-3 font-medium">الاسم</th>
-                  <th className="px-3 py-3 font-medium">الجوال</th>
-                  <th className="px-3 py-3 font-medium">المنتج</th>
-                  <th className="px-3 py-3 font-medium">$</th>
-                  <th className="px-3 py-3 font-medium">utm</th>
-                  <th className="px-3 py-3 font-medium">حالة</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-800">
-                {orders?.map((o) => (
-                  <tr key={o.order_number} className="hover:bg-slate-900/40">
-                    <td className="px-3 py-2.5 whitespace-nowrap text-slate-300">
-                      {new Date(o.created_at).toLocaleString('ar-KW')}
-                    </td>
-                    <td className="px-3 py-2.5 font-mono text-xs text-amber-200/90">{o.order_number}</td>
-                    <td className="px-3 py-2.5 text-slate-200">{o.customer_name}</td>
-                    <td className="px-3 py-2.5 font-mono text-xs" dir="ltr">
-                      {o.customer_phone}
-                    </td>
-                    <td className="px-3 py-2.5 text-slate-300">
-                      {o.product_slug}
-                      {o.upsell_accepted && <span className="text-emerald-400 text-xs mr-1">+upsell</span>}
-                    </td>
-                    <td className="px-3 py-2.5" dir="ltr">
-                      {o.total_usd.toFixed(2)}
-                    </td>
-                    <td className="px-3 py-2.5 text-xs text-slate-400 max-w-[140px] truncate" title={o.utm_campaign || ''}>
-                      {o.utm_source || '—'} / {o.utm_campaign || '—'}
-                    </td>
-                    <td className="px-3 py-2.5 text-xs">{o.status}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            {orders && orders.length === 0 && <p className="p-6 text-slate-500 text-sm">لا طلبات في القاعدة بعد.</p>}
-          </div>
-        )}
-
-        {section === 'products' && <MojourneyProductsAdmin onError={setError} />}
-
-        {section === 'redirects' && <MojourneyRedirects onError={setError} />}
-
-        {section === 'links' && (
-          <div className="space-y-8 max-w-3xl">
-            <div className="rounded-xl border border-slate-800 bg-slate-900/40 p-5 space-y-4">
-              <h3 className="text-sm font-semibold text-white">منشئ روابط مع UTM</h3>
-              <div className="grid gap-3 sm:grid-cols-2">
-                <label className="text-xs text-slate-400 block">
-                  المسار
-                  <select
-                    value={linkPath}
-                    onChange={(e) => setLinkPath(e.target.value)}
-                    className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-2 py-2 text-sm text-white"
-                  >
-                    <option value="/">الرئيسية /</option>
-                    <option value="/collection">المجموعة</option>
-                    <option value="/about">من نحن</option>
-                    <option value="/contact">تواصل</option>
-                    <option value="/policies">السياسات</option>
-                    {PRODUCTS.map((p) => (
-                      <option key={p.slug} value={`/product/${p.slug}`}>
-                        {p.title_ar}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <label className="text-xs text-slate-400 block">
-                  utm_source
-                  <input
-                    value={utmSource}
-                    onChange={(e) => setUtmSource(e.target.value)}
-                    className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-2 py-2 text-sm text-white"
-                  />
-                </label>
-                <label className="text-xs text-slate-400 block">
-                  utm_medium
-                  <input
-                    value={utmMedium}
-                    onChange={(e) => setUtmMedium(e.target.value)}
-                    className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-2 py-2 text-sm text-white"
-                  />
-                </label>
-                <label className="text-xs text-slate-400 block">
-                  utm_campaign
-                  <input
-                    value={utmCampaign}
-                    onChange={(e) => setUtmCampaign(e.target.value)}
-                    className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-2 py-2 text-sm text-white"
-                  />
-                </label>
-                <label className="text-xs text-slate-400 block sm:col-span-2">
-                  utm_content (اختياري)
-                  <input
-                    value={utmContent}
-                    onChange={(e) => setUtmContent(e.target.value)}
-                    className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-2 py-2 text-sm text-white"
-                  />
-                </label>
-              </div>
+            <div className="rounded-xl border border-slate-800 bg-slate-900/50 p-5">
+              <p className="text-xs text-slate-500 mb-1">Last 24 hours</p>
+              <p className="text-3xl font-bold text-amber-200">{summary?.last_24h ?? '—'}</p>
+            </div>
+            <div className="rounded-xl border border-slate-800 bg-slate-900/50 p-5">
+              <p className="text-xs text-slate-500 mb-2">By status</p>
               <div className="flex flex-wrap gap-2">
-                {['instagram', 'tiktok', 'snap', 'meta', 'whatsapp', 'twitter'].map((src) => (
-                  <button
-                    key={src}
-                    type="button"
-                    onClick={() => setUtmSource(src)}
-                    className="rounded-md bg-slate-800 px-2 py-1 text-xs text-slate-200 hover:bg-slate-700"
-                  >
-                    source: {src}
-                  </button>
-                ))}
+                {summary?.by_status &&
+                  Object.entries(summary.by_status).map(([st, n]) => (
+                    <span key={st} className="rounded-md bg-slate-800 px-2 py-1 text-xs text-slate-200">
+                      {st}: {n}
+                    </span>
+                  ))}
+                {summary && Object.keys(summary.by_status).length === 0 && (
+                  <span className="text-sm text-slate-500">No orders yet</span>
+                )}
               </div>
-              <div className="rounded-lg border border-slate-700 bg-slate-950 p-3 font-mono text-xs break-all text-amber-100/90" dir="ltr">
-                {builtCampaignUrl}
-              </div>
-              <button
-                type="button"
-                onClick={() => copyText(builtCampaignUrl)}
-                className="rounded-lg bg-amber-500/90 px-4 py-2 text-sm font-semibold text-slate-950 hover:bg-amber-400"
-              >
-                نسخ الرابط
-              </button>
-            </div>
-
-            <div>
-              <h3 className="text-sm font-semibold text-white mb-3">اختصارات</h3>
-              <ul className="text-sm text-slate-400 space-y-2">
-                <li>
-                  <strong className="text-slate-200">شكراً بعد الطلب:</strong>{' '}
-                  <span className="font-mono text-xs" dir="ltr">
-                    {baseUrl}/thank-you?order=NF-…
-                  </span>{' '}
-                  (يُولَّد لكل عميلة — للدعم فقط)
-                </li>
-              </ul>
             </div>
           </div>
-        )}
+          <p className="text-sm text-slate-400 max-w-2xl leading-relaxed">
+            Orders include UTM and source fields when customers complete checkout. Use{' '}
+            <strong className="text-slate-200">Analytics</strong> for visitor behavior,{' '}
+            <strong className="text-slate-200">Orders</strong> for customer details, and{' '}
+            <strong className="text-slate-200">Campaign Links</strong> to build tracked URLs.
+          </p>
+        </div>
+      )}
 
-        {section === 'tracking' && <MojourneyPixels onError={setError} />}
-      </main>
-    </div>
+      {section === 'analytics' && <MojourneyAnalytics onError={setError} />}
+
+      {section === 'orders' && (
+        <div className="overflow-x-auto rounded-xl border border-slate-800">
+          <table className="min-w-full text-sm text-left">
+            <thead className="bg-slate-900 text-slate-400 text-xs uppercase tracking-wide">
+              <tr>
+                <th className="px-3 py-3 font-medium">Date</th>
+                <th className="px-3 py-3 font-medium">Order</th>
+                <th className="px-3 py-3 font-medium">Name</th>
+                <th className="px-3 py-3 font-medium">Phone</th>
+                <th className="px-3 py-3 font-medium">Product</th>
+                <th className="px-3 py-3 font-medium">USD</th>
+                <th className="px-3 py-3 font-medium">UTM</th>
+                <th className="px-3 py-3 font-medium">Status</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-800">
+              {orders?.map((o) => (
+                <tr key={o.order_number} className="hover:bg-slate-900/40">
+                  <td className="px-3 py-2.5 whitespace-nowrap text-slate-300">
+                    {new Date(o.created_at).toLocaleString()}
+                  </td>
+                  <td className="px-3 py-2.5 font-mono text-xs text-amber-200/90">{o.order_number}</td>
+                  <td className="px-3 py-2.5 text-slate-200">{o.customer_name}</td>
+                  <td className="px-3 py-2.5 font-mono text-xs">{o.customer_phone}</td>
+                  <td className="px-3 py-2.5 text-slate-300">
+                    {o.product_slug}
+                    {o.upsell_accepted && <span className="text-emerald-400 text-xs ml-1">+upsell</span>}
+                  </td>
+                  <td className="px-3 py-2.5 tabular-nums">{o.total_usd.toFixed(2)}</td>
+                  <td className="px-3 py-2.5 text-xs text-slate-400 max-w-[140px] truncate" title={o.utm_campaign || ''}>
+                    {o.utm_source || '—'} / {o.utm_campaign || '—'}
+                  </td>
+                  <td className="px-3 py-2.5 text-xs">{o.status}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {orders && orders.length === 0 && <p className="p-6 text-slate-500 text-sm">No orders in database yet.</p>}
+        </div>
+      )}
+
+      {section === 'products' && <MojourneyProductsAdmin onError={setError} />}
+      {section === 'redirects' && <MojourneyRedirects onError={setError} />}
+
+      {section === 'links' && (
+        <div className="space-y-8 max-w-3xl">
+          <div className="rounded-xl border border-slate-800 bg-slate-900/40 p-5 space-y-4">
+            <h3 className="text-sm font-semibold text-white">UTM campaign link builder</h3>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <label className="text-xs text-slate-400 block">
+                Path
+                <select
+                  value={linkPath}
+                  onChange={(e) => setLinkPath(e.target.value)}
+                  className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-2 py-2 text-sm text-white"
+                >
+                  <option value="/">Home /</option>
+                  <option value="/collection">Collection</option>
+                  <option value="/about">About</option>
+                  <option value="/contact">Contact</option>
+                  <option value="/policies">Policies</option>
+                  {PRODUCTS.map((p) => (
+                    <option key={p.slug} value={`/product/${p.slug}`}>
+                      {p.title_ar}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="text-xs text-slate-400 block">
+                utm_source
+                <input
+                  value={utmSource}
+                  onChange={(e) => setUtmSource(e.target.value)}
+                  className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-2 py-2 text-sm text-white"
+                />
+              </label>
+              <label className="text-xs text-slate-400 block">
+                utm_medium
+                <input
+                  value={utmMedium}
+                  onChange={(e) => setUtmMedium(e.target.value)}
+                  className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-2 py-2 text-sm text-white"
+                />
+              </label>
+              <label className="text-xs text-slate-400 block">
+                utm_campaign
+                <input
+                  value={utmCampaign}
+                  onChange={(e) => setUtmCampaign(e.target.value)}
+                  className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-2 py-2 text-sm text-white"
+                />
+              </label>
+              <label className="text-xs text-slate-400 block sm:col-span-2">
+                utm_content (optional)
+                <input
+                  value={utmContent}
+                  onChange={(e) => setUtmContent(e.target.value)}
+                  className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-2 py-2 text-sm text-white"
+                />
+              </label>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {['instagram', 'tiktok', 'snap', 'meta', 'whatsapp', 'twitter'].map((src) => (
+                <button
+                  key={src}
+                  type="button"
+                  onClick={() => setUtmSource(src)}
+                  className="rounded-md bg-slate-800 px-2 py-1 text-xs text-slate-200 hover:bg-slate-700"
+                >
+                  source: {src}
+                </button>
+              ))}
+            </div>
+            <div className="rounded-lg border border-slate-700 bg-slate-950 p-3 font-mono text-xs break-all text-amber-100/90">
+              {builtCampaignUrl}
+            </div>
+            <button
+              type="button"
+              onClick={() => copyText(builtCampaignUrl)}
+              className="rounded-lg bg-amber-500/90 px-4 py-2 text-sm font-semibold text-slate-950 hover:bg-amber-400"
+            >
+              Copy link
+            </button>
+          </div>
+          <div>
+            <h3 className="text-sm font-semibold text-white mb-3">Notes</h3>
+            <ul className="text-sm text-slate-400 space-y-2">
+              <li>
+                <strong className="text-slate-200">Thank-you URL</strong> (per order):{' '}
+                <span className="font-mono text-xs">{baseUrl}/thank-you?order=NF-…</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      )}
+
+      {section === 'pixels' && <MojourneyPixels onError={setError} />}
+    </AdminShell>
   )
 }

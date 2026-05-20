@@ -4,6 +4,7 @@ import type { CartLine } from '../context/CartContext'
 import { createOrder } from '../lib/api'
 import { formatKwd } from '../lib/currency'
 import { getAttribution, getLastEventId, trackPurchase } from '../lib/analytics'
+import { trackStoreEvent } from '../lib/visitorAnalytics'
 import { validateKuwaitPhone } from '../lib/phone'
 import { CHECKOUT_EXTRAS, CHECKOUT_EXTRAS_ORDER, type CheckoutExtraKey } from '../data/checkoutExtras'
 import { PaymentMethods } from './PaymentMethods'
@@ -37,12 +38,15 @@ export function CheckoutModal({ onSuccess }: Props) {
     priority_delivery: false,
   })
 
+  const [formStarted, setFormStarted] = useState(false)
+
   useEffect(() => {
     if (checkoutOpen) {
       setCheckoutExtras({ delivery_protection: false, priority_delivery: false })
       setName('')
       setPhone('')
       setPhoneError('')
+      setFormStarted(false)
     }
   }, [checkoutOpen])
 
@@ -60,6 +64,12 @@ export function CheckoutModal({ onSuccess }: Props) {
   const extrasTotal = extraLines.reduce((s, l) => s + l.price_usd, 0)
   const orderTotal = subtotal + extrasTotal
   const submitLines = [...lines, ...extraLines]
+
+  const onFormInteraction = () => {
+    if (formStarted) return
+    setFormStarted(true)
+    trackStoreEvent('checkout_form_start', { value: orderTotal })
+  }
 
   const ready =
     checkoutOpen &&
@@ -243,6 +253,7 @@ export function CheckoutModal({ onSuccess }: Props) {
                     autoComplete="name"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
+                    onFocus={onFormInteraction}
                     className={inputClass}
                     placeholder="مثال: فاطمة العلي"
                   />
@@ -259,6 +270,7 @@ export function CheckoutModal({ onSuccess }: Props) {
                     autoComplete="tel"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
+                    onFocus={onFormInteraction}
                     className={`${inputClass} font-mono text-base tracking-wide`}
                     placeholder="5XXXXXXX"
                     dir="ltr"

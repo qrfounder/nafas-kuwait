@@ -9,9 +9,9 @@ import {
 } from '../../lib/mojourneyApi'
 
 const MACROS = [
-  { k: '{{shop}}', d: 'رابط المتجر' },
-  { k: '{{product:cycle-relief}}', d: 'صفحة منتج (غيّري slug)' },
-  { k: '/product/body-relief', d: 'مسار نسبي' },
+  { k: '{{shop}}', d: 'Full shop URL' },
+  { k: '{{product:cycle-relief}}', d: 'Product page (change slug)' },
+  { k: '/product/body-relief', d: 'Relative path' },
 ]
 
 const emptyForm = (): Omit<AdminRedirect, 'id' | 'to_path_resolved'> => ({
@@ -34,7 +34,7 @@ export function MojourneyRedirects({ onError }: { onError: (msg: string) => void
     setLoading(true)
     fetchAdminRedirects(k)
       .then(setRows)
-      .catch((e) => onError(e instanceof Error ? e.message : 'خطأ'))
+      .catch((e) => onError(e instanceof Error ? e.message : 'Failed to load redirects'))
       .finally(() => setLoading(false))
   }
 
@@ -57,64 +57,62 @@ export function MojourneyRedirects({ onError }: { onError: (msg: string) => void
       setEditId(null)
       load()
     } catch (e) {
-      onError(e instanceof Error ? e.message : 'فشل الحفظ')
+      onError(e instanceof Error ? e.message : 'Save failed')
     }
   }
 
   const remove = async (id: string) => {
     const k = getStoredAdminKey()
-    if (!k || !confirm('حذف هذا التحويل؟')) return
+    if (!k || !confirm('Delete this redirect?')) return
     try {
       await deleteAdminRedirect(k, id)
       load()
     } catch (e) {
-      onError(e instanceof Error ? e.message : 'فشل الحذف')
+      onError(e instanceof Error ? e.message : 'Delete failed')
     }
   }
 
   return (
     <div className="space-y-6">
       <p className="text-sm text-slate-400 max-w-2xl">
-        تحويلات مثل Shopify: من مسار قديم إلى منتج أو مجموعة. استخدمي الماكروهات في «إلى».
+        Shopify-style URL redirects. Use macros in the destination field.
       </p>
       <div className="flex flex-wrap gap-2 text-xs">
         {MACROS.map((m) => (
-          <span key={m.k} className="rounded-md bg-slate-800 px-2 py-1 text-slate-300" dir="ltr">
-            {m.k} — {m.d}
+          <span key={m.k} className="rounded-md bg-slate-800 px-2 py-1 text-slate-300 font-mono">
+            {m.k} <span className="text-slate-500 font-sans">— {m.d}</span>
           </span>
         ))}
       </div>
 
       <div className="rounded-xl border border-slate-800 bg-slate-900/40 p-5 grid gap-3 sm:grid-cols-2 max-w-3xl">
         <label className="text-xs text-slate-400 block">
-          من (مسار)
+          From path
           <input
             value={form.from_path}
             onChange={(e) => setForm({ ...form, from_path: e.target.value })}
             className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-2 py-2 text-sm text-white font-mono"
-            dir="ltr"
             placeholder="/sale"
           />
         </label>
         <label className="text-xs text-slate-400 block">
-          إلى (مسار أو ماكرو)
+          To path or macro
           <input
             value={form.to_path}
             onChange={(e) => setForm({ ...form, to_path: e.target.value })}
             className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-2 py-2 text-sm text-white font-mono"
-            dir="ltr"
             placeholder="{{product:cycle-relief}}"
           />
         </label>
         <label className="text-xs text-slate-400 block">
-          نوع
+          Redirect type
           <select
             value={form.status_code}
             onChange={(e) => setForm({ ...form, status_code: Number(e.target.value) })}
             className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-2 py-2 text-sm text-white"
           >
-            <option value={302}>302 مؤقت</option>
-            <option value={301}>301 دائم</option>
+            <option value={302}>302 Temporary</option>
+            <option value={301}>301 Permanent</option>
           </select>
         </label>
         <label className="text-xs text-slate-400 block flex items-end gap-2 pb-2">
@@ -123,10 +121,10 @@ export function MojourneyRedirects({ onError }: { onError: (msg: string) => void
             checked={form.enabled}
             onChange={(e) => setForm({ ...form, enabled: e.target.checked })}
           />
-          مفعّل
+          Enabled
         </label>
         <label className="text-xs text-slate-400 block sm:col-span-2">
-          ملاحظة
+          Note
           <input
             value={form.note || ''}
             onChange={(e) => setForm({ ...form, note: e.target.value })}
@@ -139,7 +137,7 @@ export function MojourneyRedirects({ onError }: { onError: (msg: string) => void
             onClick={() => void save()}
             className="rounded-lg bg-amber-500/90 px-4 py-2 text-sm font-semibold text-slate-950"
           >
-            {editId ? 'تحديث' : 'إضافة تحويل'}
+            {editId ? 'Update redirect' : 'Add redirect'}
           </button>
           {editId && (
             <button
@@ -150,39 +148,35 @@ export function MojourneyRedirects({ onError }: { onError: (msg: string) => void
               }}
               className="text-sm text-slate-400 underline"
             >
-              إلغاء
+              Cancel
             </button>
           )}
         </div>
       </div>
 
       {loading ? (
-        <p className="text-sm text-slate-400">جاري التحميل…</p>
+        <p className="text-sm text-slate-400">Loading…</p>
       ) : (
         <div className="overflow-x-auto rounded-xl border border-slate-800">
-          <table className="min-w-full text-sm text-right">
+          <table className="min-w-full text-sm text-left">
             <thead className="bg-slate-900 text-slate-400 text-xs">
               <tr>
-                <th className="px-3 py-3">من</th>
-                <th className="px-3 py-3">إلى (محلول)</th>
-                <th className="px-3 py-3">كود</th>
-                <th className="px-3 py-3"></th>
+                <th className="px-3 py-3">From</th>
+                <th className="px-3 py-3">To (resolved)</th>
+                <th className="px-3 py-3">Code</th>
+                <th className="px-3 py-3 w-28"></th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-800">
               {rows.map((r) => (
                 <tr key={r.id} className={!r.enabled ? 'opacity-50' : ''}>
-                  <td className="px-3 py-2 font-mono text-xs" dir="ltr">
-                    {r.from_path}
-                  </td>
-                  <td className="px-3 py-2 font-mono text-xs text-amber-200/90 break-all" dir="ltr">
-                    {r.to_path_resolved}
-                  </td>
+                  <td className="px-3 py-2 font-mono text-xs">{r.from_path}</td>
+                  <td className="px-3 py-2 font-mono text-xs text-amber-200/90 break-all">{r.to_path_resolved}</td>
                   <td className="px-3 py-2">{r.status_code}</td>
                   <td className="px-3 py-2 whitespace-nowrap">
                     <button
                       type="button"
-                      className="text-amber-400 text-xs ml-2"
+                      className="text-amber-400 text-xs mr-2"
                       onClick={() => {
                         setEditId(r.id)
                         setForm({
@@ -194,17 +188,17 @@ export function MojourneyRedirects({ onError }: { onError: (msg: string) => void
                         })
                       }}
                     >
-                      تعديل
+                      Edit
                     </button>
                     <button type="button" className="text-rose-400 text-xs" onClick={() => void remove(r.id)}>
-                      حذف
+                      Delete
                     </button>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
-          {rows.length === 0 && <p className="p-4 text-slate-500 text-sm">لا توجد تحويلات بعد.</p>}
+          {rows.length === 0 && <p className="p-4 text-slate-500 text-sm">No redirects yet.</p>}
         </div>
       )}
     </div>

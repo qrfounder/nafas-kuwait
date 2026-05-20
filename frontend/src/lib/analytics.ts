@@ -1,3 +1,5 @@
+import { trackStoreEvent } from './visitorAnalytics'
+
 declare global {
   interface Window {
     fbq?: (...args: unknown[]) => void
@@ -87,6 +89,7 @@ export function initAnalyticsDeferred(): void {
 }
 
 export function trackViewContent(slug: string, value: number) {
+  trackStoreEvent('view_content', { product_slug: slug, value })
   const eventId = newEventId()
   window.fbq?.('track', 'ViewContent', { content_ids: [slug], value, currency: 'USD' }, { eventID: eventId })
   window.ttq?.track('ViewContent', { content_id: slug, value, currency: 'USD' })
@@ -94,6 +97,7 @@ export function trackViewContent(slug: string, value: number) {
 }
 
 export function trackAddToCart(value: number, slug: string) {
+  trackStoreEvent('add_to_cart', { product_slug: slug.split(':')[0], value })
   const eventId = newEventId()
   window.fbq?.('track', 'AddToCart', { value, currency: 'USD', content_ids: [slug] }, { eventID: eventId })
   window.ttq?.track('AddToCart', { value, currency: 'USD', content_id: slug })
@@ -101,6 +105,7 @@ export function trackAddToCart(value: number, slug: string) {
 }
 
 export function trackInitiateCheckout(value: number) {
+  trackStoreEvent('checkout_visit', { value })
   const eventId = newEventId()
   window.fbq?.('track', 'InitiateCheckout', { value, currency: 'USD' }, { eventID: eventId })
   window.ttq?.track('InitiateCheckout', { value, currency: 'USD' })

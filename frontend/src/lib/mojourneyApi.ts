@@ -207,6 +207,60 @@ export async function fetchAdminProducts(key: string): Promise<AdminProduct[]> {
   return parseAdminJson(res)
 }
 
+export type AnalyticsFunnel = {
+  page_view: number
+  view_content: number
+  add_to_cart: number
+  checkout_visit: number
+  checkout_form_start: number
+  purchase: number
+}
+
+export type AnalyticsReport = {
+  range_from: string
+  range_to: string
+  preset: string
+  unique_visitors: number
+  unique_sessions: number
+  total_events: number
+  funnel: AnalyticsFunnel
+  by_country: { country: string | null; city: string | null; visitors: number; events: number; purchases: number }[]
+  by_city: { country: string | null; city: string | null; visitors: number; events: number; purchases: number }[]
+  daily: {
+    date: string
+    visitors: number
+    page_views: number
+    add_to_cart: number
+    checkout_visit: number
+    checkout_form_start: number
+    purchases: number
+  }[]
+  recent_events: {
+    id: string
+    created_at: string
+    event_type: string
+    path: string | null
+    product_slug: string | null
+    visitor_id: string
+    ip_address: string | null
+    country: string | null
+    city: string | null
+    value: number | null
+  }[]
+}
+
+export async function fetchAdminAnalytics(
+  key: string,
+  opts: { preset?: string; from?: string; to?: string },
+): Promise<AnalyticsReport> {
+  const q = new URLSearchParams()
+  if (opts.preset) q.set('preset', opts.preset)
+  if (opts.from) q.set('from', opts.from)
+  if (opts.to) q.set('to', opts.to)
+  const res = await fetch(`${API}/api/admin/analytics/report?${q}`, { headers: adminHeaders(key) })
+  return parseAdminJson(res)
+}
+
 export async function saveAdminProduct(
   key: string,
   slug: string,

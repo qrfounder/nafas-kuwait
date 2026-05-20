@@ -32,7 +32,7 @@ export function MojourneyProductsAdmin({ onError }: { onError: (msg: string) => 
         setProducts(list)
         if (list.length && !selected) pick(list[0])
       })
-      .catch((e) => onError(e instanceof Error ? e.message : 'خطأ'))
+      .catch((e) => onError(e instanceof Error ? e.message : 'Failed to load products'))
   }
 
   const pick = (p: AdminProduct) => {
@@ -76,7 +76,7 @@ export function MojourneyProductsAdmin({ onError }: { onError: (msg: string) => 
       })
       load()
     } catch (e) {
-      onError(e instanceof Error ? e.message : 'فشل الحفظ')
+      onError(e instanceof Error ? e.message : 'Save failed')
     } finally {
       setSaving(false)
     }
@@ -87,7 +87,8 @@ export function MojourneyProductsAdmin({ onError }: { onError: (msg: string) => 
   return (
     <div className="space-y-4">
       <p className="text-sm text-slate-400">
-        تعديل العناوين والأسعار يظهر على المتجر فوراً (يُدمج مع الكتالوج الأساسي). الروابط ثابتة حسب slug.
+        Edit titles and prices — changes go live on the storefront immediately (merged with the base catalog).
+        Product URLs are fixed by slug.
       </p>
       <div className="flex flex-col lg:flex-row gap-6">
         <ul className="lg:w-56 shrink-0 space-y-1">
@@ -96,12 +97,12 @@ export function MojourneyProductsAdmin({ onError }: { onError: (msg: string) => 
               <button
                 type="button"
                 onClick={() => pick(p)}
-                className={`w-full text-right rounded-lg px-3 py-2 text-sm ${
+                className={`w-full text-left rounded-lg px-3 py-2 text-sm ${
                   selected === p.slug ? 'bg-slate-800 text-amber-200' : 'text-slate-300 hover:bg-slate-800/60'
                 }`}
               >
                 {p.title_ar}
-                {p.has_override && <span className="text-xs text-emerald-400 mr-1"> •</span>}
+                {p.has_override && <span className="text-xs text-emerald-400 ml-1">•</span>}
               </button>
             </li>
           ))}
@@ -116,41 +117,40 @@ export function MojourneyProductsAdmin({ onError }: { onError: (msg: string) => 
                 target="_blank"
                 rel="noreferrer"
                 className="text-xs text-amber-400 hover:underline"
-                dir="ltr"
               >
-                فتح الصفحة
+                Open product page
               </a>
             </div>
-            <p className="text-xs text-slate-500 font-mono" dir="ltr">
-              /product/{current.slug}
-            </p>
+            <p className="text-xs text-slate-500 font-mono">/product/{current.slug}</p>
             <button
               type="button"
               onClick={() => copyText(current.product_url)}
               className="text-xs text-amber-400 hover:underline"
             >
-              نسخ رابط المنتج
+              Copy product URL
             </button>
 
             <label className="block text-xs text-slate-400">
-              العنوان
+              Title (Arabic)
               <input
                 value={draft.title_ar}
                 onChange={(e) => setDraft({ ...draft, title_ar: e.target.value })}
                 className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-2 py-2 text-sm text-white"
+                dir="rtl"
               />
             </label>
             <label className="block text-xs text-slate-400">
-              الوصف القصير
+              Short description (Arabic)
               <input
                 value={draft.subtitle_ar}
                 onChange={(e) => setDraft({ ...draft, subtitle_ar: e.target.value })}
                 className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-2 py-2 text-sm text-white"
+                dir="rtl"
               />
             </label>
             <div className="grid grid-cols-2 gap-3">
               <label className="text-xs text-slate-400 block">
-                سعر أساسي (وحدة داخلية)
+                Base price (USD internal)
                 <input
                   type="number"
                   value={draft.base_price}
@@ -159,7 +159,7 @@ export function MojourneyProductsAdmin({ onError }: { onError: (msg: string) => 
                 />
               </label>
               <label className="text-xs text-slate-400 block">
-                مرجع فردي
+                Single anchor price
                 <input
                   type="number"
                   value={draft.anchor_single}
@@ -168,7 +168,7 @@ export function MojourneyProductsAdmin({ onError }: { onError: (msg: string) => 
                 />
               </label>
               <label className="text-xs text-slate-400 block">
-                سعر البوكس (المستوى ١)
+                Bundle price (tier 1)
                 <input
                   type="number"
                   value={draft.tier1_price}
@@ -177,7 +177,7 @@ export function MojourneyProductsAdmin({ onError }: { onError: (msg: string) => 
                 />
               </label>
               <label className="text-xs text-slate-400 block">
-                مرجع البوكس (المستوى ١)
+                Bundle anchor (tier 1)
                 <input
                   type="number"
                   value={draft.tier1_anchor}
@@ -192,7 +192,7 @@ export function MojourneyProductsAdmin({ onError }: { onError: (msg: string) => 
                 checked={draft.active}
                 onChange={(e) => setDraft({ ...draft, active: e.target.checked })}
               />
-              المنتج ظاهر في المتجر
+              Visible on storefront
             </label>
             <button
               type="button"
@@ -200,7 +200,7 @@ export function MojourneyProductsAdmin({ onError }: { onError: (msg: string) => 
               onClick={() => void save()}
               className="rounded-lg bg-amber-500/90 px-4 py-2 text-sm font-semibold text-slate-950 disabled:opacity-60"
             >
-              {saving ? 'جاري الحفظ…' : 'حفظ التعديلات'}
+              {saving ? 'Saving…' : 'Save changes'}
             </button>
           </div>
         )}
