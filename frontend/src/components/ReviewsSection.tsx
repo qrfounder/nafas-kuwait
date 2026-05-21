@@ -7,6 +7,7 @@ type Props = {
   title?: string
   subtitle?: string
   className?: string
+  sectionId?: string
 }
 
 export function ReviewsSection({
@@ -14,11 +15,12 @@ export function ReviewsSection({
   title = 'تجارب من الكويت',
   subtitle = 'صور عميلات من الكويت. كل تعليق يجاوب سؤال كنتِ تسألينه قبل الطلب، بدون صور منتج.',
   className = 'section bg-cream',
+  sectionId,
 }: Props) {
   const items = reviewsForPage(page)
 
   return (
-    <section className={`${className}`.trim()}>
+    <section id={sectionId} className={`${className}`.trim()}>
       <div className="container-narrow">
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-8">
           <div>

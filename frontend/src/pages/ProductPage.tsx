@@ -124,7 +124,7 @@ export function ProductPage() {
       : `${selectedTier.label_ar}، ادفعي عند الباب`
 
   return (
-    <div className="pb-28 md:pb-12">
+    <div className="pb-32 md:pb-12">
       <div className="container-narrow py-6 grid md:grid-cols-2 gap-10 items-start">
         <ProductShowcase
           frame={emotional.hero}
@@ -229,6 +229,7 @@ export function ProductPage() {
           title="تعليقات على هالمنتج"
           subtitle="عميلات جربن نفس البوكس أو قطعة وحدة. اقرئي اللي يشبه سؤالج قبل ما تطلبين."
           className="section border-t border-surface-border"
+          sectionId="product-reviews"
         />
       )}
 
@@ -238,6 +239,7 @@ export function ProductPage() {
 
       <ProductMobileStickyBar
         offerSectionId="purchase-offer"
+        reviewsSectionId="product-reviews"
         priceLabel={formatKwd(stickyPrice)}
         detailLine={stickyDetail}
         ctaLabel="اختاري عرضج"
