@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
-import { createPortal } from 'react-dom'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
+import { ProductMobileStickyBar } from '../components/ProductMobileStickyBar'
 import { scrollToSection } from '../lib/scroll'
 import {
   SINGLE_SKU_PRICES,
@@ -115,8 +115,13 @@ export function ProductPage() {
   }
 
   const scrollToOffer = () => {
-    scrollToSection('purchase-offer', { behavior: 'smooth', onlyIfNeeded: true })
+    scrollToSection('purchase-offer', { behavior: 'smooth' })
   }
+
+  const stickyDetail =
+    purchaseMode === 'single' && selectedSingle
+      ? `${SKU_LABELS[selectedSingle] ?? selectedSingle} ×${singleQty}، ادفعي عند الباب`
+      : `${selectedTier.label_ar}، ادفعي عند الباب`
 
   return (
     <div className="pb-28 md:pb-12">
@@ -231,32 +236,13 @@ export function ProductPage() {
         <PaymentMethods variant="row" showCaption />
       </section>
 
-      {typeof document !== 'undefined' &&
-        createPortal(
-          <div className="md:hidden fixed bottom-0 inset-x-0 z-[100] border-t border-surface-border bg-white/98 backdrop-blur-sm shadow-[0_-4px_24px_rgba(0,0,0,0.08)] pb-[env(safe-area-inset-bottom)]">
-            <div className="flex items-center justify-between gap-3 p-3 max-w-6xl mx-auto">
-              <div className="min-w-0">
-                <span className="font-bold text-rose-brand block">{formatKwd(stickyPrice)}</span>
-                <span className="text-[10px] text-surface-muted">
-                  {purchaseMode === 'single' ? `قطعة ×${singleQty}` : 'البوكس'}، ادفعي عند الباب
-                </span>
-              </div>
-              <div className="flex shrink-0 gap-2">
-                <button
-                  type="button"
-                  onClick={() => setCartOpen(true)}
-                  className="btn-outline text-sm py-2.5 px-4"
-                >
-                  السلة
-                </button>
-                <button type="button" onClick={scrollToOffer} className="btn-primary text-sm py-2.5 px-4">
-                  اختاري العرض
-                </button>
-              </div>
-            </div>
-          </div>,
-          document.body,
-        )}
+      <ProductMobileStickyBar
+        offerSectionId="purchase-offer"
+        priceLabel={formatKwd(stickyPrice)}
+        detailLine={stickyDetail}
+        ctaLabel="اختاري عرضج"
+        onCta={scrollToOffer}
+      />
     </div>
   )
 }

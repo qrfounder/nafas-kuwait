@@ -9,6 +9,7 @@ import { PaymentMethods } from '../components/PaymentMethods'
 import { formatKwd } from '../lib/currency'
 import { trackAddToCart, trackViewContent } from '../lib/analytics'
 import { preserveScrollPosition, scrollToSection } from '../lib/scroll'
+import { ProductMobileStickyBar } from '../components/ProductMobileStickyBar'
 
 /**
  * Policy-safe landing for TikTok / Snapchat ad review.
@@ -42,11 +43,11 @@ export function AdSafeProductPage() {
   }
 
   const scrollToOffer = () => {
-    scrollToSection('purchase-offer', { behavior: 'smooth', onlyIfNeeded: true })
+    scrollToSection('purchase-offer', { behavior: 'smooth' })
   }
 
   return (
-    <div className="pb-24" dir="rtl">
+    <div className="pb-28 md:pb-12" dir="rtl">
       <div className="container-narrow py-6 max-w-2xl mx-auto">
         <p className="text-[11px] text-surface-muted text-center mb-2">{AD_LANDING_COPY.company_ar}</p>
         <h1 className="font-display text-2xl sm:text-3xl font-bold text-ink text-center leading-snug">
@@ -133,15 +134,13 @@ export function AdSafeProductPage() {
 
       </div>
 
-      <div className="fixed bottom-0 inset-x-0 md:hidden bg-white border-t border-surface-border p-3 flex justify-between items-center z-30">
-        <div>
-          <span className="font-bold text-rose-brand block">{formatKwd(selectedTier.price)}</span>
-          <span className="text-[10px] text-surface-muted">ادفعي عند الباب</span>
-        </div>
-        <button type="button" onClick={scrollToOffer} className="btn-primary text-sm py-2.5 px-5">
-          اطلبي الآن
-        </button>
-      </div>
+      <ProductMobileStickyBar
+        offerSectionId="purchase-offer"
+        priceLabel={formatKwd(selectedTier.price)}
+        detailLine={`${selectedTier.label_ar}، ادفعي عند الباب`}
+        ctaLabel="اطلبي الآن"
+        onCta={scrollToOffer}
+      />
     </div>
   )
 }
