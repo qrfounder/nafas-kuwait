@@ -178,51 +178,58 @@ export function PurchasePanel({
           <p className="text-sm text-surface-muted leading-relaxed">
             تبين قطعة وحدة بس؟ اختاري اللي يناسب ألمج. الصورة هي المنتج اللي يوصلج.
           </p>
-          <ul className="relative z-10 space-y-2 max-md:pb-2">
+          <fieldset className="relative z-10 space-y-2 max-md:pb-2 border-0 p-0 m-0 min-w-0">
+            <legend className="sr-only">اختاري قطعة واحدة</legend>
             {singles.map((item) => {
               const active = selectedSingle === item.sku
+              const inputId = `single-${product.slug}-${item.sku}`
               return (
-                <li key={item.sku} className="relative">
-                  <button
-                    type="button"
-                    aria-pressed={active}
-                    onClick={() => onSingleChange(item.sku)}
-                    className={`relative z-10 w-full text-right rounded-xl border p-3 transition flex gap-3 items-start touch-manipulation cursor-pointer ${
-                      active
-                        ? 'border-rose-brand bg-rose-light/40 ring-2 ring-rose-brand/30'
-                        : 'border-surface-border bg-white hover:border-rose-brand/30 active:bg-rose-light/20'
-                    }`}
-                  >
-                    <span className="block h-16 w-16 shrink-0 overflow-hidden rounded-lg border border-surface-border bg-cream">
-                      <OptimizedImage
-                        src={skuShowcaseImage(item.sku)}
-                        alt=""
-                        inert
-                        pictureClassName="block h-full w-full"
-                        className="h-full w-full object-cover"
-                        sizes="64px"
-                        onError={(e) => {
-                          e.currentTarget.src = skuImage(item.sku)
-                          e.currentTarget.className = 'h-full w-full object-contain bg-cream p-1'
-                        }}
-                      />
-                    </span>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-sm font-semibold text-ink leading-snug">{item.title_ar}</p>
-                      {SKU_HINTS[item.sku] && (
-                        <p className="text-[11px] text-surface-muted mt-0.5 leading-snug">
-                          {SKU_HINTS[item.sku]}
-                        </p>
-                      )}
-                      <div className="mt-2">
-                        <Price usd={item.price} anchorUsd={item.anchor} size="sm" />
-                      </div>
+                <label
+                  key={item.sku}
+                  htmlFor={inputId}
+                  className={`relative flex w-full cursor-pointer gap-3 rounded-xl border p-3 text-right transition touch-manipulation items-start ${
+                    active
+                      ? 'border-rose-brand bg-rose-light/40 ring-2 ring-rose-brand/30'
+                      : 'border-surface-border bg-white hover:border-rose-brand/30 active:bg-rose-light/20'
+                  }`}
+                >
+                  <input
+                    id={inputId}
+                    type="radio"
+                    name={`single-sku-${product.slug}`}
+                    className="sr-only"
+                    checked={active}
+                    onChange={() => onSingleChange(item.sku)}
+                  />
+                  <span className="block h-16 w-16 shrink-0 overflow-hidden rounded-lg border border-surface-border bg-cream pointer-events-none">
+                    <OptimizedImage
+                      src={skuShowcaseImage(item.sku)}
+                      alt=""
+                      inert
+                      pictureClassName="block h-full w-full"
+                      className="h-full w-full object-cover"
+                      sizes="64px"
+                      onError={(e) => {
+                        e.currentTarget.src = skuImage(item.sku)
+                        e.currentTarget.className = 'h-full w-full object-contain bg-cream p-1'
+                      }}
+                    />
+                  </span>
+                  <div className="min-w-0 flex-1 pointer-events-none">
+                    <p className="text-sm font-semibold text-ink leading-snug">{item.title_ar}</p>
+                    {SKU_HINTS[item.sku] && (
+                      <p className="text-[11px] text-surface-muted mt-0.5 leading-snug">
+                        {SKU_HINTS[item.sku]}
+                      </p>
+                    )}
+                    <div className="mt-2">
+                      <Price usd={item.price} anchorUsd={item.anchor} size="sm" />
                     </div>
-                  </button>
-                </li>
+                  </div>
+                </label>
               )
             })}
-          </ul>
+          </fieldset>
           {selectedSingle && (
             <div className="mt-4 space-y-2">
               <p className="text-sm font-semibold text-ink">اختاري الكمية</p>

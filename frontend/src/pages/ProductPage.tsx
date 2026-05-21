@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { scrollToSection } from '../lib/scroll'
 import {
@@ -29,11 +30,16 @@ export function ProductPage() {
   const { pathname, hash } = useLocation()
   const navigate = useNavigate()
   const { slug } = useParams<{ slug: string }>()
-  const { getProduct } = useStore()
+  const { getProduct, ready } = useStore()
   const product = slug ? getProduct(slug) : undefined
   const emotional = slug ? getProductEmotional(slug) : undefined
-  const { setBundle, setSinglePiece, setCartOpen, product: cartProduct, purchaseMode: cartMode } =
-    useCart()
+  const {
+    setBundle,
+    setSinglePiece,
+    setCartOpen,
+    product: cartProduct,
+    purchaseMode: cartMode,
+  } = useCart()
   const { stockLeft } = useScarcity()
   const [selectedTier, setSelectedTier] = useState<Tier | null>(null)
   const [purchaseMode, setPurchaseMode] = useState<PurchaseMode>('bundle')
@@ -44,14 +50,17 @@ export function ProductPage() {
     setSingleQty(1)
   }, [selectedSingle])
 
+  /** Init tier/single when product slug loads — not on every render (stable getProduct map). */
   useEffect(() => {
-    if (product) {
-      setSelectedTier(product.tiers[0])
-      const first = singlesInBundle(product)[0]?.sku ?? null
-      setSelectedSingle(first)
-      trackViewContent(product.slug, product.base_price)
-    }
-  }, [product])
+    if (!slug || !ready) return
+    const p = getProduct(slug)
+    if (!p) return
+    setSelectedTier(p.tiers[0])
+    setSelectedSingle(singlesInBundle(p)[0]?.sku ?? null)
+    setPurchaseMode('bundle')
+    setSingleQty(1)
+    trackViewContent(p.slug, p.base_price)
+  }, [slug, ready, getProduct])
 
   /** Legacy/shared links with #purchase-offer: land at top, drop hash from URL. */
   useEffect(() => {
@@ -110,10 +119,9 @@ export function ProductPage() {
   }
 
   return (
-    <div className="pb-24">
+    <div className="pb-28 md:pb-12">
       <div className="container-narrow py-6 grid md:grid-cols-2 gap-10 items-start">
         <ProductShowcase
-          key={`${purchaseMode}-${focusSku}`}
           frame={emotional.hero}
           focusSku={focusSku}
           variant={purchaseMode}
@@ -223,19 +231,32 @@ export function ProductPage() {
         <PaymentMethods variant="row" showCaption />
       </section>
 
-      <div className="fixed bottom-0 inset-x-0 md:hidden z-30 pointer-events-none pb-[env(safe-area-inset-bottom)]">
-        <div className="pointer-events-auto flex justify-between items-center border-t border-surface-border bg-white p-3">
-        <div>
-          <span className="font-bold text-rose-brand block">{formatKwd(stickyPrice)}</span>
-          <span className="text-[10px] text-surface-muted">
-            {purchaseMode === 'single' ? `قطعة ×${singleQty}` : 'البوكس'}، ادفعي عند الباب
-          </span>
-        </div>
-        <button type="button" onClick={scrollToOffer} className="btn-primary text-sm py-2.5 px-5">
-          اختاري العرض
-        </button>
-        </div>
-      </div>
+      {typeof document !== 'undefined' &&
+        createPortal(
+          <div className="md:hidden fixed bottom-0 inset-x-0 z-[100] border-t border-surface-border bg-white/98 backdrop-blur-sm shadow-[0_-4px_24px_rgba(0,0,0,0.08)] pb-[env(safe-area-inset-bottom)]">
+            <div className="flex items-center justify-between gap-3 p-3 max-w-6xl mx-auto">
+              <div className="min-w-0">
+                <span className="font-bold text-rose-brand block">{formatKwd(stickyPrice)}</span>
+                <span className="text-[10px] text-surface-muted">
+                  {purchaseMode === 'single' ? `قطعة ×${singleQty}` : 'البوكس'}، ادفعي عند الباب
+                </span>
+              </div>
+              <div className="flex shrink-0 gap-2">
+                <button
+                  type="button"
+                  onClick={() => setCartOpen(true)}
+                  className="btn-outline text-sm py-2.5 px-4"
+                >
+                  السلة
+                </button>
+                <button type="button" onClick={scrollToOffer} className="btn-primary text-sm py-2.5 px-4">
+                  اختاري العرض
+                </button>
+              </div>
+            </div>
+          </div>,
+          document.body,
+        )}
     </div>
   )
 }

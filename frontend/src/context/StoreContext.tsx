@@ -91,6 +91,16 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     return getCatalogProducts()
   }, [bootstrap])
 
+  /** Stable references — avoid resetting product-page state on every render. */
+  const productBySlug = useMemo(() => {
+    const map = new Map<string, Product>()
+    for (const p of products) map.set(p.slug, p)
+    for (const p of PRODUCTS) {
+      if (!map.has(p.slug)) map.set(p.slug, p)
+    }
+    return map
+  }, [products])
+
   const skus = useMemo(() => bootstrap?.skus ?? [], [bootstrap])
 
   const getSku = useCallback(
@@ -99,15 +109,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   )
 
   const getProduct = useCallback(
-    (slug: string) => {
-      if (bootstrap?.products?.length) {
-        const hit = bootstrap.products.find((p) => p.slug === slug)
-        if (hit) return toProduct(hit)
-      }
-      const base = PRODUCTS.find((p) => p.slug === slug)
-      return base
-    },
-    [bootstrap],
+    (slug: string) => productBySlug.get(slug),
+    [productBySlug],
   )
 
   const value = useMemo(

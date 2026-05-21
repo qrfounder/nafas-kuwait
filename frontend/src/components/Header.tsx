@@ -16,7 +16,7 @@ export function Header() {
   const [menuOpen, setMenuOpen] = useState(false)
 
   return (
-    <header className="sticky top-0 z-40 bg-cream/98 backdrop-blur-sm border-b border-surface-border">
+    <header className="sticky top-0 z-[90] bg-cream/98 backdrop-blur-sm border-b border-surface-border">
       <TrustBar />
       <div className="container-narrow grid h-14 grid-cols-[1fr_auto_1fr] items-center gap-2 md:gap-3">
         <div className="flex min-w-0 items-center justify-self-start justify-start">
