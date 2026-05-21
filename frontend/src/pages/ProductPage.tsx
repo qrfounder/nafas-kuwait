@@ -125,7 +125,7 @@ export function ProductPage() {
           <p className="text-surface-muted mt-2 leading-relaxed">{product.subtitle_ar}</p>
           <div
             id="purchase-offer"
-            className="mt-6 scroll-mt-24 rounded-2xl border-2 border-rose-brand/30 bg-gradient-to-b from-rose-light/60 via-rose-light/25 to-white p-4 sm:p-5 shadow-md ring-2 ring-rose-brand/10"
+            className="relative z-40 mt-6 scroll-mt-24 rounded-2xl border-2 border-rose-brand/30 bg-gradient-to-b from-rose-light/60 via-rose-light/25 to-white p-4 sm:p-5 shadow-md ring-2 ring-rose-brand/10"
           >
             <p className="text-center text-[11px] font-bold uppercase tracking-wider text-rose-brand mb-1">
               اختاري عرضج
@@ -223,7 +223,8 @@ export function ProductPage() {
         <PaymentMethods variant="row" showCaption />
       </section>
 
-      <div className="fixed bottom-0 inset-x-0 md:hidden bg-white border-t border-surface-border p-3 flex justify-between items-center z-30">
+      <div className="fixed bottom-0 inset-x-0 md:hidden z-30 pointer-events-none pb-[env(safe-area-inset-bottom)]">
+        <div className="pointer-events-auto flex justify-between items-center border-t border-surface-border bg-white p-3">
         <div>
           <span className="font-bold text-rose-brand block">{formatKwd(stickyPrice)}</span>
           <span className="text-[10px] text-surface-muted">
@@ -233,6 +234,7 @@ export function ProductPage() {
         <button type="button" onClick={scrollToOffer} className="btn-primary text-sm py-2.5 px-5">
           اختاري العرض
         </button>
+        </div>
       </div>
     </div>
   )

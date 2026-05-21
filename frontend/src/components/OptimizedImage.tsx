@@ -13,6 +13,8 @@ type Props = {
   decoding?: 'async' | 'sync' | 'auto'
   fetchPriority?: 'high' | 'low' | 'auto'
   sizes?: string
+  /** Clicks pass through to parent (e.g. button row). */
+  inert?: boolean
   onError?: React.ReactEventHandler<HTMLImageElement>
 }
 
@@ -28,14 +30,16 @@ export function OptimizedImage({
   decoding = 'async',
   fetchPriority,
   sizes,
+  inert,
   onError,
 }: Props) {
+  const inertClass = inert ? 'pointer-events-none select-none' : ''
   if (src.endsWith('.svg')) {
     return (
       <img
         src={src}
         alt={alt}
-        className={className}
+        className={`${className} ${inertClass}`.trim()}
         width={width}
         height={height}
         loading={loading}
@@ -51,7 +55,7 @@ export function OptimizedImage({
   const sizesAttr = sizes ?? defaultSizes(entry?.category)
 
   return (
-    <picture className={pictureClassName || undefined}>
+    <picture className={[pictureClassName, inertClass].filter(Boolean).join(' ') || undefined}>
       {srcSet ? (
         <source type="image/webp" srcSet={srcSet} sizes={sizesAttr} />
       ) : (
@@ -60,7 +64,7 @@ export function OptimizedImage({
       <img
         src={webp}
         alt={alt}
-        className={className}
+        className={`${className} ${inertClass}`.trim()}
         width={width}
         height={height}
         loading={loading}

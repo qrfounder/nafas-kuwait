@@ -178,31 +178,35 @@ export function PurchasePanel({
           <p className="text-sm text-surface-muted leading-relaxed">
             تبين قطعة وحدة بس؟ اختاري اللي يناسب ألمج. الصورة هي المنتج اللي يوصلج.
           </p>
-          <ul className="space-y-2">
+          <ul className="relative z-10 space-y-2 max-md:pb-2">
             {singles.map((item) => {
               const active = selectedSingle === item.sku
               return (
-                <li key={item.sku}>
+                <li key={item.sku} className="relative">
                   <button
                     type="button"
-                    onClick={() => preserveScrollPosition(() => onSingleChange(item.sku))}
-                    className={`w-full text-right rounded-xl border p-3 transition flex gap-3 items-start ${
+                    aria-pressed={active}
+                    onClick={() => onSingleChange(item.sku)}
+                    className={`relative z-10 w-full text-right rounded-xl border p-3 transition flex gap-3 items-start touch-manipulation cursor-pointer ${
                       active
-                        ? 'border-rose-brand bg-rose-light/40 ring-1 ring-rose-brand/20'
-                        : 'border-surface-border bg-white hover:border-rose-brand/30'
+                        ? 'border-rose-brand bg-rose-light/40 ring-2 ring-rose-brand/30'
+                        : 'border-surface-border bg-white hover:border-rose-brand/30 active:bg-rose-light/20'
                     }`}
                   >
-                    <OptimizedImage
-                      src={skuShowcaseImage(item.sku)}
-                      alt={item.title_ar}
-                      className="w-16 h-16 object-cover shrink-0 rounded-lg border border-surface-border"
-                      sizes="64px"
-                      onError={(e) => {
-                        e.currentTarget.src = skuImage(item.sku)
-                        e.currentTarget.className =
-                          'w-16 h-16 object-contain shrink-0 rounded-lg border border-surface-border bg-cream p-1'
-                      }}
-                    />
+                    <span className="block h-16 w-16 shrink-0 overflow-hidden rounded-lg border border-surface-border bg-cream">
+                      <OptimizedImage
+                        src={skuShowcaseImage(item.sku)}
+                        alt=""
+                        inert
+                        pictureClassName="block h-full w-full"
+                        className="h-full w-full object-cover"
+                        sizes="64px"
+                        onError={(e) => {
+                          e.currentTarget.src = skuImage(item.sku)
+                          e.currentTarget.className = 'h-full w-full object-contain bg-cream p-1'
+                        }}
+                      />
+                    </span>
                     <div className="min-w-0 flex-1">
                       <p className="text-sm font-semibold text-ink leading-snug">{item.title_ar}</p>
                       {SKU_HINTS[item.sku] && (
