@@ -80,8 +80,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       window.location.replace(dest)
       return
     }
-    navigate(dest.startsWith('/') ? dest : `/${dest}`, { replace: true })
-  }, [bootstrap, location.pathname, navigate])
+    const destPath = dest.startsWith('/') ? dest : `/${dest}`
+    navigate(location.hash ? `${destPath}${location.hash}` : destPath, { replace: true })
+  }, [bootstrap, location.pathname, location.hash, navigate])
 
   const products = useMemo(() => {
     if (bootstrap?.products?.length) {

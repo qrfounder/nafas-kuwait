@@ -3,7 +3,9 @@ import { BundleContents } from './BundleContents'
 import { AD_LANDING_SLUG } from '../data/adLanding'
 import { CROSS_SELLS, singlesInBundle, SKU_LABELS } from '../data/products'
 import { skuImage } from '../data/images'
+import { OptimizedImage } from './OptimizedImage'
 import { formatKwd } from '../lib/currency'
+import { preserveScrollPosition } from '../lib/scroll'
 import { trackInitiateCheckout } from '../lib/analytics'
 
 export function CartDrawer() {
@@ -84,28 +86,42 @@ export function CartDrawer() {
             <div className="pt-4">
               <p className="font-semibold mb-3 text-sm">أضيفي مع طلبج (اختياري):</p>
               <div className="space-y-2">
-                {bundleExtras.map((c) => (
-                  <label
-                    key={c.sku}
-                    className="flex items-center gap-3 p-3 rounded-xl border border-rose-brand/20 cursor-pointer hover:bg-white"
-                  >
-                    <input
-                      type="checkbox"
-                      checked={!!crossSells[c.sku]}
-                      onChange={() => toggleCrossSell(c.sku)}
-                      className="w-5 h-5 accent-rose-brand"
-                    />
-                    {!adLanding && (
-                      <img
-                        src={skuImage(c.sku)}
-                        alt={SKU_LABELS[c.sku] ?? c.title_ar}
-                        className="w-12 h-12 object-contain shrink-0 rounded-lg border border-surface-border bg-cream p-0.5"
-                      />
-                    )}
-                    <span className="flex-1 text-sm">{c.title_ar}</span>
-                    <span className="text-rose-brand font-bold">+{formatKwd(c.price)}</span>
-                  </label>
-                ))}
+                {bundleExtras.map((c) => {
+                  const on = !!crossSells[c.sku]
+                  return (
+                    <button
+                      key={c.sku}
+                      type="button"
+                      role="checkbox"
+                      aria-checked={on}
+                      className={`flex w-full items-center gap-3 p-3 rounded-xl border text-right transition ${
+                        on
+                          ? 'border-rose-brand bg-rose-light/30'
+                          : 'border-rose-brand/20 hover:bg-white'
+                      }`}
+                      onClick={() => preserveScrollPosition(() => toggleCrossSell(c.sku))}
+                    >
+                      <span
+                        className={`flex h-5 w-5 shrink-0 items-center justify-center rounded border text-xs font-bold ${
+                          on ? 'border-rose-brand bg-rose-brand text-white' : 'border-surface-border bg-white'
+                        }`}
+                        aria-hidden
+                      >
+                        {on ? '✓' : ''}
+                      </span>
+                      {!adLanding && (
+                        <OptimizedImage
+                          src={skuImage(c.sku)}
+                          alt={SKU_LABELS[c.sku] ?? c.title_ar}
+                          className="w-12 h-12 object-contain shrink-0 rounded-lg border border-surface-border bg-cream p-0.5"
+                          sizes="48px"
+                        />
+                      )}
+                      <span className="flex-1 text-sm">{c.title_ar}</span>
+                      <span className="text-rose-brand font-bold">+{formatKwd(c.price)}</span>
+                    </button>
+                  )
+                })}
               </div>
             </div>
           )}
@@ -113,28 +129,42 @@ export function CartDrawer() {
             <div className="pt-4">
               <p className="font-semibold mb-3 text-sm">تكميل اختياري (قطعة إضافية):</p>
               <div className="space-y-2">
-                {singleExtras.map((c) => (
-                  <label
-                    key={c.sku}
-                    className="flex items-center gap-3 p-3 rounded-xl border border-rose-brand/20 cursor-pointer hover:bg-white"
-                  >
-                    <input
-                      type="checkbox"
-                      checked={!!crossSells[c.sku]}
-                      onChange={() => toggleCrossSell(c.sku)}
-                      className="w-5 h-5 accent-rose-brand"
-                    />
-                    {!adLanding && (
-                      <img
-                        src={skuImage(c.sku)}
-                        alt={SKU_LABELS[c.sku] ?? c.title_ar}
-                        className="w-12 h-12 object-contain shrink-0 rounded-lg border border-surface-border bg-cream p-0.5"
-                      />
-                    )}
-                    <span className="flex-1 text-sm">{c.title_ar}</span>
-                    <span className="text-rose-brand font-bold">+{formatKwd(c.price)}</span>
-                  </label>
-                ))}
+                {singleExtras.map((c) => {
+                  const on = !!crossSells[c.sku]
+                  return (
+                    <button
+                      key={c.sku}
+                      type="button"
+                      role="checkbox"
+                      aria-checked={on}
+                      className={`flex w-full items-center gap-3 p-3 rounded-xl border text-right transition ${
+                        on
+                          ? 'border-rose-brand bg-rose-light/30'
+                          : 'border-rose-brand/20 hover:bg-white'
+                      }`}
+                      onClick={() => preserveScrollPosition(() => toggleCrossSell(c.sku))}
+                    >
+                      <span
+                        className={`flex h-5 w-5 shrink-0 items-center justify-center rounded border text-xs font-bold ${
+                          on ? 'border-rose-brand bg-rose-brand text-white' : 'border-surface-border bg-white'
+                        }`}
+                        aria-hidden
+                      >
+                        {on ? '✓' : ''}
+                      </span>
+                      {!adLanding && (
+                        <OptimizedImage
+                          src={skuImage(c.sku)}
+                          alt={SKU_LABELS[c.sku] ?? c.title_ar}
+                          className="w-12 h-12 object-contain shrink-0 rounded-lg border border-surface-border bg-cream p-0.5"
+                          sizes="48px"
+                        />
+                      )}
+                      <span className="flex-1 text-sm">{c.title_ar}</span>
+                      <span className="text-rose-brand font-bold">+{formatKwd(c.price)}</span>
+                    </button>
+                  )
+                })}
               </div>
             </div>
           )}

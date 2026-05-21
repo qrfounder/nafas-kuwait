@@ -1,4 +1,4 @@
-/** Product imagery: catalog PNGs + emotional heroes for marketing */
+/** Product imagery paths (PNG keys → WebP served via OptimizedImage + manifest). */
 
 const local = (path: string) => `/products/${path}`
 const emotional = (path: string) => `/products/emotional/${path}`

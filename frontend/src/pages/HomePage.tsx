@@ -13,6 +13,7 @@ import { InventoryNote } from '../components/InventoryNote'
 import { BusinessTrust } from '../components/BusinessTrust'
 import { usdToKwd } from '../lib/currency'
 import { IMAGES } from '../data/images'
+import { OptimizedImage } from '../components/OptimizedImage'
 
 const PAIN_POINTS = [
   {
@@ -75,7 +76,14 @@ export function HomePage() {
             {PAIN_POINTS.map((x) => (
               <div key={x.t} className="card overflow-hidden">
                 <div className="aspect-[16/10] relative">
-                  <img src={x.img} alt={x.t} className="absolute inset-0 w-full h-full object-cover" loading="lazy" />
+                  <OptimizedImage
+                    src={x.img}
+                    alt={x.t}
+                    pictureClassName="absolute inset-0 block w-full h-full"
+                    className="absolute inset-0 w-full h-full object-cover"
+                    loading="lazy"
+                    sizes="(max-width: 768px) 100vw, 33vw"
+                  />
                 </div>
                 <div className="p-5">
                   <h3 className="font-display text-lg font-bold text-rose-brand">{x.t}</h3>

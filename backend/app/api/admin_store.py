@@ -243,7 +243,7 @@ def update_sku(
         anchor=row.anchor,
         quantity=row.quantity,
         active=row.active,
-        image_url=f"{base}/products/{sku}.png",
+        image_url=f"{base}/products/{sku}.webp",
         has_override=True,
     )
 

@@ -1,5 +1,6 @@
 import { skuShowcaseImage } from '../data/images'
 import { SKU_HINTS, SKU_LABELS } from '../data/products'
+import { OptimizedImage } from './OptimizedImage'
 
 type Props = {
   includes: string[]
@@ -40,12 +41,14 @@ function SkuVisual({
 
   if (size === 'card') {
     return (
-      <img
+      <OptimizedImage
         src={src}
         alt={label}
+        pictureClassName="absolute inset-0 block w-full h-full"
         className={`absolute inset-0 w-full h-full object-cover ${className}`}
         loading={priority ? 'eager' : 'lazy'}
         decoding="async"
+        sizes="(max-width: 768px) 50vw, 25vw"
       />
     )
   }
@@ -59,12 +62,14 @@ function SkuVisual({
 
   return (
     <div className={`relative rounded-lg border border-surface-border overflow-hidden ${box} ${className}`}>
-      <img
+      <OptimizedImage
         src={src}
         alt={label}
+        pictureClassName="absolute inset-0 block w-full h-full"
         className="absolute inset-0 w-full h-full object-cover"
         loading={priority ? 'eager' : 'lazy'}
         decoding="async"
+        sizes={size === 'md' ? '64px' : '48px'}
       />
     </div>
   )

@@ -8,7 +8,7 @@ import { Price } from '../components/Price'
 import { PaymentMethods } from '../components/PaymentMethods'
 import { formatKwd } from '../lib/currency'
 import { trackAddToCart, trackViewContent } from '../lib/analytics'
-import { scrollToSection } from '../lib/scroll'
+import { preserveScrollPosition, scrollToSection } from '../lib/scroll'
 
 /**
  * Policy-safe landing for TikTok / Snapchat ad review.
@@ -42,7 +42,7 @@ export function AdSafeProductPage() {
   }
 
   const scrollToOffer = () => {
-    scrollToSection('purchase-offer', { behavior: 'smooth' })
+    scrollToSection('purchase-offer', { behavior: 'smooth', onlyIfNeeded: true })
   }
 
   return (
@@ -88,28 +88,25 @@ export function AdSafeProductPage() {
           <h2 className="text-sm font-bold text-ink text-center mb-1">اختاري الكمية</h2>
           <p className="text-[11px] text-center text-surface-muted mb-4">الأسعار بالدينار الكويتي — الدفع عند الاستلام</p>
 
-          <div className="space-y-2">
+          <div className="space-y-2" role="radiogroup" aria-label="كمية البوكس">
             {product.tiers.map((t) => (
-              <label
+              <button
                 key={t.tier}
-                className={`block p-4 rounded-lg border cursor-pointer transition ${
+                type="button"
+                role="radio"
+                aria-checked={selectedTier.tier === t.tier}
+                className={`block w-full text-right p-4 rounded-lg border cursor-pointer transition ${
                   selectedTier.tier === t.tier
                     ? 'border-rose-brand bg-rose-light/30'
                     : 'border-surface-border hover:border-rose-brand/30'
                 }`}
+                onClick={() => preserveScrollPosition(() => setSelectedTier(t))}
               >
-                <input
-                  type="radio"
-                  name="tier"
-                  className="sr-only"
-                  checked={selectedTier.tier === t.tier}
-                  onChange={() => setSelectedTier(t)}
-                />
                 <div className="flex justify-between items-center gap-3">
                   <span className="font-medium text-sm text-ink">{t.label_ar}</span>
                   <Price usd={t.price} anchorUsd={t.anchor} size="md" />
                 </div>
-              </label>
+              </button>
             ))}
           </div>
 

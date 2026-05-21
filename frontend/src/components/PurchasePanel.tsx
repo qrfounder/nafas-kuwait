@@ -7,6 +7,8 @@ import { InventoryNote } from './InventoryNote'
 import { Price } from './Price'
 import { formatKwd } from '../lib/currency'
 import { skuImage, skuShowcaseImage } from '../data/images'
+import { preserveScrollPosition } from '../lib/scroll'
+import { OptimizedImage } from './OptimizedImage'
 
 export type PurchaseMode = 'bundle' | 'single'
 
@@ -74,7 +76,7 @@ export function PurchasePanel({
           role="tab"
           aria-selected={mode === 'bundle'}
           className={modeTabClass(mode === 'bundle')}
-          onClick={() => onModeChange('bundle')}
+          onClick={() => preserveScrollPosition(() => onModeChange('bundle'))}
         >
           {mode === 'bundle' && (
             <span
@@ -100,7 +102,7 @@ export function PurchasePanel({
           role="tab"
           aria-selected={mode === 'single'}
           className={modeTabClass(mode === 'single')}
-          onClick={() => onModeChange('single')}
+          onClick={() => preserveScrollPosition(() => onModeChange('single'))}
         >
           {mode === 'single' && (
             <span
@@ -123,6 +125,7 @@ export function PurchasePanel({
         </button>
       </div>
 
+      <div className="min-h-[26rem] sm:min-h-[24rem]">
       {mode === 'bundle' ? (
         <>
           <BundleContents
@@ -132,24 +135,21 @@ export function PurchasePanel({
             priority
           />
           <InventoryNote stockLeft={stockLeft} compact />
-          <div className="space-y-2">
+          <div className="space-y-2" role="radiogroup" aria-label="كمية البوكس">
             <p className="font-semibold text-sm text-ink">اختاري الكمية:</p>
             {product.tiers.map((t) => (
-              <label
+              <button
                 key={t.tier}
-                className={`block p-4 rounded-lg border cursor-pointer transition relative ${
+                type="button"
+                role="radio"
+                aria-checked={selectedTier.tier === t.tier}
+                className={`block w-full text-right p-4 rounded-lg border cursor-pointer transition relative ${
                   selectedTier.tier === t.tier
                     ? 'border-rose-brand bg-rose-light/40'
                     : 'border-surface-border hover:border-rose-brand/30'
                 }`}
+                onClick={() => preserveScrollPosition(() => onTierChange(t))}
               >
-                <input
-                  type="radio"
-                  name="tier"
-                  className="sr-only"
-                  checked={selectedTier.tier === t.tier}
-                  onChange={() => onTierChange(t)}
-                />
                 {t.tier === 3 && (
                   <span className="absolute -top-2 left-4 text-[10px] bg-gold-accent/90 text-ink px-2 py-0.5 rounded font-semibold">
                     الأكثر طلباً
@@ -166,7 +166,7 @@ export function PurchasePanel({
                 <div className="mt-1">
                   <Price usd={t.price} anchorUsd={t.anchor} size="md" />
                 </div>
-              </label>
+              </button>
             ))}
           </div>
           <button type="button" onClick={onAddBundle} className="btn-primary w-full">
@@ -185,17 +185,18 @@ export function PurchasePanel({
                 <li key={item.sku}>
                   <button
                     type="button"
-                    onClick={() => onSingleChange(item.sku)}
+                    onClick={() => preserveScrollPosition(() => onSingleChange(item.sku))}
                     className={`w-full text-right rounded-xl border p-3 transition flex gap-3 items-start ${
                       active
                         ? 'border-rose-brand bg-rose-light/40 ring-1 ring-rose-brand/20'
                         : 'border-surface-border bg-white hover:border-rose-brand/30'
                     }`}
                   >
-                    <img
+                    <OptimizedImage
                       src={skuShowcaseImage(item.sku)}
                       alt={item.title_ar}
                       className="w-16 h-16 object-cover shrink-0 rounded-lg border border-surface-border"
+                      sizes="64px"
                       onError={(e) => {
                         e.currentTarget.src = skuImage(item.sku)
                         e.currentTarget.className =
@@ -233,7 +234,7 @@ export function PurchasePanel({
                   <button
                     key={q}
                     type="button"
-                    onClick={() => onSingleQtyChange(q)}
+                    onClick={() => preserveScrollPosition(() => onSingleQtyChange(q))}
                     className={`flex-1 py-2 rounded-lg text-sm font-semibold transition ${
                       singleQty === q ? 'bg-white text-ink shadow-sm' : 'text-surface-muted'
                     }`}
@@ -262,6 +263,7 @@ export function PurchasePanel({
           </p>
         </>
       )}
+      </div>
     </div>
   )
 }

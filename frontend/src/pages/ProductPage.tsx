@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react'
-import { useLocation, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import { scrollToSection } from '../lib/scroll'
+import { useHashSectionScroll } from '../hooks/useHashSectionScroll'
 import {
   SINGLE_SKU_PRICES,
   singlesInBundle,
+  SKU_LABELS,
   SKU_TRUST_LINE,
   type Tier,
 } from '../data/products'
@@ -25,12 +27,12 @@ import type { ReviewPage } from '../data/socialProof'
 import { useStore } from '../context/StoreContext'
 
 export function ProductPage() {
-  const { hash } = useLocation()
   const { slug } = useParams<{ slug: string }>()
   const { getProduct } = useStore()
   const product = slug ? getProduct(slug) : undefined
   const emotional = slug ? getProductEmotional(slug) : undefined
-  const { setBundle, setSinglePiece, setCartOpen } = useCart()
+  const { setBundle, setSinglePiece, setCartOpen, product: cartProduct, purchaseMode: cartMode } =
+    useCart()
   const { stockLeft } = useScarcity()
   const [selectedTier, setSelectedTier] = useState<Tier | null>(null)
   const [purchaseMode, setPurchaseMode] = useState<PurchaseMode>('bundle')
@@ -50,10 +52,7 @@ export function ProductPage() {
     }
   }, [product])
 
-  useEffect(() => {
-    if (!product || !selectedTier || hash !== '#purchase-offer') return
-    scrollToSection('purchase-offer', { behavior: 'instant', maxAttempts: 8 })
-  }, [product, selectedTier, hash])
+  useHashSectionScroll('purchase-offer', Boolean(product && selectedTier))
 
   if (!product || !selectedTier || !emotional) {
     return <p className="text-center py-20 text-surface-muted">المنتج غير موجود</p>
@@ -84,8 +83,26 @@ export function ProductPage() {
     setCartOpen(true)
   }
 
+  const handleTierChange = (t: Tier) => {
+    setSelectedTier(t)
+    if (cartProduct?.slug === product.slug && cartMode === 'bundle') {
+      setBundle(product, t)
+    }
+  }
+
+  const handleModeChange = (mode: PurchaseMode) => {
+    setPurchaseMode(mode)
+  }
+
+  const handleSingleChange = (sku: string) => {
+    setSelectedSingle(sku)
+    if (cartProduct?.slug === product.slug && cartMode === 'single') {
+      setSinglePiece(product, sku, singleQty)
+    }
+  }
+
   const scrollToOffer = () => {
-    scrollToSection('purchase-offer', { behavior: 'smooth' })
+    scrollToSection('purchase-offer', { behavior: 'smooth', onlyIfNeeded: true })
   }
 
   return (
@@ -115,11 +132,11 @@ export function ProductPage() {
             <PurchasePanel
               product={product}
               mode={purchaseMode}
-              onModeChange={setPurchaseMode}
+              onModeChange={handleModeChange}
               selectedTier={selectedTier}
-              onTierChange={setSelectedTier}
+              onTierChange={handleTierChange}
               selectedSingle={selectedSingle}
-              onSingleChange={setSelectedSingle}
+              onSingleChange={handleSingleChange}
               singleQty={singleQty}
               onSingleQtyChange={setSingleQty}
               stockLeft={stockLeft}
@@ -158,11 +175,21 @@ export function ProductPage() {
       <section className="section container-narrow border-t border-surface-border">
         <p className="section-label">تأكيد المحتوى</p>
         <h2 className="font-display text-2xl font-bold">
-          {purchaseMode === 'single' ? 'تقدرين تطلبين قطعة وحدة أو البوكس كامل' : 'محتويات البوكس الكامل'}
+          {purchaseMode === 'single' && selectedSingle
+            ? `القطعة اللي اختارتيها: ${SKU_LABELS[selectedSingle] ?? selectedSingle}`
+            : 'محتويات البوكس الكامل'}
         </h2>
-        <p className="mt-3 text-surface-muted leading-relaxed max-w-xl">{emotional.boxBody}</p>
+        <p className="mt-3 text-surface-muted leading-relaxed max-w-xl">
+          {purchaseMode === 'single'
+            ? 'هذي القطعة اللي توصلج إذا اخترتي «قطعة واحدة». تبين البوكس كامل؟ ارجعي لقسم «اختاري عرضج» فوق.'
+            : emotional.boxBody}
+        </p>
         <div className="mt-8">
-          <WhatsInBox includes={product.includes} boxCount={selectedTier.tier} />
+          {purchaseMode === 'single' && selectedSingle ? (
+            <WhatsInBox includes={[selectedSingle]} boxCount={1} />
+          ) : (
+            <WhatsInBox includes={product.includes} boxCount={selectedTier.tier} />
+          )}
         </div>
         <p className="text-xs text-surface-muted mt-4 leading-relaxed">{SKU_TRUST_LINE}</p>
       </section>

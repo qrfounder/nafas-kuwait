@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { FAQ_ITEMS } from '../data/socialProof'
 
 export function FAQ() {
-  const [open, setOpen] = useState<number | null>(0)
+  const [open, setOpen] = useState<number | null>(null)
 
   return (
     <section className="section">

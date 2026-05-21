@@ -1,0 +1,276 @@
+{
+  "/brand/nafas-logo.png": {
+    "src": "/brand/nafas-logo.png",
+    "webp": "/brand/nafas-logo.webp",
+    "widths": [
+      128,
+      200
+    ],
+    "category": "logo"
+  },
+  "/products/emotional/body-relief/hero.png": {
+    "src": "/products/emotional/body-relief/hero.png",
+    "webp": "/products/emotional/body-relief/hero.webp",
+    "widths": [
+      640,
+      960,
+      1400
+    ],
+    "category": "hero"
+  },
+  "/products/emotional/body-relief/pain-after.png": {
+    "src": "/products/emotional/body-relief/pain-after.png",
+    "webp": "/products/emotional/body-relief/pain-after.webp",
+    "widths": [
+      400,
+      640
+    ],
+    "category": "pain"
+  },
+  "/products/emotional/body-relief/pain-before.png": {
+    "src": "/products/emotional/body-relief/pain-before.png",
+    "webp": "/products/emotional/body-relief/pain-before.webp",
+    "widths": [
+      400,
+      640
+    ],
+    "category": "pain"
+  },
+  "/products/emotional/body-relief/transformation.png": {
+    "src": "/products/emotional/body-relief/transformation.png",
+    "webp": "/products/emotional/body-relief/transformation.webp",
+    "widths": [
+      640,
+      960,
+      1200
+    ],
+    "category": "transformation"
+  },
+  "/products/emotional/cycle-relief/hero.png": {
+    "src": "/products/emotional/cycle-relief/hero.png",
+    "webp": "/products/emotional/cycle-relief/hero.webp",
+    "widths": [
+      640,
+      960,
+      1400
+    ],
+    "category": "hero"
+  },
+  "/products/emotional/cycle-relief/pain-after.png": {
+    "src": "/products/emotional/cycle-relief/pain-after.png",
+    "webp": "/products/emotional/cycle-relief/pain-after.webp",
+    "widths": [
+      400,
+      640
+    ],
+    "category": "pain"
+  },
+  "/products/emotional/cycle-relief/pain-before.png": {
+    "src": "/products/emotional/cycle-relief/pain-before.png",
+    "webp": "/products/emotional/cycle-relief/pain-before.webp",
+    "widths": [
+      400,
+      640
+    ],
+    "category": "pain"
+  },
+  "/products/emotional/cycle-relief/transformation.png": {
+    "src": "/products/emotional/cycle-relief/transformation.png",
+    "webp": "/products/emotional/cycle-relief/transformation.webp",
+    "widths": [
+      640,
+      960,
+      1200
+    ],
+    "category": "transformation"
+  },
+  "/products/emotional/home/hero.png": {
+    "src": "/products/emotional/home/hero.png",
+    "webp": "/products/emotional/home/hero.webp",
+    "widths": [
+      640,
+      960,
+      1400
+    ],
+    "category": "hero"
+  },
+  "/products/emotional/home/pain-back.png": {
+    "src": "/products/emotional/home/pain-back.png",
+    "webp": "/products/emotional/home/pain-back.webp",
+    "widths": [
+      400,
+      640
+    ],
+    "category": "pain"
+  },
+  "/products/emotional/home/pain-cycle.png": {
+    "src": "/products/emotional/home/pain-cycle.png",
+    "webp": "/products/emotional/home/pain-cycle.webp",
+    "widths": [
+      400,
+      640
+    ],
+    "category": "pain"
+  },
+  "/products/emotional/home/pain-neck.png": {
+    "src": "/products/emotional/home/pain-neck.png",
+    "webp": "/products/emotional/home/pain-neck.webp",
+    "widths": [
+      400,
+      640
+    ],
+    "category": "pain"
+  },
+  "/products/emotional/mother-gift/hero.png": {
+    "src": "/products/emotional/mother-gift/hero.png",
+    "webp": "/products/emotional/mother-gift/hero.webp",
+    "widths": [
+      640,
+      960,
+      1400
+    ],
+    "category": "hero"
+  },
+  "/products/emotional/mother-gift/pain-after.png": {
+    "src": "/products/emotional/mother-gift/pain-after.png",
+    "webp": "/products/emotional/mother-gift/pain-after.webp",
+    "widths": [
+      400,
+      640
+    ],
+    "category": "pain"
+  },
+  "/products/emotional/mother-gift/pain-before.png": {
+    "src": "/products/emotional/mother-gift/pain-before.png",
+    "webp": "/products/emotional/mother-gift/pain-before.webp",
+    "widths": [
+      400,
+      640
+    ],
+    "category": "pain"
+  },
+  "/products/emotional/mother-gift/transformation.png": {
+    "src": "/products/emotional/mother-gift/transformation.png",
+    "webp": "/products/emotional/mother-gift/transformation.webp",
+    "widths": [
+      640,
+      960,
+      1200
+    ],
+    "category": "transformation"
+  },
+  "/products/emotional/sku/gift-box-showcase.png": {
+    "src": "/products/emotional/sku/gift-box-showcase.png",
+    "webp": "/products/emotional/sku/gift-box-showcase.webp",
+    "widths": [
+      400,
+      640,
+      960
+    ],
+    "category": "showcase"
+  },
+  "/products/emotional/sku/head-massager-showcase.png": {
+    "src": "/products/emotional/sku/head-massager-showcase.png",
+    "webp": "/products/emotional/sku/head-massager-showcase.webp",
+    "widths": [
+      400,
+      640,
+      960
+    ],
+    "category": "showcase"
+  },
+  "/products/emotional/sku/knee-sleeves-showcase.png": {
+    "src": "/products/emotional/sku/knee-sleeves-showcase.png",
+    "webp": "/products/emotional/sku/knee-sleeves-showcase.webp",
+    "widths": [
+      400,
+      640,
+      960
+    ],
+    "category": "showcase"
+  },
+  "/products/emotional/sku/lumbar-showcase.png": {
+    "src": "/products/emotional/sku/lumbar-showcase.png",
+    "webp": "/products/emotional/sku/lumbar-showcase.webp",
+    "widths": [
+      400,
+      640,
+      960
+    ],
+    "category": "showcase"
+  },
+  "/products/emotional/sku/neck-showcase.png": {
+    "src": "/products/emotional/sku/neck-showcase.png",
+    "webp": "/products/emotional/sku/neck-showcase.webp",
+    "widths": [
+      400,
+      640,
+      960
+    ],
+    "category": "showcase"
+  },
+  "/products/emotional/sku/period-belt-showcase.png": {
+    "src": "/products/emotional/sku/period-belt-showcase.png",
+    "webp": "/products/emotional/sku/period-belt-showcase.webp",
+    "widths": [
+      400,
+      640,
+      960
+    ],
+    "category": "showcase"
+  },
+  "/products/gift-box.png": {
+    "src": "/products/gift-box.png",
+    "webp": "/products/gift-box.webp",
+    "widths": [
+      128,
+      256
+    ],
+    "category": "catalog"
+  },
+  "/products/head-massager.png": {
+    "src": "/products/head-massager.png",
+    "webp": "/products/head-massager.webp",
+    "widths": [
+      128,
+      256
+    ],
+    "category": "catalog"
+  },
+  "/products/knee-sleeves.png": {
+    "src": "/products/knee-sleeves.png",
+    "webp": "/products/knee-sleeves.webp",
+    "widths": [
+      128,
+      256
+    ],
+    "category": "catalog"
+  },
+  "/products/lumbar.png": {
+    "src": "/products/lumbar.png",
+    "webp": "/products/lumbar.webp",
+    "widths": [
+      128,
+      256
+    ],
+    "category": "catalog"
+  },
+  "/products/neck.png": {
+    "src": "/products/neck.png",
+    "webp": "/products/neck.webp",
+    "widths": [
+      128,
+      256
+    ],
+    "category": "catalog"
+  },
+  "/products/period-belt.png": {
+    "src": "/products/period-belt.png",
+    "webp": "/products/period-belt.webp",
+    "widths": [
+      128,
+      256
+    ],
+    "category": "catalog"
+  }
+}

@@ -1,3 +1,5 @@
+import { OptimizedImage } from './OptimizedImage'
+
 type Props = {
   src: string
   alt: string
@@ -17,13 +19,15 @@ export function ProductImage({ src, alt, aspect = '4/3', className = '', priorit
     <div
       className={`relative overflow-hidden rounded-xl bg-[#EEEBE6] border border-surface-border ${aspectClass[aspect]} ${className}`}
     >
-      <img
+      <OptimizedImage
         src={src}
         alt={alt}
+        pictureClassName="absolute inset-0 block w-full h-full"
         className="absolute inset-0 w-full h-full object-cover"
         loading={priority ? 'eager' : 'lazy'}
         decoding="async"
         fetchPriority={priority ? 'high' : 'auto'}
+        sizes={priority ? '(max-width: 768px) 100vw, 50vw' : undefined}
       />
     </div>
   )

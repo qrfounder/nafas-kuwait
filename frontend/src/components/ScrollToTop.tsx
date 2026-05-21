@@ -16,7 +16,7 @@ export function ScrollToTop() {
 
     const sectionId = hash ? hash.replace(/^#/, '') : ''
     if (sectionId) {
-      scrollToSection(sectionId, { behavior: 'instant', maxAttempts: 16 })
+      scrollToSection(sectionId, { behavior: 'instant', maxAttempts: 16, block: 'start' })
       return
     }
     scrollToTop('instant')

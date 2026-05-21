@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
+import { OptimizedImage } from './OptimizedImage'
 
-/** Official calligraphy wordmark (PNG). Re-export from design as transparent WebP when available. */
 const LOGO_SRC = '/brand/nafas-logo.png'
 
 type Props = {
@@ -27,7 +27,7 @@ export function Logo({ compact = false, variant = 'default', className = '' }: P
       aria-label="نفس، راحة منزلية في الكويت"
     >
       <span className="inline-flex shrink-0 items-center justify-center transition-transform duration-200 group-hover:scale-[1.02]">
-        <img
+        <OptimizedImage
           src={LOGO_SRC}
           alt="نفس"
           width={200}
@@ -35,6 +35,8 @@ export function Logo({ compact = false, variant = 'default', className = '' }: P
           className={`block shrink-0 object-contain object-center ${imgH}`}
           decoding="async"
           fetchPriority="high"
+          loading="eager"
+          sizes="200px"
         />
       </span>
     </Link>

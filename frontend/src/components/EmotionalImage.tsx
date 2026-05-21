@@ -1,4 +1,6 @@
 import type { EmotionalFrame } from '../data/productEmotionalImages'
+import { OptimizedImage } from './OptimizedImage'
+import { toWebp } from '../lib/optimizedImage'
 
 const moodStyles: Record<EmotionalFrame['mood'], string> = {
   fear: 'from-slate-900/50 to-transparent',
@@ -43,17 +45,24 @@ export function EmotionalImage({
     <figure
       className={`relative overflow-hidden rounded-xl border border-surface-border shadow-card ${aspectClass[aspect]} ${border} ${className}`}
     >
-      <img
+      <OptimizedImage
         src={frame.src}
         alt={frame.alt}
+        pictureClassName="absolute inset-0 block w-full h-full"
         className="absolute inset-0 w-full h-full object-cover"
         loading={priority ? 'eager' : 'lazy'}
         decoding="async"
+        fetchPriority={priority ? 'high' : 'auto'}
         onError={(ev) => {
           const img = ev.currentTarget
           if (!img.dataset.fallback) {
             img.dataset.fallback = '1'
-            img.src = '/products/emotional/home/hero.png'
+            const fallback = toWebp('/products/emotional/home/hero.png')
+            img.src = fallback
+            const pic = img.closest('picture')
+            pic?.querySelectorAll('source').forEach((s) => {
+              s.srcset = fallback
+            })
           }
         }}
       />
