@@ -239,7 +239,6 @@ export function ProductPage() {
 
       <ProductMobileStickyBar
         offerSectionId="purchase-offer"
-        reviewsSectionId="product-reviews"
         priceLabel={formatKwd(stickyPrice)}
         detailLine={stickyDetail}
         ctaLabel="اختاري عرضج"

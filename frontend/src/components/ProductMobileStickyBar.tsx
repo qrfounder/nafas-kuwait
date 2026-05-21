@@ -7,8 +7,6 @@ import { TRUST_STATS } from '../data/socialProof'
 type Props = {
   /** Section to scroll to (e.g. purchase-offer). */
   offerSectionId: string
-  /** Optional reviews block — CTA scrolls here when user is reading reviews. */
-  reviewsSectionId?: string
   priceLabel: string
   detailLine: string
   ctaLabel: string
@@ -21,7 +19,6 @@ type Props = {
  */
 export function ProductMobileStickyBar({
   offerSectionId,
-  reviewsSectionId,
   priceLabel,
   detailLine,
   ctaLabel,
@@ -29,7 +26,6 @@ export function ProductMobileStickyBar({
 }: Props) {
   const { cartOpen, checkoutOpen } = useCart()
   const [offerOnScreen, setOfferOnScreen] = useState(true)
-  const [reviewsOnScreen, setReviewsOnScreen] = useState(false)
 
   useEffect(() => {
     const el = document.getElementById(offerSectionId)
@@ -45,27 +41,8 @@ export function ProductMobileStickyBar({
     return () => obs.disconnect()
   }, [offerSectionId])
 
-  useEffect(() => {
-    if (!reviewsSectionId) {
-      setReviewsOnScreen(false)
-      return
-    }
-    const el = document.getElementById(reviewsSectionId)
-    if (!el) return
-    const obs = new IntersectionObserver(
-      ([entry]) => setReviewsOnScreen(entry.isIntersecting),
-      { root: null, threshold: 0.08 },
-    )
-    obs.observe(el)
-    return () => obs.disconnect()
-  }, [reviewsSectionId])
-
   const hidden = cartOpen || checkoutOpen || offerOnScreen
   if (hidden || typeof document === 'undefined') return null
-
-  const trustLine = reviewsOnScreen
-    ? 'تعليقات عميلات من الكويت — اختاري عرضج وكملي طلبج'
-    : 'تقييمات حقيقية من طلبات الكويت'
 
   return createPortal(
     <div
@@ -83,7 +60,6 @@ export function ProductMobileStickyBar({
           <span className="text-surface-muted">
             ({TRUST_STATS.count}+ طلب{TRUST_STATS.kuwaitOnly ? '، الكويت' : ''})
           </span>
-          <span className="text-surface-muted/90 w-full">{trustLine}</span>
         </div>
 
         <div className="flex items-center justify-between gap-3">
