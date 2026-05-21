@@ -46,7 +46,7 @@ export function ProductMobileStickyBar({
 
   return createPortal(
     <div
-      className="md:hidden fixed bottom-0 inset-x-0 z-[100] border-t border-surface-border bg-white/98 backdrop-blur-sm shadow-[0_-4px_24px_rgba(0,0,0,0.08)] pb-[env(safe-area-inset-bottom)]"
+      className="md:hidden fixed bottom-0 inset-x-0 z-[100] border-t border-surface-border bg-white shadow-[0_-4px_24px_rgba(0,0,0,0.12)] pb-[env(safe-area-inset-bottom)]"
       role="region"
       aria-label="ملخص السعر والتقييم"
     >
