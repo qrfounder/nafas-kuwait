@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 /**
  * Generate WebP + responsive widths for storefront images.
- * Usage: node scripts/optimize-store-images.mjs
+ * Run from frontend/: npm run optimize-images
+ * (Requires PNG sources in public/ — production uses committed WebP + manifest.)
  */
 
 import fs from 'fs'
@@ -11,9 +12,9 @@ import { createRequire } from 'module'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const ROOT = path.resolve(__dirname, '..')
-const require = createRequire(path.join(ROOT, 'frontend/package.json'))
+const require = createRequire(path.join(ROOT, 'package.json'))
 const sharp = require('sharp')
-const PUBLIC = path.join(ROOT, 'frontend/public')
+const PUBLIC = path.join(ROOT, 'public')
 const MANIFEST_PATH = path.join(PUBLIC, 'image-manifest.json')
 
 const QUALITY = 82

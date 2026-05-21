@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "optimize-images": "node ../scripts/optimize-store-images.mjs",
-    "build": "npm run optimize-images && tsc -b && vite build",
+    "optimize-images": "node scripts/optimize-store-images.mjs",
+    "build": "tsc -b && vite build",
     "preview": "vite preview"
   },
   "dependencies": {
