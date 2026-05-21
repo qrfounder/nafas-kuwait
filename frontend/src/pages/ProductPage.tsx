@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { scrollToSection } from '../lib/scroll'
-import { useHashSectionScroll } from '../hooks/useHashSectionScroll'
 import {
   SINGLE_SKU_PRICES,
   singlesInBundle,
@@ -27,6 +26,8 @@ import type { ReviewPage } from '../data/socialProof'
 import { useStore } from '../context/StoreContext'
 
 export function ProductPage() {
+  const { pathname, hash } = useLocation()
+  const navigate = useNavigate()
   const { slug } = useParams<{ slug: string }>()
   const { getProduct } = useStore()
   const product = slug ? getProduct(slug) : undefined
@@ -52,7 +53,10 @@ export function ProductPage() {
     }
   }, [product])
 
-  useHashSectionScroll('purchase-offer', Boolean(product && selectedTier))
+  /** Legacy/shared links with #purchase-offer: land at top, drop hash from URL. */
+  useEffect(() => {
+    if (hash) navigate(pathname, { replace: true })
+  }, [hash, pathname, navigate])
 
   if (!product || !selectedTier || !emotional) {
     return <p className="text-center py-20 text-surface-muted">المنتج غير موجود</p>

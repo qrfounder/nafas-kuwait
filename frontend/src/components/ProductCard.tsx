@@ -26,7 +26,7 @@ export function ProductCard({ product }: { product: Product }) {
           <PriceFrom usd={product.base_price} />
         </p>
         <Link
-          to={`/product/${product.slug}#purchase-offer`}
+          to={`/product/${product.slug}`}
           className="btn-primary text-center mt-4 block"
         >
           عرض الباقة والقطع
