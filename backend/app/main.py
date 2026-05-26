@@ -27,11 +27,23 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="Nafas API", version="1.0.0", lifespan=lifespan)
 
-origins = [
-    settings.frontend_origin,
-    "http://localhost:5173",
-    "http://localhost:8080",
-]
+def _cors_origins() -> list[str]:
+    base = settings.frontend_origin.rstrip("/")
+    out = {
+        base,
+        "http://localhost:5173",
+        "http://localhost:8080",
+        "https://nafas.shop",
+        "https://www.nafas.shop",
+        "https://naffas.shop",
+        "https://www.naffas.shop",
+    }
+    if base.startswith("https://") and "://www." not in base:
+        out.add(base.replace("https://", "https://www.", 1))
+    return sorted(out)
+
+
+origins = _cors_origins()
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,

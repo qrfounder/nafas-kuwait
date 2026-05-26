@@ -1,7 +1,7 @@
 const VISITOR_KEY = 'nafas_visitor_id'
 const SESSION_KEY = 'nafas_session_id'
 
-const API = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+import { getApiBase } from './apiBase'
 
 export type StoreEventType =
   | 'page_view'
@@ -73,7 +73,7 @@ export function trackStoreEvent(
     metadata: opts?.metadata ?? null,
   }
 
-  const url = `${API}/api/analytics/track`
+  const url = `${getApiBase()}/api/analytics/track`
   try {
     if (navigator.sendBeacon) {
       const blob = new Blob([JSON.stringify(body)], { type: 'application/json' })

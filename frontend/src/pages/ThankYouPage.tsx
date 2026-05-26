@@ -11,9 +11,16 @@ export function ThankYouPage() {
 
   useEffect(() => {
     if (!order) return
+    const key = `nafas_purchase_logged_${order}`
+    try {
+      if (sessionStorage.getItem(key)) return
+      sessionStorage.setItem(key, '1')
+    } catch {
+      /* ignore */
+    }
     trackStoreEvent('purchase', {
       path: `/thank-you?order=${order}`,
-      metadata: { order_number: order, upsell: Boolean(upsell) },
+      metadata: { order_number: order, upsell: Boolean(upsell), source: 'thank_you_page' },
     })
   }, [order, upsell])
 

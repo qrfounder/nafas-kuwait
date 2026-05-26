@@ -1,16 +1,24 @@
+import { usdToKwd } from './currency'
 import { trackStoreEvent } from './visitorAnalytics'
 
 declare global {
   interface Window {
     fbq?: (...args: unknown[]) => void
     _fbq?: unknown
-    ttq?: { track: (...args: unknown[]) => void; load: (id: string) => void; page: () => void }
+    ttq?: TikTokPixel
     snaptr?: (...args: unknown[]) => void
     __lastEventId?: string
   }
 }
 
-function newEventId(): string {
+type TikTokPixel = {
+  track: (...args: unknown[]) => void
+  load: (id: string) => void
+  page: () => void
+  _queue?: unknown[][]
+}
+
+export function newEventId(): string {
   const id = crypto.randomUUID()
   window.__lastEventId = id
   return id
@@ -20,12 +28,21 @@ export function getLastEventId(): string {
   return window.__lastEventId || crypto.randomUUID()
 }
 
-function loadScript(src: string, id: string): void {
-  if (document.getElementById(id)) return
+/** Ad platforms: send KWD amounts to match storefront display. */
+function kwdPayload(usd: number) {
+  return { value: usdToKwd(usd), currency: 'KWD' as const }
+}
+
+function loadScript(src: string, id: string, onload?: () => void): void {
+  if (document.getElementById(id)) {
+    onload?.()
+    return
+  }
   const s = document.createElement('script')
   s.id = id
   s.async = true
   s.src = src
+  if (onload) s.onload = onload
   document.head.appendChild(s)
 }
 
@@ -46,10 +63,32 @@ function initMeta(pixelId: string) {
 }
 
 function initTikTok(pixelId: string) {
-  window.ttq = window.ttq || { track: () => {}, load: () => {}, page: () => {} }
-  loadScript('https://analytics.tiktok.com/i18n/pixel/events.js', 'tt-pixel')
-  window.ttq.load(pixelId)
-  window.ttq.page()
+  const queue: unknown[][] = []
+  const stub: TikTokPixel = {
+    _queue: queue,
+    track: (...args: unknown[]) => {
+      queue.push(['track', ...args])
+    },
+    page: () => {
+      queue.push(['page'])
+    },
+    load: (id: string) => {
+      loadScript('https://analytics.tiktok.com/i18n/pixel/events.js', 'tt-pixel', () => {
+        const live = window.ttq
+        if (!live || live === stub) return
+        live.load(id)
+        live.page()
+        for (const item of queue) {
+          const [cmd, ...rest] = item
+          if (cmd === 'track') live.track(...rest)
+          else if (cmd === 'page') live.page()
+        }
+        queue.length = 0
+      })
+    },
+  }
+  window.ttq = stub
+  stub.load(pixelId)
 }
 
 function initSnap(pixelId: string) {
@@ -58,9 +97,10 @@ function initSnap(pixelId: string) {
   }
   tr.queue = []
   window.snaptr = tr
-  loadScript('https://sc-static.net/scevent.min.js', 'snap-pixel')
-  window.snaptr?.('init', pixelId, {})
-  window.snaptr?.('track', 'PAGE_VIEW')
+  loadScript('https://sc-static.net/scevent.min.js', 'snap-pixel', () => {
+    window.snaptr?.('init', pixelId, {})
+    window.snaptr?.('track', 'PAGE_VIEW')
+  })
 }
 
 let loaded = false
@@ -77,9 +117,9 @@ export function initAnalyticsFromPixels(pixels: { meta?: string; tiktok?: string
     if (snap) initSnap(snap)
   }
   if ('requestIdleCallback' in window) {
-    requestIdleCallback(run, { timeout: 2500 })
+    requestIdleCallback(run, { timeout: 800 })
   } else {
-    setTimeout(run, 2500)
+    setTimeout(run, 400)
   }
 }
 
@@ -88,34 +128,41 @@ export function initAnalyticsDeferred(): void {
   initAnalyticsFromPixels({})
 }
 
-export function trackViewContent(slug: string, value: number) {
+export function trackViewContent(slug: string, valueUsd: number) {
+  const { value, currency } = kwdPayload(valueUsd)
   trackStoreEvent('view_content', { product_slug: slug, value })
   const eventId = newEventId()
-  window.fbq?.('track', 'ViewContent', { content_ids: [slug], value, currency: 'USD' }, { eventID: eventId })
-  window.ttq?.track('ViewContent', { content_id: slug, value, currency: 'USD' })
+  window.fbq?.('track', 'ViewContent', { content_ids: [slug], value, currency }, { eventID: eventId })
+  window.ttq?.track('ViewContent', { content_id: slug, value, currency })
+  window.snaptr?.('track', 'VIEW_CONTENT', { item_ids: [slug], price: value, currency })
   return eventId
 }
 
-export function trackAddToCart(value: number, slug: string) {
+export function trackAddToCart(valueUsd: number, slug: string) {
+  const { value, currency } = kwdPayload(valueUsd)
   trackStoreEvent('add_to_cart', { product_slug: slug.split(':')[0], value })
   const eventId = newEventId()
-  window.fbq?.('track', 'AddToCart', { value, currency: 'USD', content_ids: [slug] }, { eventID: eventId })
-  window.ttq?.track('AddToCart', { value, currency: 'USD', content_id: slug })
+  window.fbq?.('track', 'AddToCart', { value, currency, content_ids: [slug] }, { eventID: eventId })
+  window.ttq?.track('AddToCart', { value, currency, content_id: slug })
+  window.snaptr?.('track', 'ADD_CART', { price: value, currency, item_ids: [slug] })
   return eventId
 }
 
-export function trackInitiateCheckout(value: number) {
+export function trackInitiateCheckout(valueUsd: number) {
+  const { value, currency } = kwdPayload(valueUsd)
   trackStoreEvent('checkout_visit', { value })
   const eventId = newEventId()
-  window.fbq?.('track', 'InitiateCheckout', { value, currency: 'USD' }, { eventID: eventId })
-  window.ttq?.track('InitiateCheckout', { value, currency: 'USD' })
+  window.fbq?.('track', 'InitiateCheckout', { value, currency }, { eventID: eventId })
+  window.ttq?.track('InitiateCheckout', { value, currency })
+  window.snaptr?.('track', 'START_CHECKOUT', { price: value, currency })
   return eventId
 }
 
-export function trackPurchase(value: number, eventId: string) {
-  window.fbq?.('track', 'Purchase', { value, currency: 'USD' }, { eventID: eventId })
-  window.ttq?.track('CompletePayment', { value, currency: 'USD' })
-  window.snaptr?.('track', 'PURCHASE', { price: value, currency: 'USD', client_dedup_id: eventId })
+export function trackPurchase(valueUsd: number, eventId: string) {
+  const { value, currency } = kwdPayload(valueUsd)
+  window.fbq?.('track', 'Purchase', { value, currency }, { eventID: eventId })
+  window.ttq?.track('CompletePayment', { value, currency })
+  window.snaptr?.('track', 'PURCHASE', { price: value, currency, client_dedup_id: eventId })
 }
 
 export function getAttribution() {
@@ -127,5 +174,6 @@ export function getAttribution() {
     fbp: document.cookie.match(/_fbp=([^;]+)/)?.[1] || null,
     fbc: document.cookie.match(/_fbc=([^;]+)/)?.[1] || null,
     ttclid: params.get('ttclid'),
+    sc_click_id: params.get('ScCid') || params.get('sccid'),
   }
 }

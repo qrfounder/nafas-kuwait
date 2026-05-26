@@ -1,4 +1,4 @@
-const API = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+import { getApiBase } from './apiBase'
 
 export type StorePixels = {
   meta: string
@@ -50,7 +50,7 @@ export type StoreBootstrap = {
 let cached: StoreBootstrap | null = null
 
 export async function fetchStoreBootstrap(): Promise<StoreBootstrap> {
-  const res = await fetch(`${API}/api/store/bootstrap`)
+  const res = await fetch(`${getApiBase()}/api/store/bootstrap`)
   if (!res.ok) throw new Error('تعذّر تحميل إعدادات المتجر')
   const data = (await res.json()) as StoreBootstrap
   cached = data

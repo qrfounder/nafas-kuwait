@@ -1,6 +1,5 @@
+import { getApiBase } from './apiBase'
 import { getSessionId, getVisitorId } from './visitorAnalytics'
-
-const API = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 const HAS_VISITED_KEY = 'nafas_has_visited'
 
 export type LiveStage = 'browsing' | 'cart' | 'checkout' | 'purchased'
@@ -58,7 +57,7 @@ export function sendLiveHeartbeat(opts: {
     product_slug: opts.product_slug ?? null,
   }
 
-  void fetch(`${API}/api/analytics/heartbeat`, {
+  void fetch(`${getApiBase()}/api/analytics/heartbeat`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),

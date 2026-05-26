@@ -105,7 +105,7 @@ async def accept_upsell(order_number: str, body: UpsellIn, db: Session = Depends
     order.upsell_accepted = True
     order.upsell_sku = body.upsell_sku
     order.upsell_price_usd = body.upsell_price_usd
-    order.total_usd = order.subtotal_usd + body.upsell_price_usd
+    order.total_usd = order.total_usd + body.upsell_price_usd
 
     upsell_title = CROSS_SELLS.get(body.upsell_sku, {}).get("title_ar", body.upsell_sku)
     for p in PRODUCTS.values():

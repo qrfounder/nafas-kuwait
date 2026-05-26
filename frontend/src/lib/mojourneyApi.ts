@@ -1,6 +1,6 @@
 const STORAGE_KEY = 'mojourney_admin_key'
 
-const API = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+import { getApiBase } from './apiBase'
 
 export class MojourneyAuthError extends Error {
   constructor(
@@ -70,13 +70,13 @@ export async function adminPing(): Promise<{
   admin_configured: boolean
   password_login?: boolean
 }> {
-  const res = await fetch(`${API}/api/admin/ping`)
+  const res = await fetch(`${getApiBase()}/api/admin/ping`)
   if (!res.ok) throw new Error('تعذّر الاتصال بالـ API')
   return res.json()
 }
 
 export async function mojourneyLogin(username: string, password: string): Promise<string> {
-  const res = await fetch(`${API}/api/admin/login`, {
+  const res = await fetch(`${getApiBase()}/api/admin/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ username: username.trim(), password }),
@@ -93,7 +93,7 @@ export async function mojourneyLogin(username: string, password: string): Promis
 export async function mojourneyLogout(sessionToken: string | null) {
   if (!sessionToken) return
   try {
-    await fetch(`${API}/api/admin/logout`, {
+    await fetch(`${getApiBase()}/api/admin/logout`, {
       method: 'POST',
       headers: { 'X-Admin-Key': sessionToken },
     })
@@ -103,14 +103,14 @@ export async function mojourneyLogout(sessionToken: string | null) {
 }
 
 export async function fetchAdminSummary(key: string): Promise<AdminOrdersSummary> {
-  const res = await fetch(`${API}/api/admin/summary`, {
+  const res = await fetch(`${getApiBase()}/api/admin/summary`, {
     headers: { 'X-Admin-Key': key },
   })
   return parseAdminJson(res)
 }
 
 export async function fetchAdminOrders(key: string): Promise<AdminOrderRow[]> {
-  const res = await fetch(`${API}/api/admin/orders?limit=200`, {
+  const res = await fetch(`${getApiBase()}/api/admin/orders?limit=200`, {
     headers: { 'X-Admin-Key': key },
   })
   return parseAdminJson(res)
@@ -164,12 +164,12 @@ function adminHeaders(key: string) {
 }
 
 export async function fetchAdminPixels(key: string): Promise<AdminPixels> {
-  const res = await fetch(`${API}/api/admin/settings/pixels`, { headers: adminHeaders(key) })
+  const res = await fetch(`${getApiBase()}/api/admin/settings/pixels`, { headers: adminHeaders(key) })
   return parseAdminJson(res)
 }
 
 export async function saveAdminPixels(key: string, body: AdminPixels): Promise<AdminPixels> {
-  const res = await fetch(`${API}/api/admin/settings/pixels`, {
+  const res = await fetch(`${getApiBase()}/api/admin/settings/pixels`, {
     method: 'PUT',
     headers: adminHeaders(key),
     body: JSON.stringify(body),
@@ -178,7 +178,7 @@ export async function saveAdminPixels(key: string, body: AdminPixels): Promise<A
 }
 
 export async function fetchAdminRedirects(key: string): Promise<AdminRedirect[]> {
-  const res = await fetch(`${API}/api/admin/redirects`, { headers: adminHeaders(key) })
+  const res = await fetch(`${getApiBase()}/api/admin/redirects`, { headers: adminHeaders(key) })
   return parseAdminJson(res)
 }
 
@@ -186,7 +186,7 @@ export async function createAdminRedirect(
   key: string,
   body: Omit<AdminRedirect, 'id' | 'to_path_resolved'>,
 ): Promise<AdminRedirect> {
-  const res = await fetch(`${API}/api/admin/redirects`, {
+  const res = await fetch(`${getApiBase()}/api/admin/redirects`, {
     method: 'POST',
     headers: adminHeaders(key),
     body: JSON.stringify(body),
@@ -199,7 +199,7 @@ export async function updateAdminRedirect(
   id: string,
   body: Omit<AdminRedirect, 'id' | 'to_path_resolved'>,
 ): Promise<AdminRedirect> {
-  const res = await fetch(`${API}/api/admin/redirects/${id}`, {
+  const res = await fetch(`${getApiBase()}/api/admin/redirects/${id}`, {
     method: 'PUT',
     headers: adminHeaders(key),
     body: JSON.stringify(body),
@@ -208,7 +208,7 @@ export async function updateAdminRedirect(
 }
 
 export async function deleteAdminRedirect(key: string, id: string): Promise<void> {
-  const res = await fetch(`${API}/api/admin/redirects/${id}`, {
+  const res = await fetch(`${getApiBase()}/api/admin/redirects/${id}`, {
     method: 'DELETE',
     headers: adminHeaders(key),
   })
@@ -216,12 +216,12 @@ export async function deleteAdminRedirect(key: string, id: string): Promise<void
 }
 
 export async function fetchAdminProducts(key: string): Promise<AdminProduct[]> {
-  const res = await fetch(`${API}/api/admin/products`, { headers: adminHeaders(key) })
+  const res = await fetch(`${getApiBase()}/api/admin/products`, { headers: adminHeaders(key) })
   return parseAdminJson(res)
 }
 
 export async function fetchAdminSkus(key: string): Promise<AdminSku[]> {
-  const res = await fetch(`${API}/api/admin/skus`, { headers: adminHeaders(key) })
+  const res = await fetch(`${getApiBase()}/api/admin/skus`, { headers: adminHeaders(key) })
   return parseAdminJson(res)
 }
 
@@ -230,7 +230,7 @@ export async function saveAdminSku(
   sku: string,
   body: Omit<AdminSku, 'sku' | 'image_url' | 'has_override'>,
 ): Promise<AdminSku> {
-  const res = await fetch(`${API}/api/admin/skus/${sku}`, {
+  const res = await fetch(`${getApiBase()}/api/admin/skus/${sku}`, {
     method: 'PUT',
     headers: adminHeaders(key),
     body: JSON.stringify(body),
@@ -288,7 +288,7 @@ export async function fetchAdminAnalytics(
   if (opts.preset) q.set('preset', opts.preset)
   if (opts.from) q.set('from', opts.from)
   if (opts.to) q.set('to', opts.to)
-  const res = await fetch(`${API}/api/admin/analytics/report?${q}`, { headers: adminHeaders(key) })
+  const res = await fetch(`${getApiBase()}/api/admin/analytics/report?${q}`, { headers: adminHeaders(key) })
   return parseAdminJson(res)
 }
 
@@ -334,7 +334,7 @@ export type LiveSnapshot = {
 }
 
 export async function fetchAdminLive(key: string): Promise<LiveSnapshot> {
-  const res = await fetch(`${API}/api/admin/live/snapshot`, { headers: adminHeaders(key) })
+  const res = await fetch(`${getApiBase()}/api/admin/live/snapshot`, { headers: adminHeaders(key) })
   return parseAdminJson(res)
 }
 
@@ -350,7 +350,7 @@ export async function saveAdminProduct(
     tiers_json: string | null
   },
 ): Promise<AdminProduct> {
-  const res = await fetch(`${API}/api/admin/products/${slug}`, {
+  const res = await fetch(`${getApiBase()}/api/admin/products/${slug}`, {
     method: 'PUT',
     headers: adminHeaders(key),
     body: JSON.stringify(body),

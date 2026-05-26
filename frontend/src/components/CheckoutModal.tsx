@@ -1,9 +1,10 @@
 import { FormEvent, useEffect, useState } from 'react'
 import { useCart } from '../context/CartContext'
 import type { CartLine } from '../context/CartContext'
-import { createOrder } from '../lib/api'
+import { ApiRequestError, createOrder } from '../lib/api'
 import { formatKwd } from '../lib/currency'
-import { getAttribution, getLastEventId, trackPurchase } from '../lib/analytics'
+import { getAttribution, newEventId, trackPurchase } from '../lib/analytics'
+import { useStore } from '../context/StoreContext'
 import { trackStoreEvent } from '../lib/visitorAnalytics'
 import { validateKuwaitPhone } from '../lib/phone'
 import { CHECKOUT_EXTRAS, CHECKOUT_EXTRAS_ORDER, type CheckoutExtraKey } from '../data/checkoutExtras'
@@ -29,6 +30,7 @@ export function CheckoutModal({ onSuccess }: Props) {
     offerTier,
     clearCart,
   } = useCart()
+  const { apiReachable } = useStore()
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
   const [phoneError, setPhoneError] = useState('')
@@ -86,9 +88,17 @@ export function CheckoutModal({ onSuccess }: Props) {
       setPhoneError(v.error)
       return
     }
+    if (!name.trim() || name.trim().length < 2) {
+      setPhoneError('الاسم يجب أن يكون حرفين على الأقل')
+      return
+    }
+    if (!apiReachable) {
+      setPhoneError('خادم الطلبات غير متصل حالياً. حاولي بعد دقائق أو تواصلي معنا.')
+      return
+    }
     setPhoneError('')
     setLoading(true)
-    const eventId = getLastEventId()
+    const eventId = newEventId()
     const attr = getAttribution()
     try {
       const res = await createOrder({
@@ -102,12 +112,32 @@ export function CheckoutModal({ onSuccess }: Props) {
         event_id: eventId,
         ...attr,
       })
+      const orderNumber = String(res.order_number ?? '')
+      const postUpsell =
+        (res.post_upsell as { sku: string; title_ar: string; anchor: number; price: number } | null) ||
+        product.post_upsell
       trackPurchase(orderTotal, eventId)
+      try {
+        sessionStorage.setItem(`nafas_purchase_logged_${orderNumber}`, '1')
+      } catch {
+        /* ignore */
+      }
+      trackStoreEvent('purchase', {
+        value: orderTotal,
+        product_slug: product.slug,
+        metadata: { order_number: orderNumber, event_id: eventId },
+      })
       setCheckoutOpen(false)
-      onSuccess(res.order_number, res.post_upsell || product.post_upsell)
+      onSuccess(orderNumber, postUpsell)
       clearCart()
     } catch (err) {
-      setPhoneError(err instanceof Error ? err.message : 'حدث خطأ')
+      const msg =
+        err instanceof ApiRequestError
+          ? err.message
+          : err instanceof Error
+            ? err.message
+            : 'حدث خطأ'
+      setPhoneError(msg)
     } finally {
       setLoading(false)
     }
@@ -250,6 +280,7 @@ export function CheckoutModal({ onSuccess }: Props) {
                   <input
                     id="checkout-name"
                     required
+                    minLength={2}
                     autoComplete="name"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
@@ -285,7 +316,11 @@ export function CheckoutModal({ onSuccess }: Props) {
 
               <PaymentMethods variant="compact" />
 
-              <button type="submit" disabled={loading} className="btn-primary w-full py-3.5 text-base font-semibold">
+              <button
+                type="submit"
+                disabled={loading || !apiReachable}
+                className="btn-primary w-full py-3.5 text-base font-semibold disabled:opacity-60"
+              >
                 {loading ? 'جاري الإرسال…' : `تأكيد الطلب · ${formatKwd(orderTotal)}`}
               </button>
             </form>

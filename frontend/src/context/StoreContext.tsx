@@ -9,11 +9,13 @@ import {
 } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { getCatalogProducts, PRODUCTS, type Product } from '../data/products'
+import { pingApiHealth } from '../lib/apiBase'
 import { fetchStoreBootstrap, type StoreBootstrap, type StoreProduct, type StoreSku } from '../lib/storeApi'
 import { initAnalyticsFromPixels } from '../lib/analytics'
 
 type StoreContextValue = {
   ready: boolean
+  apiReachable: boolean
   bootstrap: StoreBootstrap | null
   products: Product[]
   skus: StoreSku[]
@@ -40,19 +42,23 @@ function toProduct(p: StoreProduct): Product {
 export function StoreProvider({ children }: { children: ReactNode }) {
   const [bootstrap, setBootstrap] = useState<StoreBootstrap | null>(null)
   const [ready, setReady] = useState(false)
+  const [apiReachable, setApiReachable] = useState(true)
   const location = useLocation()
   const navigate = useNavigate()
 
   useEffect(() => {
     let cancelled = false
-    fetchStoreBootstrap()
-      .then((b) => {
+    void (async () => {
+      const healthy = await pingApiHealth()
+      if (cancelled) return
+      setApiReachable(healthy)
+
+      try {
+        const b = await fetchStoreBootstrap()
         if (cancelled) return
         setBootstrap(b)
         initAnalyticsFromPixels(b.pixels)
-        setReady(true)
-      })
-      .catch(() => {
+      } catch {
         if (cancelled) return
         setBootstrap(null)
         initAnalyticsFromPixels({
@@ -60,8 +66,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           tiktok: import.meta.env.VITE_TIKTOK_PIXEL_ID || '',
           snap: import.meta.env.VITE_SNAP_PIXEL_ID || '',
         })
-        setReady(true)
-      })
+      } finally {
+        if (!cancelled) setReady(true)
+      }
+    })()
     return () => {
       cancelled = true
     }
@@ -116,6 +124,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const value = useMemo(
     () => ({
       ready,
+      apiReachable,
       bootstrap,
       products,
       skus,
@@ -123,7 +132,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       getProduct,
       getSku,
     }),
-    [ready, bootstrap, products, skus, getProduct, getSku],
+    [ready, apiReachable, bootstrap, products, skus, getProduct, getSku],
   )
 
   return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>
