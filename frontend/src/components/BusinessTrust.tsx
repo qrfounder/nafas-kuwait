@@ -1,7 +1,7 @@
 /** Trust signals for Kuwait COD shoppers (CRO layer). */
 export function BusinessTrust({ compact }: { compact?: boolean }) {
   const items = [
-    { label: 'تجارة إلكترونية', value: 'متجر كويتي، nafas.shop' },
+    { label: 'تجارة إلكترونية', value: 'متجر كويتي، naffas.shop' },
     { label: 'الدفع', value: 'ادفعي عند الباب فقط، بدون بطاقة أونلاين' },
     { label: 'التوصيل', value: 'شركاء شحن داخل الكويت' },
     { label: 'الدعم', value: 'تأكيد هاتفي + صفحة تواصل' },

@@ -59,7 +59,7 @@ export function Footer() {
         </div>
       </div>
       <p className="text-center text-xs text-cream/45 pb-6">
-        © {new Date().getFullYear()} Nafas، nafas.shop
+        © {new Date().getFullYear()} Nafas، naffas.shop
       </p>
     </footer>
   )

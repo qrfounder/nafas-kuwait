@@ -33,10 +33,10 @@ def _cors_origins() -> list[str]:
         base,
         "http://localhost:5173",
         "http://localhost:8080",
-        "https://nafas.shop",
-        "https://www.nafas.shop",
         "https://naffas.shop",
         "https://www.naffas.shop",
+        "https://nafas.shop",
+        "https://www.nafas.shop",
     }
     if base.startswith("https://") and "://www." not in base:
         out.add(base.replace("https://", "https://www.", 1))

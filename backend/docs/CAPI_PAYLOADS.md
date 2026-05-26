@@ -26,7 +26,7 @@ Implemented in `app/services/pii_hash.py`.
     "event_time": 1715779200,
     "event_id": "uuid",
     "action_source": "website",
-    "event_source_url": "https://nafas.shop/thank-you?order=NF-...",
+    "event_source_url": "https://naffas.shop/thank-you?order=NF-...",
     "user_data": {
       "ph": ["<sha256 phone>"],
       "fn": ["<sha256 first name optional>"],

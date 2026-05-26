@@ -6,8 +6,8 @@ export function getApiBase(): string {
   const fromEnv = (import.meta.env.VITE_API_URL as string | undefined)?.replace(/\/$/, '')
   const host = typeof window !== 'undefined' ? window.location.hostname : ''
 
-  const productionApi = 'https://api.nafas.shop'
-  const productionHosts = new Set(['nafas.shop', 'www.nafas.shop', 'naffas.shop', 'www.naffas.shop'])
+  const productionApi = 'https://api.naffas.shop'
+  const productionHosts = new Set(['naffas.shop', 'www.naffas.shop', 'nafas.shop', 'www.nafas.shop'])
 
   if (productionHosts.has(host)) {
     if (!fromEnv || /localhost|127\.0\.0\.1/i.test(fromEnv)) return productionApi

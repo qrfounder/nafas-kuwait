@@ -1,6 +1,6 @@
 # Nafas (نفس) — Kuwait COD DTC Store
 
-Khaleeji women's pain-relief bundles. COD-only checkout. TikTok/Snap ads → **nafas.shop**.
+Khaleeji women's pain-relief bundles. COD-only checkout. TikTok/Snap ads → **naffas.shop**.
 
 ## Structure
 
@@ -51,17 +51,17 @@ docker compose up --build
 2. Deploy `nafas-api` from `backend/Dockerfile` with backend `.env`
 3. Deploy `nafas-web` from `frontend/Dockerfile` with build args / `VITE_*`
 4. Deploy Google Apps Script from `sheets/apps-script.js` → set `GOOGLE_SHEETS_WEBHOOK_URL`
-5. Point `nafas.shop` to frontend; API subdomain to backend
+5. Point `naffas.shop` to frontend; API subdomain to backend
 6. COD Network: import orders from Sheet (column `status`)
 
 ### Critical for conversions (verify after every deploy)
 
 | Check | Command / URL |
 |-------|----------------|
-| API healthy | `curl -s https://api.nafas.shop/health` → `{"status":"ok"}` |
-| Store bootstrap | `curl -s https://api.nafas.shop/api/store/bootstrap` → JSON with `products` |
-| Frontend API URL | Build arg `VITE_API_URL=https://api.nafas.shop` (not localhost) |
-| CORS | Backend `FRONTEND_ORIGIN=https://nafas.shop` (match live domain, with or without `www`) |
+| API healthy | `curl -s https://api.naffas.shop/health` → `{"status":"ok"}` |
+| Store bootstrap | `curl -s https://api.naffas.shop/api/store/bootstrap` → JSON with `products` |
+| Frontend API URL | Build arg `VITE_API_URL=https://api.naffas.shop` (not localhost) |
+| CORS | Backend `FRONTEND_ORIGIN=https://naffas.shop` (match live domain, with or without `www`) |
 | Funnel data | Mojourney → Analytics → yesterday: `checkout_visit` vs `purchase` |
 
 If API returns **503**, the site can load but **no orders will submit**. Redeploy `nafas-api` and confirm Postgres is connected.

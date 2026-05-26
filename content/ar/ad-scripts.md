@@ -18,7 +18,7 @@ Pain-only. Accurate product names (COD confirmation). No cure claims.
 
 **Body:** "حزام حرارة لاسلكي + ممدد ظهر + مدلك رقبة — بوكس واحد من نفس. دفع عند الاستلام."
 
-**CTA:** "اضغطي اطلبي — nafas.shop"
+**CTA:** "اضغطي اطلبي — naffas.shop"
 
 ## 2. Can't function
 
