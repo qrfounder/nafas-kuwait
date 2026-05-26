@@ -1,8 +1,11 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import {
   fetchAdminAnalytics,
+  fetchAdminVisitors,
   getStoredAdminKey,
   type AnalyticsReport,
+  type VisitorFunnelRow,
+  type VisitorsReport,
 } from '../../lib/mojourneyApi'
 
 type Preset = 'today' | 'yesterday' | 'week' | 'month' | '90d' | 'custom'
@@ -17,12 +20,14 @@ const PRESETS: { id: Preset; label: string }[] = [
 ]
 
 const FUNNEL_STEPS: { key: keyof AnalyticsReport['funnel']; label: string; color: string }[] = [
-  { key: 'page_view', label: 'Page views', color: 'bg-slate-500' },
-  { key: 'view_content', label: 'Product views', color: 'bg-slate-400' },
+  { key: 'page_view', label: 'Page view', color: 'bg-slate-500' },
+  { key: 'view_content', label: 'Product view', color: 'bg-slate-400' },
   { key: 'add_to_cart', label: 'Add to cart', color: 'bg-amber-600' },
+  { key: 'cart_view', label: 'Cart opened', color: 'bg-amber-500/80' },
   { key: 'checkout_visit', label: 'Checkout opened', color: 'bg-amber-500' },
-  { key: 'checkout_form_start', label: 'Checkout form started', color: 'bg-amber-400' },
-  { key: 'purchase', label: 'Purchase (thank-you)', color: 'bg-emerald-500' },
+  { key: 'checkout_form_start', label: 'Lead (name/phone started)', color: 'bg-amber-400' },
+  { key: 'upsell_view', label: 'Post-checkout upsell shown', color: 'bg-violet-500' },
+  { key: 'purchase', label: 'Purchase (thank-you page)', color: 'bg-emerald-500' },
 ]
 
 function FunnelBar({ label, count, max, color }: { label: string; count: number; max: number; color: string }) {
@@ -42,11 +47,36 @@ function FunnelBar({ label, count, max, color }: { label: string; count: number;
   )
 }
 
+function StepCell({ done, label }: { done: boolean; label?: string }) {
+  return (
+    <td className="px-2 py-2 text-center" title={label}>
+      {done ? (
+        <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-300 text-xs">
+          ✓
+        </span>
+      ) : (
+        <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-slate-800 text-slate-600 text-xs">
+          —
+        </span>
+      )}
+    </td>
+  )
+}
+
+function upsellLabel(status: VisitorFunnelRow['upsell_status']) {
+  if (status === 'accepted') return 'Yes'
+  if (status === 'declined') return 'No'
+  if (status === 'shown') return 'Shown'
+  return '—'
+}
+
 export function MojourneyAnalytics({ onError }: { onError: (msg: string) => void }) {
   const [preset, setPreset] = useState<Preset>('week')
   const [from, setFrom] = useState('')
   const [to, setTo] = useState('')
   const [report, setReport] = useState<AnalyticsReport | null>(null)
+  const [visitors, setVisitors] = useState<VisitorsReport | null>(null)
+  const [search, setSearch] = useState('')
   const [loading, setLoading] = useState(false)
 
   const load = useCallback(async () => {
@@ -55,15 +85,21 @@ export function MojourneyAnalytics({ onError }: { onError: (msg: string) => void
     setLoading(true)
     onError('')
     try {
-      const data = await fetchAdminAnalytics(k, {
+      const opts = {
         preset,
         from: preset === 'custom' ? from : undefined,
         to: preset === 'custom' ? to : undefined,
-      })
+      }
+      const [data, visitorData] = await Promise.all([
+        fetchAdminAnalytics(k, opts),
+        fetchAdminVisitors(k, { ...opts, limit: 1000 }),
+      ])
       setReport(data)
+      setVisitors(visitorData)
     } catch (e) {
       onError(e instanceof Error ? e.message : 'Failed to load analytics')
       setReport(null)
+      setVisitors(null)
     } finally {
       setLoading(false)
     }
@@ -76,11 +112,21 @@ export function MojourneyAnalytics({ onError }: { onError: (msg: string) => void
 
   const funnelMax = report ? Math.max(report.funnel.page_view, 1) : 1
 
+  const filteredVisitors = useMemo(() => {
+    const rows = visitors?.visitors ?? []
+    const q = search.trim().toLowerCase()
+    if (!q) return rows
+    return rows.filter((v) => {
+      const blob = [v.visitor_id, v.country, v.city, v.last_path, v.utm_source].filter(Boolean).join(' ').toLowerCase()
+      return blob.includes(q)
+    })
+  }, [visitors, search])
+
   return (
-    <div className="space-y-8 max-w-6xl">
+    <div className="space-y-8 max-w-[1400px]">
       <p className="text-sm text-slate-400 leading-relaxed">
-        First-party analytics: unique visitors, geo (IP / Cloudflare country & city), and full funnel from page view
-        through thank-you. Data is stored on your API — not dependent on ad pixels.
+        First-party analytics: each visitor with city/country and full journey — page view → cart → checkout → lead →
+        upsell → thank-you purchase. Data is stored on your API (not ad pixels).
       </p>
 
       <div className="flex flex-wrap items-end gap-3 rounded-xl border border-slate-800 bg-slate-900/40 p-4">
@@ -153,20 +199,99 @@ export function MojourneyAnalytics({ onError }: { onError: (msg: string) => void
             />
           </div>
 
+          <section className="rounded-xl border border-slate-800 overflow-hidden">
+            <div className="px-4 py-3 border-b border-slate-800 bg-slate-900/60 flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <h3 className="text-sm font-semibold text-white">All visitors — journey table</h3>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  {visitors?.total ?? 0} visitors in range
+                  {filteredVisitors.length !== (visitors?.visitors.length ?? 0)
+                    ? ` · showing ${filteredVisitors.length} filtered`
+                    : ''}
+                </p>
+              </div>
+              <input
+                type="search"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search city, country, path, UTM…"
+                className="rounded-lg border border-slate-700 bg-slate-950 px-3 py-1.5 text-xs text-white w-full sm:w-64"
+              />
+            </div>
+            <div className="overflow-x-auto max-h-[520px] overflow-y-auto">
+              <table className="min-w-full text-xs text-left">
+                <thead className="bg-slate-900 text-slate-400 sticky top-0 z-10">
+                  <tr>
+                    <th className="px-3 py-2 font-medium whitespace-nowrap">Last seen</th>
+                    <th className="px-3 py-2 font-medium">City</th>
+                    <th className="px-3 py-2 font-medium">Country</th>
+                    <th className="px-3 py-2 font-medium">Page</th>
+                    <th className="px-2 py-2 font-medium text-center">View</th>
+                    <th className="px-2 py-2 font-medium text-center">Product</th>
+                    <th className="px-2 py-2 font-medium text-center">ATC</th>
+                    <th className="px-2 py-2 font-medium text-center">Cart</th>
+                    <th className="px-2 py-2 font-medium text-center">Checkout</th>
+                    <th className="px-2 py-2 font-medium text-center">Lead</th>
+                    <th className="px-2 py-2 font-medium text-center">Upsell</th>
+                    <th className="px-2 py-2 font-medium text-center">Purchase</th>
+                    <th className="px-3 py-2 font-medium">UTM</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-800">
+                  {filteredVisitors.map((v) => (
+                    <tr key={v.visitor_id} className="hover:bg-slate-900/40">
+                      <td className="px-3 py-2 whitespace-nowrap text-slate-400">
+                        {new Date(v.last_seen).toLocaleString()}
+                      </td>
+                      <td className="px-3 py-2 text-slate-200">{v.city || '—'}</td>
+                      <td className="px-3 py-2 text-slate-300">{v.country || '—'}</td>
+                      <td
+                        className="px-3 py-2 font-mono text-slate-400 max-w-[120px] truncate"
+                        title={v.last_path || ''}
+                      >
+                        {v.last_path || '—'}
+                      </td>
+                      <StepCell done={v.page_view} label="Page view" />
+                      <StepCell done={v.view_content} label="Product view" />
+                      <StepCell done={v.add_to_cart} label="Add to cart" />
+                      <StepCell done={v.cart_view} label="Cart opened" />
+                      <StepCell done={v.checkout_visit} label="Checkout" />
+                      <StepCell done={v.checkout_form_start} label="Lead form" />
+                      <td className="px-2 py-2 text-center text-slate-300">{upsellLabel(v.upsell_status)}</td>
+                      <StepCell done={v.purchase} label="Thank-you purchase" />
+                      <td className="px-3 py-2 text-slate-500">{v.utm_source || '—'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              {filteredVisitors.length === 0 && (
+                <p className="p-6 text-slate-500 text-sm">
+                  No visitors in this period yet. Open the storefront in another tab to test tracking.
+                </p>
+              )}
+            </div>
+          </section>
+
           <section className="rounded-xl border border-slate-800 bg-slate-900/40 p-5 space-y-4">
             <h3 className="text-sm font-semibold text-white">Conversion funnel</h3>
-            <p className="text-xs text-slate-500">Unique visitors per step (percent of page views).</p>
+            <p className="text-xs text-slate-500">Unique visitors per step (% of page views).</p>
             <div className="space-y-3 max-w-xl">
               {FUNNEL_STEPS.map((s) => (
                 <FunnelBar
                   key={s.key}
                   label={s.label}
-                  count={report.funnel[s.key]}
+                  count={report.funnel[s.key] ?? 0}
                   max={funnelMax}
                   color={s.color}
                 />
               ))}
             </div>
+            {(report.funnel.upsell_accept > 0 || report.funnel.upsell_decline > 0) && (
+              <p className="text-xs text-slate-500">
+                Upsell: {report.funnel.upsell_accept} accepted · {report.funnel.upsell_decline} declined ·{' '}
+                {report.funnel.upsell_view} shown
+              </p>
+            )}
           </section>
 
           {report.daily.length > 0 && (
@@ -237,9 +362,7 @@ export function MojourneyAnalytics({ onError }: { onError: (msg: string) => void
                       </td>
                       <td className="px-3 py-2 font-mono text-slate-300 max-w-[140px] truncate" title={e.path || ''}>
                         {e.path || '—'}
-                        {e.product_slug && (
-                          <span className="block text-slate-500">{e.product_slug}</span>
-                        )}
+                        {e.product_slug && <span className="block text-slate-500">{e.product_slug}</span>}
                       </td>
                       <td className="px-3 py-2 text-slate-300">
                         {[e.city, e.country].filter(Boolean).join(', ') || '—'}
@@ -253,7 +376,7 @@ export function MojourneyAnalytics({ onError }: { onError: (msg: string) => void
                 </tbody>
               </table>
               {report.recent_events.length === 0 && (
-                <p className="p-6 text-slate-500 text-sm">No events in this period yet. Traffic will appear after storefront visits.</p>
+                <p className="p-6 text-slate-500 text-sm">No events in this period yet.</p>
               )}
             </div>
           </section>

@@ -16,7 +16,9 @@ Internal dashboard: orders, product URLs, UTM builder, pixel checklist.
 
 **Sign-in (default):** username `admin`, password `Huhu*201` — defined in `backend/app/config.py` and **overridable** with env `MOJOURNEY_ADMIN_USER` / `MOJOURNEY_ADMIN_PASSWORD`. Change the password before production.
 
-After login, the API issues a **session token** (12h, in-memory on the server) sent as `X-Admin-Key`. Optional legacy: set **`ADMIN_API_KEY`** only (no password) to use a single long key in the UI instead.
+After login, the API issues a **signed session token** (12h) sent as `X-Admin-Key` — survives API restarts. Optional legacy: set **`ADMIN_API_KEY`** only (no password) to use a single long key in the UI instead.
+
+**Analytics →** visitor journey table: city/country plus funnel steps (page view, add to cart, cart, checkout, lead form, upsell yes/no, thank-you purchase).
 
 `GET /api/admin/ping` — no auth. `POST /api/admin/login` — JSON `{ "username", "password" }`. `POST /api/admin/logout` — clears server session when you send the current `X-Admin-Key`.
 

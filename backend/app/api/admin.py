@@ -10,12 +10,13 @@ from app.config import settings
 from app.database import get_db
 from app.models.order import Order
 from app.schemas.admin import AdminLoginIn, AdminLoginOut, AdminOrderRow, AdminOrdersSummary
+from app.services.admin_session import issue_session_token, verify_session_token
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/admin", tags=["admin"])
 
 SESSION_TTL = timedelta(hours=12)
-_sessions: dict[str, datetime] = {}
+_sessions: dict[str, datetime] = {}  # legacy random tokens until clients refresh
 
 
 def _prune_sessions() -> None:
@@ -50,6 +51,9 @@ def _require_admin_key(x_admin_key: str | None = Header(None, alias="X-Admin-Key
         except (TypeError, ValueError):
             pass
 
+    if verify_session_token(x_admin_key):
+        return
+
     raise HTTPException(status_code=401, detail="غير مصرّح")
 
 
@@ -79,8 +83,7 @@ def admin_login(body: AdminLoginIn):
     if not user_ok or not pass_ok:
         raise HTTPException(status_code=401, detail="اسم المستخدم أو كلمة المرور غير صحيحة")
 
-    token = secrets.token_urlsafe(32)
-    _sessions[token] = datetime.utcnow() + SESSION_TTL
+    token = issue_session_token(body.username.strip())
     logger.info("Mojourney login ok for user=%s", body.username.strip())
     return AdminLoginOut(session_token=token)
 

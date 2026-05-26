@@ -7,8 +7,12 @@ export type StoreEventType =
   | 'page_view'
   | 'view_content'
   | 'add_to_cart'
+  | 'cart_view'
   | 'checkout_visit'
   | 'checkout_form_start'
+  | 'upsell_view'
+  | 'upsell_accept'
+  | 'upsell_decline'
   | 'purchase'
 
 function uuid(): string {

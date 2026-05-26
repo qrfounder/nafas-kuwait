@@ -18,8 +18,10 @@ from app.schemas.analytics import (
     RecentEventRow,
     TrackEventIn,
     TrackEventOut,
+    VisitorsReportOut,
 )
 from app.services.analytics_range import parse_range, utc_now
+from app.services.analytics_visitors import build_visitors_report
 from app.services.geo import client_ip, resolve_geo, resolve_geo_full
 from app.services.live_sessions import upsert_heartbeat
 
@@ -32,10 +34,27 @@ ALLOWED_EVENTS = {
     "page_view",
     "view_content",
     "add_to_cart",
+    "cart_view",
     "checkout_visit",
     "checkout_form_start",
+    "upsell_view",
+    "upsell_accept",
+    "upsell_decline",
     "purchase",
 }
+
+FUNNEL_METRICS = (
+    "page_view",
+    "view_content",
+    "add_to_cart",
+    "cart_view",
+    "checkout_visit",
+    "checkout_form_start",
+    "upsell_view",
+    "upsell_accept",
+    "upsell_decline",
+    "purchase",
+)
 
 _rate: dict[str, list[float]] = defaultdict(list)
 _RATE_WINDOW = 3600
@@ -93,11 +112,11 @@ async def track_event(body: TrackEventIn, request: Request, db: Session = Depend
     db.commit()
 
     stage = "browsing"
-    if body.event_type == "add_to_cart":
+    if body.event_type in ("add_to_cart", "cart_view"):
         stage = "cart"
     elif body.event_type in ("checkout_visit", "checkout_form_start"):
         stage = "checkout"
-    elif body.event_type == "purchase":
+    elif body.event_type in ("purchase", "upsell_accept"):
         stage = "purchased"
 
     upsert_heartbeat(
@@ -139,7 +158,7 @@ def analytics_report(
     start, end, label = parse_range(preset, from_date, to_date)
 
     funnel = FunnelStats()
-    for et in ALLOWED_EVENTS:
+    for et in FUNNEL_METRICS:
         count = _distinct_visitors(db, start, end, et)
         setattr(funnel, et, count)
 
@@ -305,4 +324,25 @@ def analytics_report(
         by_city=by_city,
         daily=daily,
         recent_events=recent_events,
+    )
+
+
+@admin_router.get("/visitors", response_model=VisitorsReportOut)
+def analytics_visitors(
+    preset: str = Query("week"),
+    from_date: str | None = Query(None, alias="from"),
+    to_date: str | None = Query(None, alias="to"),
+    limit: int = Query(500, ge=1, le=2000),
+    offset: int = Query(0, ge=0),
+    _: None = Depends(_require_admin_key),
+    db: Session = Depends(get_db),
+):
+    start, end, label = parse_range(preset, from_date, to_date)
+    total, visitors = build_visitors_report(db, start, end, limit=limit, offset=offset)
+    return VisitorsReportOut(
+        range_from=start.isoformat(),
+        range_to=end.isoformat(),
+        preset=label,
+        total=total,
+        visitors=visitors,
     )

@@ -242,9 +242,39 @@ export type AnalyticsFunnel = {
   page_view: number
   view_content: number
   add_to_cart: number
+  cart_view: number
   checkout_visit: number
   checkout_form_start: number
+  upsell_view: number
+  upsell_accept: number
+  upsell_decline: number
   purchase: number
+}
+
+export type VisitorFunnelRow = {
+  visitor_id: string
+  country: string | null
+  city: string | null
+  first_seen: string
+  last_seen: string
+  last_path: string | null
+  utm_source: string | null
+  page_view: boolean
+  view_content: boolean
+  add_to_cart: boolean
+  cart_view: boolean
+  checkout_visit: boolean
+  checkout_form_start: boolean
+  upsell_status: 'accepted' | 'declined' | 'shown' | null
+  purchase: boolean
+}
+
+export type VisitorsReport = {
+  range_from: string
+  range_to: string
+  preset: string
+  total: number
+  visitors: VisitorFunnelRow[]
 }
 
 export type AnalyticsReport = {
@@ -289,6 +319,20 @@ export async function fetchAdminAnalytics(
   if (opts.from) q.set('from', opts.from)
   if (opts.to) q.set('to', opts.to)
   const res = await fetch(`${getApiBase()}/api/admin/analytics/report?${q}`, { headers: adminHeaders(key) })
+  return parseAdminJson(res)
+}
+
+export async function fetchAdminVisitors(
+  key: string,
+  opts: { preset?: string; from?: string; to?: string; limit?: number; offset?: number },
+): Promise<VisitorsReport> {
+  const q = new URLSearchParams()
+  if (opts.preset) q.set('preset', opts.preset)
+  if (opts.from) q.set('from', opts.from)
+  if (opts.to) q.set('to', opts.to)
+  if (opts.limit != null) q.set('limit', String(opts.limit))
+  if (opts.offset != null) q.set('offset', String(opts.offset))
+  const res = await fetch(`${getApiBase()}/api/admin/analytics/visitors?${q}`, { headers: adminHeaders(key) })
   return parseAdminJson(res)
 }
 

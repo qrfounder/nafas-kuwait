@@ -36,16 +36,37 @@ export function MojourneyPage() {
   const [apiKey, setApiKey] = useState('')
   const [loginMode, setLoginMode] = useState<LoginMode>('loading')
   const [unlocked, setUnlocked] = useState(() => Boolean(getStoredAdminKey()))
-  const [section, setSection] = useState<AdminSection>(() => {
-    if (typeof window !== 'undefined' && window.location.hash === '#live') return 'live'
-    return 'overview'
-  })
+  const sectionFromHash = (): AdminSection => {
+    const id = (typeof window !== 'undefined' ? window.location.hash : '').replace(/^#/, '')
+    const allowed: AdminSection[] = [
+      'overview',
+      'live',
+      'analytics',
+      'orders',
+      'products',
+      'redirects',
+      'links',
+      'pixels',
+    ]
+    return allowed.includes(id as AdminSection) ? (id as AdminSection) : 'overview'
+  }
+
+  const [section, setSection] = useState<AdminSection>(() =>
+    typeof window !== 'undefined' ? sectionFromHash() : 'overview',
+  )
 
   const goSection = useCallback((s: AdminSection) => {
     setSection(s)
     if (typeof window !== 'undefined') {
-      window.location.hash = s === 'overview' ? '' : s
+      const next = s === 'overview' ? '' : `#${s}`
+      if (window.location.hash !== next) window.location.hash = next
     }
+  }, [])
+
+  useEffect(() => {
+    const onHash = () => setSection(sectionFromHash())
+    window.addEventListener('hashchange', onHash)
+    return () => window.removeEventListener('hashchange', onHash)
   }, [])
   const [ping, setPing] = useState<{
     ok: boolean
@@ -216,9 +237,18 @@ export function MojourneyPage() {
           {loginMode === 'loading' && <p className="text-sm text-slate-400 mb-6">Loading…</p>}
           {loginMode === 'none' && (
             <p className="text-sm text-rose-200/90 mb-6">
-              Server not configured: set{' '}
-              <span className="font-mono text-xs">MOJOURNEY_ADMIN_PASSWORD</span> or{' '}
-              <span className="font-mono text-xs">ADMIN_API_KEY</span> on the API service.
+              {ping && !ping.ok ? (
+                <>
+                  Cannot reach the API. Check that <span className="font-mono text-xs">VITE_API_URL</span> points to{' '}
+                  <span className="font-mono text-xs">https://api.naffas.shop</span> and redeploy the web service.
+                </>
+              ) : (
+                <>
+                  Server not configured: set{' '}
+                  <span className="font-mono text-xs">MOJOURNEY_ADMIN_PASSWORD</span> or{' '}
+                  <span className="font-mono text-xs">ADMIN_API_KEY</span> on the API service.
+                </>
+              )}
             </p>
           )}
           {loginMode === 'password' && (

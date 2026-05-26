@@ -7,6 +7,8 @@ import { OptimizedImage } from './OptimizedImage'
 import { formatKwd } from '../lib/currency'
 import { preserveScrollPosition } from '../lib/scroll'
 import { trackInitiateCheckout } from '../lib/analytics'
+import { trackStoreEvent } from '../lib/visitorAnalytics'
+import { useEffect, useRef } from 'react'
 
 export function CartDrawer() {
   const {
@@ -23,6 +25,20 @@ export function CartDrawer() {
     crossSells,
     toggleCrossSell,
   } = useCart()
+
+  const cartTracked = useRef(false)
+  useEffect(() => {
+    if (!cartOpen) {
+      cartTracked.current = false
+      return
+    }
+    if (cartTracked.current) return
+    cartTracked.current = true
+    trackStoreEvent('cart_view', {
+      path: window.location.pathname,
+      product_slug: product?.slug,
+    })
+  }, [cartOpen, product?.slug])
 
   if (!cartOpen) return null
 

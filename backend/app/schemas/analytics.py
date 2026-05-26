@@ -42,9 +42,39 @@ class FunnelStats(BaseModel):
     page_view: int = 0
     view_content: int = 0
     add_to_cart: int = 0
+    cart_view: int = 0
     checkout_visit: int = 0
     checkout_form_start: int = 0
+    upsell_view: int = 0
+    upsell_accept: int = 0
+    upsell_decline: int = 0
     purchase: int = 0
+
+
+class VisitorFunnelRow(BaseModel):
+    visitor_id: str
+    country: str | None
+    city: str | None
+    first_seen: str
+    last_seen: str
+    last_path: str | None
+    utm_source: str | None
+    page_view: bool
+    view_content: bool
+    add_to_cart: bool
+    cart_view: bool
+    checkout_visit: bool
+    checkout_form_start: bool
+    upsell_status: str | None  # accepted | declined | shown
+    purchase: bool
+
+
+class VisitorsReportOut(BaseModel):
+    range_from: str
+    range_to: str
+    preset: str
+    total: int
+    visitors: list[VisitorFunnelRow]
 
 
 class RecentEventRow(BaseModel):

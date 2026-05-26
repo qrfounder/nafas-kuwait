@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { acceptUpsell } from '../lib/api'
 import { getLastEventId, trackPurchase } from '../lib/analytics'
+import { trackStoreEvent } from '../lib/visitorAnalytics'
 import { formatKwd } from '../lib/currency'
 import { useNavigate } from 'react-router-dom'
 import { Logo } from './Logo'
@@ -21,6 +22,10 @@ export function PostCheckoutUpsell({
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
+    trackStoreEvent('upsell_view', { metadata: { order_number: orderNumber } })
+  }, [orderNumber])
+
+  useEffect(() => {
     const id = setInterval(() => {
       setSeconds((s) => {
         if (s <= 1) {
@@ -36,6 +41,9 @@ export function PostCheckoutUpsell({
   }, [])
 
   const finish = (accepted: boolean) => {
+    trackStoreEvent(accepted ? 'upsell_accept' : 'upsell_decline', {
+      metadata: { order_number: orderNumber },
+    })
     onDone()
     navigate(`/thank-you?order=${orderNumber}${accepted ? '&upsell=1' : ''}`)
   }
