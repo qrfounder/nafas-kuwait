@@ -31,10 +31,10 @@ export const COMPLETE_PACKAGE = {
   title_ar: 'النظام الكامل: دورة، جسم، وهدية أمي',
   subtitle_ar:
     'ثلاث بوكسات في طلب واحد. للي تبين تغطين كل زاوية من أول مرة، وبسعر أوفر من الشراء منفصل.',
-  price: 339,
-  anchor: 402,
-  savings_usd: 63,
-  badge_ar: 'وفّري ٢٠ د.ك',
+  price: 193.5,
+  anchor: 232.3,
+  savings_usd: 38.8,
+  badge_ar: 'وفّري ١٢ د.ك',
 }
 
 export const PRODUCT_FUNNEL: Record<string, ProductFunnelConfig> = {
