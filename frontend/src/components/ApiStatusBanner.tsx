@@ -1,8 +1,14 @@
 import { useStore } from '../context/StoreContext'
 
+function isProductionStorefront(): boolean {
+  if (typeof window === 'undefined') return false
+  const h = window.location.hostname
+  return h === 'naffas.shop' || h === 'www.naffas.shop'
+}
+
 export function ApiStatusBanner() {
   const { apiReachable, ready } = useStore()
-  if (!ready || apiReachable) return null
+  if (!ready || apiReachable || !isProductionStorefront()) return null
 
   return (
     <div

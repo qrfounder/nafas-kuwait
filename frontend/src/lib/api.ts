@@ -51,7 +51,7 @@ async function apiPost(path: string, body: Record<string, unknown>) {
     const msg = detailMessage(data)
     throw new ApiRequestError(
       res.status === 422
-        ? 'تحققي من الاسم (حرفين على الأقل) ورقم الكويت (8 أرقام تبدأ بـ 5 أو 6 أو 9).'
+        ? 'تحققي من الاسم (حرفين على الأقل) ورقم الجوال أو الأرضي (8 أرقام كويتية).'
         : msg,
       res.status === 422 ? 'validation' : 'server',
     )

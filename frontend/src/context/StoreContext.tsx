@@ -49,15 +49,13 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     let cancelled = false
     void (async () => {
-      const healthy = await pingApiHealth()
-      if (cancelled) return
-      setApiReachable(healthy)
-
+      let apiOk = false
       try {
         const b = await fetchStoreBootstrap()
         if (cancelled) return
         setBootstrap(b)
         initAnalyticsFromPixels(b.pixels)
+        apiOk = true
       } catch {
         if (cancelled) return
         setBootstrap(null)
@@ -66,8 +64,11 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           tiktok: import.meta.env.VITE_TIKTOK_PIXEL_ID || '',
           snap: import.meta.env.VITE_SNAP_PIXEL_ID || '',
         })
-      } finally {
-        if (!cancelled) setReady(true)
+      }
+      if (!cancelled) {
+        if (!apiOk) apiOk = await pingApiHealth()
+        setApiReachable(apiOk)
+        setReady(true)
       }
     })()
     return () => {

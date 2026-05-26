@@ -17,6 +17,8 @@ type Props = {
   ) => void
 }
 
+const TRUST_PILLS = ['ادفعي عند الباب', 'نتصل للتأكيد', 'بدون بطاقة'] as const
+
 export function CheckoutModal({ onSuccess }: Props) {
   const {
     checkoutOpen,
@@ -33,13 +35,14 @@ export function CheckoutModal({ onSuccess }: Props) {
   const { apiReachable } = useStore()
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
+  const [nameError, setNameError] = useState('')
   const [phoneError, setPhoneError] = useState('')
   const [loading, setLoading] = useState(false)
   const [checkoutExtras, setCheckoutExtras] = useState<Record<CheckoutExtraKey, boolean>>({
     delivery_protection: false,
     priority_delivery: false,
   })
-
+  const [extrasOpen, setExtrasOpen] = useState(false)
   const [formStarted, setFormStarted] = useState(false)
 
   useEffect(() => {
@@ -47,7 +50,9 @@ export function CheckoutModal({ onSuccess }: Props) {
       setCheckoutExtras({ delivery_protection: false, priority_delivery: false })
       setName('')
       setPhone('')
+      setNameError('')
       setPhoneError('')
+      setExtrasOpen(false)
       setFormStarted(false)
     }
   }, [checkoutOpen])
@@ -73,6 +78,11 @@ export function CheckoutModal({ onSuccess }: Props) {
     trackStoreEvent('checkout_form_start', { value: orderTotal })
   }
 
+  const clearErrors = () => {
+    setNameError('')
+    setPhoneError('')
+  }
+
   const ready =
     checkoutOpen &&
     product &&
@@ -83,27 +93,29 @@ export function CheckoutModal({ onSuccess }: Props) {
 
   const submit = async (e: FormEvent) => {
     e.preventDefault()
+    clearErrors()
+
+    if (!name.trim() || name.trim().length < 2) {
+      setNameError('اكتبي اسمك (حرفين على الأقل)')
+      return
+    }
     const v = validateKuwaitPhone(phone)
-    if (!v.ok) {
+    if (!v.ok || !v.normalized) {
       setPhoneError(v.error)
       return
     }
-    if (!name.trim() || name.trim().length < 2) {
-      setPhoneError('الاسم يجب أن يكون حرفين على الأقل')
-      return
-    }
     if (!apiReachable) {
-      setPhoneError('خادم الطلبات غير متصل حالياً. حاولي بعد دقائق أو تواصلي معنا.')
+      setPhoneError('تعذّر الاتصال بالخادم. حاولي بعد دقائق أو من صفحة التواصل.')
       return
     }
-    setPhoneError('')
+
     setLoading(true)
     const eventId = newEventId()
     const attr = getAttribution()
     try {
       const res = await createOrder({
         customer_name: name.trim(),
-        customer_phone: phone,
+        customer_phone: v.normalized,
         product_slug: product.slug,
         offer_tier: offerTier,
         lines: submitLines,
@@ -143,139 +155,130 @@ export function CheckoutModal({ onSuccess }: Props) {
     }
   }
 
-  const inputClass =
-    'w-full border border-surface-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-rose-brand/25 focus:border-rose-brand/40 bg-white'
+  const inputBase =
+    'w-full rounded-xl border bg-white px-4 py-3.5 text-base text-ink placeholder:text-surface-muted/80 focus:outline-none focus:ring-2 focus:ring-rose-brand/20 focus:border-rose-brand/50 transition-shadow'
+  const inputErr = 'border-red-400 focus:ring-red-200 focus:border-red-400'
+  const inputOk = 'border-surface-border'
 
   return (
     <>
-      <div className="fixed inset-0 bg-ink/50 z-[60]" onClick={() => setCheckoutOpen(false)} aria-hidden />
-      <div className="fixed inset-0 z-[70] flex items-center justify-center p-3 sm:p-4 pointer-events-none">
+      <div className="fixed inset-0 z-[60] bg-ink/55 backdrop-blur-[2px]" onClick={() => setCheckoutOpen(false)} aria-hidden />
+      <div className="fixed inset-0 z-[70] flex items-end sm:items-center justify-center pointer-events-none p-0 sm:p-4">
         <div
-          className="pointer-events-auto w-full max-w-lg max-h-[92vh] overflow-y-auto rounded-2xl border border-surface-border bg-white shadow-2xl"
+          className="pointer-events-auto flex w-full max-h-[96dvh] sm:max-h-[90vh] sm:max-w-md flex-col overflow-hidden rounded-t-3xl sm:rounded-2xl border border-surface-border bg-white shadow-2xl"
           role="dialog"
           aria-labelledby="checkout-title"
           aria-describedby="checkout-desc"
         >
-          <div className="sticky top-0 z-10 flex items-start justify-between gap-3 border-b border-surface-border bg-cream/95 px-5 py-4 backdrop-blur-sm">
-            <div>
-              <p className="text-[11px] font-semibold uppercase tracking-wide text-trust-green">ادفعي عند الباب</p>
-              <h2 id="checkout-title" className="font-display text-xl font-bold text-ink mt-0.5">
-                إتمام الطلب
-              </h2>
-              <p id="checkout-desc" className="text-xs text-surface-muted mt-1 leading-relaxed max-w-[20rem]">
-                عنوان التوصيل يُؤخذ بالمكالمة من خدمة العملاء، مو بالنموذج.
-              </p>
-            </div>
+          {/* Header */}
+          <div className="flex shrink-0 items-center gap-3 border-b border-surface-border px-4 py-3.5 sm:px-5">
             <button
               type="button"
               onClick={() => setCheckoutOpen(false)}
-              className="shrink-0 rounded-lg p-2 text-surface-muted hover:bg-white hover:text-ink"
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-surface-border text-surface-muted hover:bg-cream hover:text-ink"
               aria-label="إغلاق"
             >
-              <span className="text-xl leading-none">×</span>
+              <span className="text-xl leading-none" aria-hidden>
+                ×
+              </span>
             </button>
+            <div className="min-w-0 flex-1 text-center sm:text-right">
+              <h2 id="checkout-title" className="font-display text-lg font-bold text-ink leading-tight">
+                إتمام الطلب
+              </h2>
+              <p className="text-[11px] text-trust-green font-medium mt-0.5">الدفع عند الاستلام فقط</p>
+            </div>
+            <div className="w-10 shrink-0 sm:hidden" aria-hidden />
           </div>
 
-          <div className="px-5 pt-5 space-y-5">
-            {/* Order lines */}
-            <section className="rounded-xl border border-surface-border bg-cream/60 p-4">
-              <p className="text-[11px] font-semibold text-surface-muted mb-2">ملخص الطلب</p>
-              <ul className="space-y-2 text-sm">
-                {lines.map((l) => (
-                  <li key={l.sku + l.line_type} className="flex justify-between gap-3 text-ink/90">
-                    <span className="min-w-0 leading-snug">{l.title_ar}</span>
-                    <span className="shrink-0 font-semibold text-rose-brand tabular-nums">
-                      {formatKwd(l.price_usd)}
-                    </span>
-                  </li>
-                ))}
-                {extraLines.map((l) => (
-                  <li
-                    key={l.sku}
-                    className="flex justify-between gap-3 border-t border-dashed border-surface-border pt-2 text-xs"
-                  >
-                    <span className="text-trust-green font-medium leading-snug">{l.title_ar}</span>
-                    <span className="shrink-0 font-semibold text-rose-brand tabular-nums">
-                      +{formatKwd(l.price_usd)}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-              <div className="mt-3 flex items-baseline justify-between border-t border-surface-border pt-3">
-                <span className="text-sm font-semibold text-ink">المجموع</span>
-                <span className="text-lg font-bold text-rose-brand tabular-nums">{formatKwd(orderTotal)}</span>
-              </div>
-              {extrasTotal > 0 && (
-                <p className="text-[10px] text-surface-muted mt-1.5">شامل الإضافات الاختيارية</p>
-              )}
-            </section>
-
-            {/* Optional bumps */}
-            <section>
-              <p className="text-sm font-semibold text-ink mb-1">إضافات اختيارية</p>
-              <p className="text-[11px] text-surface-muted leading-relaxed mb-3">
-                أوضح وبدون مبالغة: الاستبدال عند العيب من سياسة المتجر للجميع. الإضافات تحسّن السرعة أو الأولوية فقط.
+          <form onSubmit={submit} className="flex min-h-0 flex-1 flex-col">
+            {/* Scrollable body */}
+            <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-4 sm:px-5 space-y-4">
+              <p id="checkout-desc" className="text-center text-sm text-ink/80 leading-relaxed">
+                خطوتين بس: <strong className="text-ink">اسمج</strong> و <strong className="text-ink">رقمج</strong> — ونكمل الباقي بالمكالمة
               </p>
-              <div className="space-y-2">
-                {CHECKOUT_EXTRAS_ORDER.map((key) => {
-                  const x = CHECKOUT_EXTRAS[key]
-                  const checked = checkoutExtras[key]
-                  return (
-                    <label
-                      key={key}
-                      className={`flex cursor-pointer items-start gap-3 rounded-xl border p-3.5 transition-colors ${
-                        checked
-                          ? 'border-rose-brand/45 bg-rose-light/30 ring-1 ring-rose-brand/10'
-                          : 'border-surface-border hover:border-rose-brand/25 bg-white'
-                      }`}
-                    >
-                      <input
-                        type="checkbox"
-                        checked={checked}
-                        onChange={() => setCheckoutExtras((prev) => ({ ...prev, [key]: !prev[key] }))}
-                        className="mt-0.5 h-5 w-5 shrink-0 accent-rose-brand"
-                      />
-                      <span className="min-w-0 flex-1 text-right">
-                        <span className="flex flex-wrap items-center justify-end gap-x-2 gap-y-1">
-                          <span className="text-sm font-semibold text-ink">{x.title_ar}</span>
-                          {x.recommended && (
-                            <span className="rounded-full bg-gold-accent/25 px-2 py-0.5 text-[10px] font-bold text-ink/90">
-                              مناسب للاستعجال
-                            </span>
-                          )}
-                          <span className="text-sm font-bold text-rose-brand tabular-nums">
-                            +{formatKwd(x.price_usd)}
-                          </span>
-                        </span>
-                        <span className="mt-1.5 block text-[11px] leading-relaxed text-surface-muted">
-                          {x.desc_ar}
-                        </span>
+
+              {/* Order summary */}
+              <section className="rounded-2xl border border-surface-border bg-cream/60 overflow-hidden" aria-label="ملخص الطلب">
+                <div className="px-4 py-2.5 border-b border-surface-border/80 bg-white/60">
+                  <p className="text-xs font-semibold text-surface-muted">طلبج</p>
+                </div>
+                <ul className="px-4 py-3 space-y-2.5 text-sm">
+                  {lines.map((l) => (
+                    <li key={l.sku + l.line_type} className="flex justify-between gap-3 text-ink/90">
+                      <span className="min-w-0 leading-snug font-medium">{l.title_ar}</span>
+                      <span className="shrink-0 tabular-nums text-ink">{formatKwd(l.price_usd)}</span>
+                    </li>
+                  ))}
+                  {extraLines.map((l) => (
+                    <li key={l.sku} className="flex justify-between gap-3 text-sm">
+                      <span className="text-trust-green font-medium leading-snug">{l.title_ar}</span>
+                      <span className="shrink-0 tabular-nums text-trust-green font-semibold">
+                        +{formatKwd(l.price_usd)}
                       </span>
-                    </label>
-                  )
-                })}
-              </div>
-            </section>
+                    </li>
+                  ))}
+                </ul>
+                <div className="flex items-center justify-between gap-3 border-t border-surface-border bg-white px-4 py-3">
+                  <span className="text-sm font-bold text-ink">المجموع</span>
+                  <span className="text-xl font-bold text-rose-brand tabular-nums">{formatKwd(orderTotal)}</span>
+                </div>
+              </section>
 
-            {/* Call center + phone notice */}
-            <div className="rounded-xl border border-rose-brand/20 bg-rose-light/25 px-4 py-3.5">
-              <p className="text-sm font-semibold text-ink leading-snug">جهّزي جوالج، نتصل لتأكيد العنوان والشحن</p>
-              <p className="mt-2 text-[12px] leading-relaxed text-ink/85">
-                مركز الاتصال يتصل عليج خلال <strong className="text-rose-brand">ساعة تقريباً</strong> في أوقات الدوام
-                (قد يتأخر شوي وقت الزحمة). خلّي الرقم شغال وبدون مانع، عشان نثبت عنوان التوصيل ونطلّع طلبج بسرعة.
-              </p>
-              <p className="mt-2 text-[11px] text-surface-muted leading-relaxed">
-                التوصيل للبيت غالباً بين يوم وسبعة أيام بعد التأكيد، حسب المنطقة والمندوب.
-              </p>
-            </div>
+              {/* Optional extras — before form so total stays honest */}
+              <section className="rounded-2xl border border-dashed border-surface-border bg-white">
+                <button
+                  type="button"
+                  onClick={() => setExtrasOpen((o) => !o)}
+                  className="flex w-full items-center justify-between gap-2 px-4 py-3 text-sm font-semibold text-ink"
+                  aria-expanded={extrasOpen}
+                >
+                  <span>إضافات اختيارية</span>
+                  <span className="text-xs font-normal text-surface-muted">مو لازم · {extrasOpen ? '▲' : '▼'}</span>
+                </button>
+                {extrasOpen && (
+                  <div className="space-y-2 border-t border-surface-border px-3 pb-3 pt-2">
+                    {CHECKOUT_EXTRAS_ORDER.map((key) => {
+                      const x = CHECKOUT_EXTRAS[key]
+                      const checked = checkoutExtras[key]
+                      return (
+                        <label
+                          key={key}
+                          className={`flex cursor-pointer items-center gap-3 rounded-xl border px-3 py-2.5 transition ${
+                            checked
+                              ? 'border-rose-brand/50 bg-rose-light/25'
+                              : 'border-surface-border hover:border-rose-brand/25'
+                          }`}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={checked}
+                            onChange={() => setCheckoutExtras((prev) => ({ ...prev, [key]: !prev[key] }))}
+                            className="h-5 w-5 shrink-0 accent-rose-brand"
+                          />
+                          <span className="min-w-0 flex-1">
+                            <span className="flex flex-wrap items-center justify-between gap-x-2 gap-y-0.5">
+                              <span className="text-sm font-semibold text-ink">{x.title_ar}</span>
+                              <span className="text-sm font-bold text-rose-brand tabular-nums">
+                                +{formatKwd(x.price_usd)}
+                              </span>
+                            </span>
+                          </span>
+                        </label>
+                      )
+                    })}
+                  </div>
+                )}
+              </section>
 
-            <form onSubmit={submit} className="space-y-4 pb-6">
-              <fieldset className="space-y-3">
-                <legend className="text-sm font-semibold text-ink">بيانات التواصل فقط</legend>
-
+              {/* Contact fields */}
+              <section className="space-y-4" aria-label="بيانات التواصل">
                 <div>
-                  <label htmlFor="checkout-name" className="block text-xs font-medium text-ink mb-1.5">
-                    الاسم
+                  <label htmlFor="checkout-name" className="mb-1.5 flex items-center gap-2 text-sm font-bold text-ink">
+                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-rose-brand text-[11px] font-bold text-white">
+                      ١
+                    </span>
+                    الاسم الكامل
                   </label>
                   <input
                     id="checkout-name"
@@ -283,48 +286,90 @@ export function CheckoutModal({ onSuccess }: Props) {
                     minLength={2}
                     autoComplete="name"
                     value={name}
-                    onChange={(e) => setName(e.target.value)}
+                    onChange={(e) => {
+                      setName(e.target.value)
+                      if (nameError) setNameError('')
+                    }}
                     onFocus={onFormInteraction}
-                    className={inputClass}
+                    className={`${inputBase} ${nameError ? inputErr : inputOk}`}
                     placeholder="مثال: فاطمة العلي"
                   />
+                  {nameError && (
+                    <p className="mt-1.5 text-sm font-medium text-red-700" role="alert">
+                      {nameError}
+                    </p>
+                  )}
                 </div>
 
                 <div>
-                  <label htmlFor="checkout-phone" className="block text-xs font-medium text-ink mb-1.5">
-                    رقم الكويت
+                  <label htmlFor="checkout-phone" className="mb-1.5 flex items-center gap-2 text-sm font-bold text-ink">
+                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-rose-brand text-[11px] font-bold text-white">
+                      ٢
+                    </span>
+                    رقم الجوال أو الأرضي
                   </label>
                   <input
                     id="checkout-phone"
                     required
                     type="tel"
+                    inputMode="tel"
                     autoComplete="tel"
                     value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
+                    onChange={(e) => {
+                      setPhone(e.target.value)
+                      if (phoneError) setPhoneError('')
+                    }}
                     onFocus={onFormInteraction}
-                    className={`${inputClass} font-mono text-base tracking-wide`}
-                    placeholder="5XXXXXXX"
+                    className={`${inputBase} font-mono tracking-wide ${phoneError ? inputErr : inputOk}`}
+                    placeholder="51234567"
                     dir="ltr"
                   />
-                  {phoneError && <p className="text-red-700 text-sm mt-2">{phoneError}</p>}
+                  {phoneError ? (
+                    <p className="mt-1.5 text-sm font-medium text-red-700" role="alert">
+                      {phoneError}
+                    </p>
+                  ) : (
+                    <p className="mt-1.5 text-[11px] text-surface-muted">جوال أو أرضي كويتي — 8 أرقام</p>
+                  )}
                 </div>
-              </fieldset>
+              </section>
+            </div>
 
-              <p className="text-[11px] text-surface-muted leading-relaxed">
-                الدفع عند استلام الطرد فقط، كاش أو KNET حسب المندوب. ما نطلب بطاقة أونلاين.
-              </p>
+            {/* Sticky footer — CTA always visible */}
+            <div className="shrink-0 border-t border-surface-border bg-white px-4 py-4 sm:px-5 shadow-[0_-8px_24px_rgba(0,0,0,0.06)]">
+              <ul className="mb-3 flex flex-wrap justify-center gap-1.5">
+                {TRUST_PILLS.map((text) => (
+                  <li
+                    key={text}
+                    className="rounded-full border border-surface-border bg-cream/80 px-2.5 py-1 text-[10px] font-medium text-ink/85"
+                  >
+                    {text}
+                  </li>
+                ))}
+              </ul>
 
-              <PaymentMethods variant="compact" />
+              {!apiReachable && (
+                <p className="mb-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-center text-xs text-amber-950" role="alert">
+                  تعذّر الاتصال بالخادم. حاولي بعد قليل.
+                </p>
+              )}
 
               <button
                 type="submit"
                 disabled={loading || !apiReachable}
-                className="btn-primary w-full py-3.5 text-base font-semibold disabled:opacity-60"
+                className="btn-primary w-full py-4 text-base font-bold disabled:opacity-55"
               >
                 {loading ? 'جاري الإرسال…' : `تأكيد الطلب · ${formatKwd(orderTotal)}`}
               </button>
-            </form>
-          </div>
+
+              <div className="mt-3">
+                <PaymentMethods variant="compact" />
+              </div>
+              <p className="mt-2 text-center text-[10px] leading-relaxed text-surface-muted">
+                نتصل خلال ساعة تقريباً لتأكيد العنوان · التوصيل غالباً ١–٧ أيام
+              </p>
+            </div>
+          </form>
         </div>
       </div>
     </>
