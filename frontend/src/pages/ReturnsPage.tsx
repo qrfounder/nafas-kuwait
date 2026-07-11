@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { Logo } from '../components/Logo'
+import { BusinessIdentity } from '../components/BusinessIdentity'
 import { BUSINESS } from '../data/business'
 
 /** Dedicated returns URL for Google Merchant Center return policy. */
@@ -25,8 +26,16 @@ export function ReturnsPage() {
             Email{' '}
             <a href={`mailto:${BUSINESS.supportEmail}`} className="text-rose-brand underline">
               {BUSINESS.supportEmail}
-            </a>{' '}
-            or use our{' '}
+            </a>
+            {BUSINESS.supportPhone ? (
+              <>
+                , call{' '}
+                <a href={`tel:${BUSINESS.supportPhone}`} className="text-rose-brand underline" dir="ltr">
+                  {BUSINESS.supportPhoneDisplay || BUSINESS.supportPhone}
+                </a>
+              </>
+            ) : null}
+            , or use our{' '}
             <Link to="/contact" className="text-rose-brand underline">
               Contact
             </Link>{' '}
@@ -44,9 +53,18 @@ export function ReturnsPage() {
         </section>
         <section>
           <h2 className="font-display text-xl font-bold text-rose-brand">Country</h2>
-          <p className="mt-2">This policy applies to orders shipped within the United States.</p>
+          <p className="mt-2">
+            This policy applies to orders shipped within the {BUSINESS.salesCountryName}. The store is
+            operated by {BUSINESS.legalName}.
+          </p>
         </section>
       </div>
+
+      <section className="mt-10 card p-5">
+        <p className="section-label mb-3">Operator & contact</p>
+        <BusinessIdentity />
+      </section>
+
       <p className="mt-8 text-sm text-surface-muted">
         Also see{' '}
         <Link to="/policies" className="text-rose-brand underline">

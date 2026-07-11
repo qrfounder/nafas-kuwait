@@ -160,7 +160,7 @@ export function HomePage() {
                   <td className="text-center py-3 text-trust-green">✓</td>
                 </tr>
                 <tr>
-                  <td className="py-3 px-4 text-left">Gift-ready packaging option</td>
+                  <td className="py-3 px-4 text-left">Multi-piece kit options</td>
                   <td className="text-center py-3 text-surface-muted">Rarely</td>
                   <td className="text-center py-3 text-trust-green">✓</td>
                 </tr>

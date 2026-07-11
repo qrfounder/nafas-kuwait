@@ -1,5 +1,8 @@
 /** FAQ + order steps only. No fabricated customer reviews (GMC misrepresentation policy). */
 
+import { BUSINESS } from './business'
+import { FREE_SHIPPING_THRESHOLD_USD, US_SHIPPING_USD, formatUsd } from '../lib/currency'
+
 export const ORDER_STEPS = [
   {
     step: '1',
@@ -9,7 +12,7 @@ export const ORDER_STEPS = [
   {
     step: '2',
     title: 'Checkout securely',
-    desc: 'Enter your US shipping address and pay with Stripe (cards and Apple Pay where available).',
+    desc: 'Enter your US shipping address and pay with Stripe (Visa, Mastercard, Amex, Apple Pay).',
   },
   {
     step: '3',
@@ -26,11 +29,15 @@ export const ORDER_STEPS = [
 export const FAQ_ITEMS = [
   {
     q: 'How do I pay?',
-    a: 'Checkout is prepaid via Stripe. We accept major cards and Apple Pay where Stripe supports them. We do not offer cash on delivery.',
+    a: 'Checkout is prepaid via Stripe. We accept Visa, Mastercard, American Express, and Apple Pay where Stripe supports them. We do not offer cash on delivery.',
   },
   {
     q: 'Do you ship across the United States?',
-    a: 'Yes. We ship to addresses in the 50 US states. Flat shipping of $5.99 applies under $100 subtotal; free shipping at $100+ subtotal.',
+    a: `Yes. We ship to addresses in the 50 US states from US warehouse / 3PL partners. Flat shipping of ${formatUsd(US_SHIPPING_USD)} applies under ${formatUsd(FREE_SHIPPING_THRESHOLD_USD)} subtotal; free shipping at ${formatUsd(FREE_SHIPPING_THRESHOLD_USD)}+ subtotal. Typical delivery is 3–7 business days after payment.`,
+  },
+  {
+    q: 'Who operates this store?',
+    a: `The store brand is ${BUSINESS.brandName}. The legal business is ${BUSINESS.legalName}, ${BUSINESS.addressLine1}, ${BUSINESS.addressLine2}, ${BUSINESS.city} ${BUSINESS.postalCode}, ${BUSINESS.countryName}. Customer service: ${BUSINESS.supportEmail} · ${BUSINESS.supportPhoneDisplay}. We sell and ship to the ${BUSINESS.salesCountryName}.`,
   },
   {
     q: 'Do the pieces match the photos?',
@@ -46,6 +53,6 @@ export const FAQ_ITEMS = [
   },
   {
     q: 'What is your return policy?',
-    a: 'Contact us within 30 days for unused items in original packaging or defective items. Full details: /returns',
+    a: `Contact us within 30 days for unused items in original packaging or defective items. Full details: ${BUSINESS.returnsUrl}`,
   },
 ]

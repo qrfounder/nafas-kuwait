@@ -1,13 +1,13 @@
 import { FormEvent, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Logo } from '../components/Logo'
+import { BusinessIdentity } from '../components/BusinessIdentity'
 import { submitContact } from '../lib/api'
-import { BUSINESS, formatAddressLines, hasPhysicalAddress } from '../data/business'
+import { BUSINESS } from '../data/business'
 
 export function ContactPage() {
   const [sent, setSent] = useState(false)
   const [error, setError] = useState('')
-  const addressLines = formatAddressLines()
 
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -33,42 +33,12 @@ export function ContactPage() {
       <p className="section-label">Contact</p>
       <h1 className="section-title mb-6">Customer service</h1>
 
-      <div className="card p-5 mb-8 space-y-3 text-sm">
-        <p>
-          <span className="text-surface-muted">Email · </span>
-          <a href={`mailto:${BUSINESS.supportEmail}`} className="text-rose-brand font-medium underline">
-            {BUSINESS.supportEmail}
-          </a>
-        </p>
-        {BUSINESS.supportPhone ? (
-          <p>
-            <span className="text-surface-muted">Phone · </span>
-            <a href={`tel:${BUSINESS.supportPhone}`} className="text-ink font-medium" dir="ltr">
-              {BUSINESS.supportPhoneDisplay || BUSINESS.supportPhone}
-            </a>
-          </p>
-        ) : null}
-        {hasPhysicalAddress() ? (
-          <div>
-            <p className="text-surface-muted mb-1">Business address</p>
-            {BUSINESS.legalName ? (
-              <p className="text-xs text-surface-muted mt-1 font-medium text-ink">{BUSINESS.legalName}</p>
-            ) : null}
-            {addressLines.map((line) => (
-              <p key={line} className="text-ink font-medium">
-                {line}
-              </p>
-            ))}
-          </div>
-        ) : (
-          <p className="text-xs text-surface-muted leading-relaxed border-t border-surface-border pt-3">
-            Prefer email for the fastest reply. Phone and mailing address will appear here once published.
-          </p>
-        )}
-        <p className="text-xs text-surface-muted">
+      <div className="card p-5 mb-8">
+        <BusinessIdentity />
+        <p className="text-xs text-surface-muted mt-4">
           Returns:{' '}
           <Link to="/returns" className="text-rose-brand underline">
-            /returns
+            {BUSINESS.returnsUrl}
           </Link>
         </p>
       </div>

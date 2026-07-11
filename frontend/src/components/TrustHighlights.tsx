@@ -1,7 +1,7 @@
 const ITEMS = [
   { label: 'Stripe checkout', detail: 'Cards & wallets' },
   { label: 'Ships USA', detail: '3–7 business days' },
-  { label: 'Free shipping $100+', detail: 'Flat rate under $100' },
+  { label: 'Free shipping $100+', detail: '$5.99 under $100' },
   { label: '30-day returns', detail: 'Unused or defective' },
 ]
 

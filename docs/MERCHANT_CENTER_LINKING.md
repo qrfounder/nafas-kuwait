@@ -69,9 +69,21 @@ print(len(items), 'items')
 
 Use the same feed URL, same shipping/returns URLs, claim `https://naffas.shop`.
 
+## Misrepresentation appeal hygiene
+
+Before requesting review / reactivation:
+
+1. Live Contact, About, Policies, Returns, and Footer must show the **same** legal name, Morocco address, email, and phone as Merchant Center.
+2. Clearly disclose: brand **Nafas**, legal operator **Naffas**, sell-to **United States**, fulfill via **US 3PL**.
+3. Shipping on site + GMC: **$5.99** / free **$100+**.
+4. Returns URL in GMC: `https://naffas.shop/returns`.
+5. No fake reviews, scarcity, medical cure claims, or fake “was” prices.
+6. Redeploy web after every identity change, then verify https://naffas.shop/contact before clicking Fix issue.
+
 ## Do not
 
 - Add fake reviews or star ratings
 - Redirect Shopping traffic from a clean PDP to a medical/before-after lander
 - Show payment methods you do not accept
-- Submit the store before `business.ts` has a real US address and phone
+- Invent a US street address if your registered address is Morocco
+- Submit the store while Contact/Policies still omit phone or legal address

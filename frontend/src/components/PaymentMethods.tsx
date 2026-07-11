@@ -35,7 +35,7 @@ export function PaymentMethods({ variant = 'row', showCaption = false }: Props) 
     <div className={variant === 'row' ? 'w-full' : ''}>
       {showCaption && (
         <p className="text-xs text-surface-muted text-center mb-3">
-          Prepaid securely with Stripe. Major cards and digital wallets where available.
+          Prepaid securely with Stripe. Visa, Mastercard, American Express, and Apple Pay.
         </p>
       )}
       <div
