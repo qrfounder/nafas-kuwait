@@ -8,7 +8,10 @@ export const BUSINESS = {
   /** Exact Merchant Center business name */
   legalName: 'Naffas',
   supportEmail: 'support@naffas.shop',
-  supportPhone: '',
+  /** E.164 — must match Merchant Center customer service phone */
+  supportPhone: '+12626719531',
+  /** Human-readable display */
+  supportPhoneDisplay: '+1 (262) 671-9531',
   /** Exact Merchant Center street lines */
   addressLine1: 'Douar Oubaha Tamraght',
   addressLine2: 'AOURIR BANLIEUE',

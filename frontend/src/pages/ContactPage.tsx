@@ -44,7 +44,7 @@ export function ContactPage() {
           <p>
             <span className="text-surface-muted">Phone · </span>
             <a href={`tel:${BUSINESS.supportPhone}`} className="text-ink font-medium" dir="ltr">
-              {BUSINESS.supportPhone}
+              {BUSINESS.supportPhoneDisplay || BUSINESS.supportPhone}
             </a>
           </p>
         ) : null}

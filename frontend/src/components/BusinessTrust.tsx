@@ -8,7 +8,9 @@ export function BusinessTrust({ compact }: { compact?: boolean }) {
   if (compact) {
     return (
       <p className="text-[11px] text-surface-muted text-center">
-        Nafas · Ships USA · {BUSINESS.supportEmail} · Stripe checkout · comfort products, not medical devices
+        Nafas · Ships USA · {BUSINESS.supportEmail}
+        {BUSINESS.supportPhoneDisplay ? ` · ${BUSINESS.supportPhoneDisplay}` : ''} · Stripe checkout ·
+        comfort products, not medical devices
       </p>
     )
   }
@@ -28,6 +30,13 @@ export function BusinessTrust({ compact }: { compact?: boolean }) {
               {BUSINESS.supportEmail}
             </a>
           </p>
+          {BUSINESS.supportPhone ? (
+            <p className="text-sm font-medium text-ink mt-0.5">
+              <a href={`tel:${BUSINESS.supportPhone}`} className="text-ink" dir="ltr">
+                {BUSINESS.supportPhoneDisplay || BUSINESS.supportPhone}
+              </a>
+            </p>
+          ) : null}
         </div>
         <div>
           <p className="text-xs text-surface-muted">Payment</p>

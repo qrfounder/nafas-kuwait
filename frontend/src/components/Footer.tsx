@@ -18,6 +18,17 @@ export function Footer() {
               {BUSINESS.supportEmail}
             </a>
           </p>
+          {BUSINESS.supportPhone ? (
+            <p className="mt-1 text-sm">
+              <a
+                href={`tel:${BUSINESS.supportPhone}`}
+                className="text-cream/80 hover:text-white"
+                dir="ltr"
+              >
+                {BUSINESS.supportPhoneDisplay || BUSINESS.supportPhone}
+              </a>
+            </p>
+          ) : null}
         </div>
         <div>
           <p className="font-semibold text-white text-sm mb-3">Links</p>

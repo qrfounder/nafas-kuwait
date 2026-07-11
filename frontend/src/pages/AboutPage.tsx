@@ -41,8 +41,20 @@ export function AboutPage() {
               {BUSINESS.addressLine1
                 ? `, ${BUSINESS.addressLine1}, ${BUSINESS.addressLine2 ? `${BUSINESS.addressLine2}, ` : ''}${BUSINESS.city} ${BUSINESS.postalCode}, ${BUSINESS.countryName}`
                 : ''}
-              . Customer service: {BUSINESS.supportEmail}.
-            </p>
+              . Customer service:{' '}
+              <a href={`mailto:${BUSINESS.supportEmail}`} className="text-rose-brand underline">
+                {BUSINESS.supportEmail}
+              </a>
+              {BUSINESS.supportPhone ? (
+                <>
+                  {' '}
+                  ·{' '}
+                  <a href={`tel:${BUSINESS.supportPhone}`} className="text-rose-brand underline" dir="ltr">
+                    {BUSINESS.supportPhoneDisplay || BUSINESS.supportPhone}
+                  </a>
+                </>
+              ) : null}
+              .
             <p className="text-sm border-t border-surface-border pt-4">
               Nafas products are at-home comfort and massage devices only, not intended to diagnose, treat,
               cure, or prevent any disease. Contact{' '}
