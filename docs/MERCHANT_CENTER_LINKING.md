@@ -4,10 +4,8 @@ Checklist for Google Merchant Center and Microsoft Merchant Center after the GMC
 
 ## Blockers you must complete (outside code)
 
-1. **Fill real US business identity** in `frontend/src/data/business.ts`:
-   - `legalName`, `supportPhone`, `addressLine1`, `city`, `region`, `postalCode`
-   - Same details in Merchant Center → Business information
-   - **Never invent** an address or phone
+1. **Business identity** in `frontend/src/data/business.ts` must match Merchant Center → Business info
+   (legal name, address, email/phone). Current registered address is Morocco; sell-to country is United States.
 2. **Stripe live keys** + webhook `https://api.naffas.shop/api/stripe/webhook` (`checkout.session.completed`)
 3. **Set `MOJOURNEY_ADMIN_PASSWORD`** (and optional `ADMIN_API_KEY`) in backend `.env` — there is no default password
 4. **Deploy** English USA storefront + feed before claiming the URL

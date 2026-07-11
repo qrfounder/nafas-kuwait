@@ -105,7 +105,7 @@ export function OrganizationJsonLd() {
       email: BUSINESS.supportEmail,
       areaServed: {
         '@type': 'Country',
-        name: 'United States',
+        name: BUSINESS.salesCountryName,
       },
       contactPoint: {
         '@type': 'ContactPoint',
@@ -113,6 +113,7 @@ export function OrganizationJsonLd() {
         email: BUSINESS.supportEmail,
         ...(BUSINESS.supportPhone ? { telephone: BUSINESS.supportPhone } : {}),
         availableLanguage: 'English',
+        areaServed: BUSINESS.salesCountry,
       },
     }
     if (hasPhysicalAddress()) {

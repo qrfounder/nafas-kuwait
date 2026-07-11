@@ -8,7 +8,7 @@ export function BusinessTrust({ compact }: { compact?: boolean }) {
   if (compact) {
     return (
       <p className="text-[11px] text-surface-muted text-center">
-        Nafas · USA · {BUSINESS.supportEmail} · Stripe checkout · comfort products, not medical devices
+        Nafas · Ships USA · {BUSINESS.supportEmail} · Stripe checkout · comfort products, not medical devices
       </p>
     )
   }
@@ -45,6 +45,9 @@ export function BusinessTrust({ compact }: { compact?: boolean }) {
         {hasPhysicalAddress() && (
           <div className="sm:col-span-2">
             <p className="text-xs text-surface-muted">Business address</p>
+            {BUSINESS.legalName ? (
+              <p className="text-sm font-medium text-ink mt-0.5">{BUSINESS.legalName}</p>
+            ) : null}
             {address.map((line) => (
               <p key={line} className="text-sm font-medium text-ink mt-0.5">
                 {line}

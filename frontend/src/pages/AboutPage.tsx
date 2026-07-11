@@ -36,6 +36,13 @@ export function AboutPage() {
               </Link>
               .
             </p>
+            <p>
+              The store is operated by <strong className="text-ink">{BUSINESS.legalName}</strong>
+              {BUSINESS.addressLine1
+                ? `, ${BUSINESS.addressLine1}, ${BUSINESS.addressLine2 ? `${BUSINESS.addressLine2}, ` : ''}${BUSINESS.city} ${BUSINESS.postalCode}, ${BUSINESS.countryName}`
+                : ''}
+              . Customer service: {BUSINESS.supportEmail}.
+            </p>
             <p className="text-sm border-t border-surface-border pt-4">
               Nafas products are at-home comfort and massage devices only, not intended to diagnose, treat,
               cure, or prevent any disease. Contact{' '}

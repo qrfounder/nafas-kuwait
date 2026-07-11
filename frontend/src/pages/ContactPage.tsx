@@ -51,12 +51,14 @@ export function ContactPage() {
         {hasPhysicalAddress() ? (
           <div>
             <p className="text-surface-muted mb-1">Business address</p>
+            {BUSINESS.legalName ? (
+              <p className="text-xs text-surface-muted mt-1 font-medium text-ink">{BUSINESS.legalName}</p>
+            ) : null}
             {addressLines.map((line) => (
               <p key={line} className="text-ink font-medium">
                 {line}
               </p>
             ))}
-            {BUSINESS.legalName ? <p className="text-xs text-surface-muted mt-1">{BUSINESS.legalName}</p> : null}
           </div>
         ) : (
           <p className="text-xs text-surface-muted leading-relaxed border-t border-surface-border pt-3">

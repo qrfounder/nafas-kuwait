@@ -1,19 +1,26 @@
 /**
  * Single source for GMC business identity.
- * Fill LEGAL_* / address / phone with your real US entity before Merchant Center verification.
- * Do not invent a street address. fake addresses also fail GMC.
+ * Must match Merchant Center → Business info exactly.
+ * Sell-to market is the United States; registered business address is Morocco.
  */
 export const BUSINESS = {
   brandName: 'Nafas',
-  legalName: '', // e.g. "Nafas LLC"
+  /** Exact Merchant Center business name */
+  legalName: 'Naffas',
   supportEmail: 'support@naffas.shop',
-  supportPhone: '', // e.g. "+1-555-0100"
-  addressLine1: '',
-  addressLine2: '',
-  city: '',
-  region: '', // state code e.g. "CA"
-  postalCode: '',
-  country: 'US',
+  supportPhone: '',
+  /** Exact Merchant Center street lines */
+  addressLine1: 'Douar Oubaha Tamraght',
+  addressLine2: 'AOURIR BANLIEUE',
+  city: 'Agadir',
+  region: 'Agadir',
+  postalCode: '80023',
+  /** ISO country of the registered business address */
+  country: 'MA',
+  countryName: 'Morocco',
+  /** Primary Shopping destination (Merchant Center Countries) */
+  salesCountry: 'US',
+  salesCountryName: 'United States',
   shopUrl: 'https://naffas.shop',
   returnsUrl: 'https://naffas.shop/returns',
   shippingUrl: 'https://naffas.shop/policies#shipping',
@@ -21,14 +28,16 @@ export const BUSINESS = {
 }
 
 export function hasPhysicalAddress(): boolean {
-  return Boolean(BUSINESS.addressLine1 && BUSINESS.city && BUSINESS.region && BUSINESS.postalCode)
+  return Boolean(BUSINESS.addressLine1 && BUSINESS.city && BUSINESS.postalCode && BUSINESS.country)
 }
 
+/** Multi-line postal address matching GMC business details. */
 export function formatAddressLines(): string[] {
   if (!hasPhysicalAddress()) return []
   const lines: string[] = [BUSINESS.addressLine1]
   if (BUSINESS.addressLine2) lines.push(BUSINESS.addressLine2)
-  lines.push(`${BUSINESS.city}, ${BUSINESS.region} ${BUSINESS.postalCode}`)
-  lines.push('United States')
+  const cityLine = [BUSINESS.city, BUSINESS.region, BUSINESS.postalCode].filter(Boolean).join(' ')
+  lines.push(cityLine)
+  lines.push(BUSINESS.countryName)
   return lines
 }

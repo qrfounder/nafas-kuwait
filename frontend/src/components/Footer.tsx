@@ -74,7 +74,7 @@ export function Footer() {
         </div>
       </div>
       <p className="text-center text-xs text-cream/45 pb-6">
-        © {new Date().getFullYear()} {BUSINESS.legalName || BUSINESS.brandName} · naffas.shop · United States
+        © {new Date().getFullYear()} {BUSINESS.legalName || BUSINESS.brandName} · naffas.shop · Ships to the United States
       </p>
     </footer>
   )
