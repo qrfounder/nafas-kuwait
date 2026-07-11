@@ -55,6 +55,7 @@ export function AboutPage() {
                 </>
               ) : null}
               .
+            </p>
             <p className="text-sm border-t border-surface-border pt-4">
               Nafas products are at-home comfort and massage devices only, not intended to diagnose, treat,
               cure, or prevent any disease. Contact{' '}
