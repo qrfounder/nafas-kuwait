@@ -107,7 +107,7 @@ export function MojourneySkuInventory({ onError }: { onError: (msg: string) => v
                   />
                 </td>
                 <td className="px-3 py-2 font-mono text-xs text-amber-200/90">{r.sku}</td>
-                <td className="px-3 py-2 text-slate-200 max-w-[200px] truncate" dir="rtl">
+                <td className="px-3 py-2 text-slate-200 max-w-[200px] truncate">
                   {r.label_ar}
                 </td>
                 <td className="px-3 py-2 tabular-nums text-slate-300">{formatKwd(r.price)}</td>
@@ -146,25 +146,23 @@ export function MojourneySkuInventory({ onError }: { onError: (msg: string) => v
 
           <div className="grid sm:grid-cols-2 gap-3">
             <label className="text-xs text-slate-400 block sm:col-span-2">
-              Display name (Arabic)
+              Display name
               <input
                 value={draft.label_ar}
                 onChange={(e) => setDraft({ ...draft, label_ar: e.target.value })}
                 className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-2 py-2 text-sm text-white"
-                dir="rtl"
               />
             </label>
             <label className="text-xs text-slate-400 block sm:col-span-2">
-              Short hint (Arabic)
+              Short hint
               <input
                 value={draft.hint_ar}
                 onChange={(e) => setDraft({ ...draft, hint_ar: e.target.value })}
                 className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-2 py-2 text-sm text-white"
-                dir="rtl"
               />
             </label>
             <label className="text-xs text-slate-400 block">
-              Price (internal → KWD on site)
+              Price (USD)
               <input
                 type="number"
                 value={draft.price}

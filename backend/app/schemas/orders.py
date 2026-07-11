@@ -1,4 +1,6 @@
-from pydantic import BaseModel, Field
+import re
+
+from pydantic import BaseModel, EmailStr, Field, field_validator
 
 
 class CartLineIn(BaseModel):
@@ -9,14 +11,20 @@ class CartLineIn(BaseModel):
     line_type: str = "product"
 
 
+_ZIP_RE = re.compile(r"^\d{5}(-\d{4})?$")
+_STATE_RE = re.compile(r"^[A-Za-z]{2}$")
+
+
 class CreateOrderIn(BaseModel):
     customer_name: str = Field(min_length=2, max_length=200)
+    customer_email: EmailStr
     customer_phone: str
-    governorate: str = Field(default="بانتظار التأكيد الهاتفي", max_length=64)
-    area: str = Field(default="بانتظار التأكيد الهاتفي", max_length=128)
-    block: str = Field(default="-", max_length=32)
-    street: str = Field(default="بانتظار التأكيد الهاتفي", max_length=128)
-    building: str | None = Field(default=None, max_length=64)
+    # US address mapping: governorate=state, area=city, street=line1, building=apt, block=ZIP
+    governorate: str = Field(min_length=2, max_length=64)  # US state (2-letter preferred)
+    area: str = Field(min_length=2, max_length=128)  # city
+    street: str = Field(min_length=3, max_length=128)  # address line 1
+    building: str | None = Field(default=None, max_length=64)  # apt/suite
+    block: str = Field(min_length=5, max_length=32)  # ZIP
     delivery_notes: str | None = Field(default=None, max_length=500)
     product_slug: str
     offer_tier: int = Field(ge=1, le=3)
@@ -31,6 +39,32 @@ class CreateOrderIn(BaseModel):
     utm_source: str | None = None
     utm_campaign: str | None = None
 
+    @field_validator("governorate")
+    @classmethod
+    def normalize_state(cls, v: str) -> str:
+        s = v.strip()
+        if _STATE_RE.match(s):
+            return s.upper()
+        if not s:
+            raise ValueError("US state is required")
+        return s
+
+    @field_validator("block")
+    @classmethod
+    def validate_zip(cls, v: str) -> str:
+        z = v.strip()
+        if not _ZIP_RE.match(z):
+            raise ValueError("Enter a valid US ZIP code (e.g. 90210 or 90210-1234)")
+        return z
+
+    @field_validator("area", "street")
+    @classmethod
+    def strip_required(cls, v: str) -> str:
+        s = v.strip()
+        if not s:
+            raise ValueError("This field is required")
+        return s
+
 
 class UpsellIn(BaseModel):
     upsell_sku: str
@@ -43,6 +77,7 @@ class OrderOut(BaseModel):
     order_number: str
     total_usd: float
     post_upsell: dict | None = None
+    checkout_url: str | None = None
 
     class Config:
         from_attributes = True

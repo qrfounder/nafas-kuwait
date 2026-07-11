@@ -2,10 +2,8 @@
 
 const local = (path: string) => `/products/${path}`
 const emotional = (path: string) => `/products/emotional/${path}`
-const reviewFace = (name: string) => `/reviews/review-${name}.webp`
 
 export const IMAGES = {
-  /** Homepage hero — 3-piece system, before/after mood */
   hero: emotional('home/hero.png'),
   heroAlt: emotional('home/pain-back.png'),
 
@@ -24,29 +22,11 @@ export const IMAGES = {
     'gift-box': local('gift-box.png'),
   } as Record<string, string>,
 
-  /** Homepage «تعرفين هالألم؟» cards */
+  /** Homepage comfort-theme cards */
   pain: {
     cycle: emotional('home/pain-cycle.png'),
     back: emotional('home/pain-back.png'),
     neck: emotional('home/pain-neck.png'),
-  },
-
-  /** Kuwait customer portraits — one unique face per review (WebP 200px). */
-  reviewFaces: {
-    sara: reviewFace('sara'),
-    fatima: reviewFace('fatima'),
-    noura: reviewFace('noura'),
-    mariam: reviewFace('mariam'),
-    haya: reviewFace('haya'),
-    dalal: reviewFace('dalal'),
-    reem: reviewFace('reem'),
-    lulu: reviewFace('lulu'),
-    shaikha: reviewFace('shaikha'),
-    amal: reviewFace('amal'),
-    moudi: reviewFace('moudi'),
-    aisha: reviewFace('aisha'),
-    mona: reviewFace('mona'),
-    zainab: reviewFace('zainab'),
   },
 }
 
@@ -58,7 +38,6 @@ export function skuImage(sku: string): string {
   return IMAGES.skus[sku] ?? IMAGES.hero
 }
 
-/** Emotional showcase: product centered on before/after mood background. */
 export function skuShowcaseImage(sku: string): string {
   return `/products/emotional/sku/${sku}-showcase.png`
 }

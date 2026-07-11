@@ -51,7 +51,7 @@ let cached: StoreBootstrap | null = null
 
 export async function fetchStoreBootstrap(): Promise<StoreBootstrap> {
   const res = await fetch(`${getApiBase()}/api/store/bootstrap`)
-  if (!res.ok) throw new Error('تعذّر تحميل إعدادات المتجر')
+  if (!res.ok) throw new Error('Could not load store settings')
   const data = (await res.json()) as StoreBootstrap
   cached = data
   return data

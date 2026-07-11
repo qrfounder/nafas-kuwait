@@ -7,8 +7,8 @@ export function FAQ() {
   return (
     <section className="section">
       <div className="container-narrow max-w-2xl">
-        <p className="section-label text-center">أسئلة شائعة</p>
-        <h2 className="section-title text-center mb-8">قبل ما تطلبين</h2>
+        <p className="section-label text-center">FAQ</p>
+        <h2 className="section-title text-center mb-8">Before you order</h2>
         <ul className="space-y-2">
           {FAQ_ITEMS.map((item, i) => {
             const isOpen = open === i
@@ -16,7 +16,7 @@ export function FAQ() {
               <li key={item.q} className="card overflow-hidden">
                 <button
                   type="button"
-                  className="w-full text-right px-5 py-4 flex justify-between items-center gap-4 font-medium text-ink hover:bg-cream/50 transition-colors"
+                  className="w-full text-left px-5 py-4 flex justify-between items-center gap-4 font-medium text-ink hover:bg-cream/50 transition-colors"
                   onClick={() => setOpen(isOpen ? null : i)}
                   aria-expanded={isOpen}
                 >
@@ -26,7 +26,7 @@ export function FAQ() {
                   </span>
                 </button>
                 {isOpen && (
-                  <p className="px-5 pb-4 text-sm text-surface-muted leading-relaxed border-t border-surface-border pt-3">
+                  <p className="px-5 pb-4 text-sm text-surface-muted leading-relaxed border-t border-surface-border pt-3 text-left">
                     {item.a}
                   </p>
                 )}

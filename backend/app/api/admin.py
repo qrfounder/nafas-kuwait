@@ -34,10 +34,10 @@ def _require_admin_key(x_admin_key: str | None = Header(None, alias="X-Admin-Key
     if not _admin_auth_configured():
         raise HTTPException(
             status_code=503,
-            detail="لوحة Mojourney معطّلة: عيّن MOJOURNEY_ADMIN_PASSWORD أو ADMIN_API_KEY.",
+            detail="Mojourney is disabled: set MOJOURNEY_ADMIN_PASSWORD or ADMIN_API_KEY.",
         )
     if not x_admin_key:
-        raise HTTPException(status_code=401, detail="غير مصرّح")
+        raise HTTPException(status_code=401, detail="Unauthorized")
 
     _prune_sessions()
     exp = _sessions.get(x_admin_key)
@@ -54,12 +54,12 @@ def _require_admin_key(x_admin_key: str | None = Header(None, alias="X-Admin-Key
     if verify_session_token(x_admin_key):
         return
 
-    raise HTTPException(status_code=401, detail="غير مصرّح")
+    raise HTTPException(status_code=401, detail="Unauthorized")
 
 
 @router.get("/ping")
 def admin_ping():
-    """بدون مفتاح — للتأكد أن الراوتر شغال."""
+    """No key required — confirms the admin router is up."""
     return {
         "ok": True,
         "admin_configured": _admin_auth_configured(),
@@ -72,7 +72,7 @@ def admin_login(body: AdminLoginIn):
     if not settings.mojourney_admin_password:
         raise HTTPException(
             status_code=503,
-            detail="تسجيل الدخول بالاسم وكلمة المرور معطّل. عيّن MOJOURNEY_ADMIN_PASSWORD أو استخدمي ADMIN_API_KEY.",
+            detail="Password login disabled. Set MOJOURNEY_ADMIN_PASSWORD or use ADMIN_API_KEY.",
         )
     _prune_sessions()
     user_ok = body.username.strip() == settings.mojourney_admin_user
@@ -81,7 +81,7 @@ def admin_login(body: AdminLoginIn):
     except (TypeError, ValueError):
         pass_ok = False
     if not user_ok or not pass_ok:
-        raise HTTPException(status_code=401, detail="اسم المستخدم أو كلمة المرور غير صحيحة")
+        raise HTTPException(status_code=401, detail="Invalid username or password")
 
     token = issue_session_token(body.username.strip())
     logger.info("Mojourney login ok for user=%s", body.username.strip())

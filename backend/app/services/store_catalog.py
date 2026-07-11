@@ -10,9 +10,9 @@ from app.models.store import ProductOverride, Redirect, StoreSettings
 from app.services.sku_catalog import list_skus_merged
 
 MACRO_HELP = {
-    "{{shop}}": "رابط المتجر (مثال: https://naffas.shop)",
-    "{{shop_url}}": "نفس {{shop}}",
-    "{{product:slug}}": "صفحة منتج، مثال {{product:cycle-relief}}",
+    "{{shop}}": "Store URL (e.g. https://naffas.shop)",
+    "{{shop_url}}": "Same as {{shop}}",
+    "{{product:slug}}": "Product page, e.g. {{product:cycle-relief}}",
 }
 
 
@@ -48,13 +48,20 @@ def expand_macros(target: str, shop_url: str) -> str:
     return out
 
 
+def _has_arabic(text: str | None) -> bool:
+    if not text:
+        return False
+    return any("\u0600" <= ch <= "\u06FF" for ch in text)
+
+
 def merge_product(base: dict, override: ProductOverride | None) -> dict:
     p = deepcopy(base)
     if not override:
         return p
-    if override.title_ar:
+    # Ignore Arabic legacy overrides after US English cutover
+    if override.title_ar and not _has_arabic(override.title_ar):
         p["title_ar"] = override.title_ar
-    if override.subtitle_ar:
+    if override.subtitle_ar and not _has_arabic(override.subtitle_ar):
         p["subtitle_ar"] = override.subtitle_ar
     if override.base_price is not None:
         p["base_price"] = override.base_price
@@ -62,7 +69,19 @@ def merge_product(base: dict, override: ProductOverride | None) -> dict:
         p["anchor_single"] = override.anchor_single
     if override.tiers_json:
         try:
-            p["tiers"] = json.loads(override.tiers_json)
+            tiers = json.loads(override.tiers_json)
+            if isinstance(tiers, list) and tiers and not _has_arabic(str(tiers[0].get("label_ar", ""))):
+                p["tiers"] = tiers
+            elif isinstance(tiers, list) and tiers:
+                # Keep English labels from base; apply prices from override
+                merged = deepcopy(p.get("tiers") or [])
+                for i, t in enumerate(tiers):
+                    if i < len(merged):
+                        if "price" in t:
+                            merged[i]["price"] = t["price"]
+                        if "anchor" in t:
+                            merged[i]["anchor"] = t["anchor"]
+                p["tiers"] = merged
         except json.JSONDecodeError:
             pass
     p["active"] = override.active if override else True

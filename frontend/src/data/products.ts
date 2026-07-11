@@ -1,5 +1,6 @@
 export interface Tier {
   tier: number
+  /** Display label (English). Field name kept for API/DB compatibility. */
   label_ar: string
   price: number
   anchor: number
@@ -7,131 +8,175 @@ export interface Tier {
 }
 
 /**
- * All `price` / `anchor` values are internal list units (see `usdToKwd` in currency.ts).
- * Display to customers is always in د.ك. Sweet spot: singles ~17–20 د.ك avg on hero SKUs;
- * bundle tier 1 below sum of singles (clear savings) to lift confirmation; multi-tier
- * steps lift AOV without shocking COD totals.
+ * All `price` / `anchor` values are USD (customer-facing).
+ * Wellness / comfort positioning only, not medical treatment claims (GMC/Shopping safe).
  */
 export interface Product {
   slug: string
   title_ar: string
   subtitle_ar: string
+  /** Longer feed/landing description (English). */
+  description_en: string
   base_price: number
   anchor_single: number
   tiers: Tier[]
   includes: string[]
   post_upsell: { sku: string; title_ar: string; anchor: number; price: number }
+  google_product_category: string
+  brand: string
+  condition: 'new'
+  /** Manufacturer part number for Merchant Center when GTIN is unavailable. */
+  mpn: string
+  identifier_exists: boolean
+  gtin: string | null
+  shipping_weight_lb: number
 }
 
-/** Accurate SKU names، matches warehouse items (الدفع عند الاستلام-safe wording). */
+/** Accurate SKU names. home comfort devices, not medical devices. */
 export const SKU_LABELS: Record<string, string> = {
-  'period-belt': 'حزام حرارة لاسلكي للدورة',
-  lumbar: 'ممدد ومقوم أسفل الظهر',
-  neck: 'مدلك كهربائي لاصق، رقبة وكتف',
-  'head-massager': 'عصابة مساج الرأس الكهربائية',
-  'knee-sleeves': 'دعامة ضغط للركبة (تريكو)',
-  'gift-box': 'تغليف هدية فاخر',
+  'period-belt': 'Wireless warming belt (USB rechargeable)',
+  lumbar: 'Lower-back stretch arch',
+  neck: 'Adhesive pulse massager for neck & shoulders',
+  'head-massager': 'Electric headband massager',
+  'knee-sleeves': 'Compression knee sleeves (pair)',
+  'gift-box': 'Gift-ready packaging',
 }
 
-/** Short line under each SKU on product pages (expectation-setting). */
 export const SKU_HINTS: Record<string, string> = {
-  'period-belt': 'لاسلكي، ٣ أوضاع حرارة واهتزاز، يشحن بالكابل',
-  lumbar: 'بلاستيك، ٣ مستويات، بدون كهرباء',
-  neck: 'لوحة لاصقة صغيرة، نبضات، مو وسادة كبيرة',
-  'head-massager': 'عصابة على الجبهة، نبضات خفيفة، وضعان، يشحن بالكابل',
-  'knee-sleeves': 'تريكو ضغط، حماية الرضفة، مانع انزلاق، زوج للركبتين',
-  'gift-box': 'تغليف هدية جاهز',
+  'period-belt': 'Wireless; 3 heat & vibration modes; USB charging',
+  lumbar: 'Plastic arch; 3 height levels; no electricity',
+  neck: 'Small adhesive pad with pulses, not a large pillow',
+  'head-massager': 'Forehead band; gentle pulses; 2 modes; USB charging',
+  'knee-sleeves': 'Knit compression; patella support; non-slip; pair',
+  'gift-box': 'Ready-to-gift packaging',
 }
 
 export const SKU_TRUST_LINE =
-  'أجهزة راحة منزلية، مو علاج طبي. كل قطعة مختلفة: حرارة، ممدد، مدلك لاصق، عصابة رأس، أو دعامة ركبة تريكو، حسب البوكس.'
+  'At-home comfort devices, not medical treatment. Each piece is different: heat, stretch arch, adhesive massager, headband, or knit knee sleeves, depending on the kit.'
+
+export const BRAND = 'Nafas'
 
 export function getUsageSteps(slug: string): string {
   switch (slug) {
     case 'cycle-relief':
-      return '١) حزام الحرارة اللاسلكي على البطن (١٥-٢٠ دقيقة) ٢) ممدد الظهر على الأرض بعد التكييف ٣) مدلك الرقبة اللاصق قبل النوم.'
+      return '1) Warming belt on the lower abdomen (15–20 minutes) 2) Back arch on the floor after long sitting 3) Neck adhesive massager before bed.'
     case 'body-relief':
-      return '١) ممدد الظهر ١٠-١٥ دقيقة بعد التكييف ٢) مدلك الرقبة اللاصق مع التلفون ٣) عصابة مساج الرأس على الجبهة قبل النوم (١٥ دقيقة).'
+      return '1) Back arch 10–15 minutes after desk or AC time 2) Neck adhesive massager during screen time 3) Headband massager on the forehead before bed (about 15 minutes).'
     case 'mother-gift':
-      return '١) حزام حرارة لأمك أو لكِ ٢) دعامة ضغط للركبتين (تريكو) ٣) ممدد الظهر، بوكس هدية جاهز للتغليف.'
+      return '1) Warming belt for comfort at home 2) Compression knee sleeves (pair) 3) Back stretch arch, gift-ready box included.'
     default:
-      return 'استخدمي كل قطعة ١٠-٢٠ دقيقة حسب راحتج، راحة منزلية فقط.'
+      return 'Use each piece for 10–20 minutes as it feels comfortable. For home comfort only, not a substitute for medical care.'
   }
 }
 
 export const PRODUCTS: Product[] = [
   {
     slug: 'test',
-    title_ar: 'مجموعة نفس للراحة المنزلية',
-    subtitle_ar: 'أجهزة راحة منزلية — حرارة، ممدد ظهر، مدلك رقبة (ليس علاجاً طبياً)',
+    title_ar: 'Nafas Home Comfort Kit',
+    subtitle_ar: 'At-home comfort devices: heat, back stretch, neck massager (not medical treatment)',
+    description_en:
+      'A three-piece Nafas comfort kit with a wireless warming belt, lower-back stretch arch, and adhesive neck massager. Designed for everyday home use. Not a medical device.',
     base_price: 77.4,
     anchor_single: 112.9,
     tiers: [
-      { tier: 1, label_ar: 'بوكس واحد', price: 77.4, anchor: 112.9, badge: null },
-      { tier: 2, label_ar: 'بوكسين', price: 96.8, anchor: 154.8, badge: null },
-      { tier: 3, label_ar: '3 بوكسات', price: 119.4, anchor: 232.3, badge: null },
+      { tier: 1, label_ar: '1 kit', price: 77.4, anchor: 77.4, badge: null },
+      { tier: 2, label_ar: '2 kits', price: 96.8, anchor: 96.8, badge: null },
+      { tier: 3, label_ar: '3 kits', price: 119.4, anchor: 119.4, badge: null },
     ],
     includes: ['period-belt', 'lumbar', 'neck'],
-    post_upsell: { sku: 'head-massager', title_ar: 'عصابة مساج الرأس الكهربائية', anchor: 74, price: 52 },
+    post_upsell: { sku: 'head-massager', title_ar: 'Electric headband massager', anchor: 52, price: 52 },
+    google_product_category: '2330',
+    brand: BRAND,
+    condition: 'new',
+    mpn: 'NF-TEST-KIT',
+    identifier_exists: false,
+    gtin: null,
+    shipping_weight_lb: 2.4,
   },
   {
     slug: 'cycle-relief',
-    title_ar: 'نظام راحة الدورة',
-    subtitle_ar: 'الألم اللي تتحملينه بصمت كل شهر، فيه حل بالبيت',
+    title_ar: 'Cycle Comfort Kit',
+    subtitle_ar: 'Heat and stretch tools for comfortable days at home',
+    description_en:
+      'Nafas Cycle Comfort Kit includes a wireless warming belt, lower-back stretch arch, and adhesive neck & shoulder massager. Built for everyday home comfort during your cycle. Ships in the USA. At-home comfort devices only, not medical devices.',
     base_price: 77.4,
     anchor_single: 112.9,
     tiers: [
-      { tier: 1, label_ar: 'بوكس واحد، لكِ', price: 77.4, anchor: 112.9, badge: null },
-      { tier: 2, label_ar: 'بوكسين، لكِ ولأختك', price: 96.8, anchor: 154.8, badge: 'وفّري ١٨ د.ك' },
-      { tier: 3, label_ar: '3 بوكسات، للعائلة', price: 119.4, anchor: 232.3, badge: 'الأكثر طلباً' },
+      { tier: 1, label_ar: '1 kit for you', price: 77.4, anchor: 77.4, badge: null },
+      { tier: 2, label_ar: '2 kits to share', price: 96.8, anchor: 96.8, badge: null },
+      { tier: 3, label_ar: '3 kits for the family', price: 119.4, anchor: 119.4, badge: 'Most popular' },
     ],
     includes: ['period-belt', 'lumbar', 'neck'],
-    post_upsell: { sku: 'head-massager', title_ar: 'عصابة مساج الرأس الكهربائية', anchor: 74, price: 52 },
+    post_upsell: { sku: 'head-massager', title_ar: 'Electric headband massager', anchor: 52, price: 52 },
+    google_product_category: '2330',
+    brand: BRAND,
+    condition: 'new',
+    mpn: 'NF-CYCLE-KIT',
+    identifier_exists: false,
+    gtin: null,
+    shipping_weight_lb: 2.4,
   },
   {
     slug: 'body-relief',
-    title_ar: 'راحة الجسم',
-    subtitle_ar: 'التكييف يريحك من الحر ويقتل ظهرك ورقبتك',
+    title_ar: 'Body Ease Kit',
+    subtitle_ar: 'Desk days, long drives, and screen time: stretch and massage tools for home',
+    description_en:
+      'Nafas Body Ease Kit includes a lower-back stretch arch, adhesive neck massager, and electric headband massager. For everyday muscle tension from sitting, AC offices, and phones. At-home comfort devices only, not medical devices.',
     base_price: 77.4,
     anchor_single: 112.9,
     tiers: [
-      { tier: 1, label_ar: 'بوكس واحد، لكِ', price: 77.4, anchor: 112.9, badge: null },
-      { tier: 2, label_ar: 'بوكسين', price: 96.8, anchor: 154.8, badge: 'وفّري ١٨ د.ك' },
-      { tier: 3, label_ar: '3 بوكسات', price: 119.4, anchor: 232.3, badge: 'الأكثر طلباً' },
+      { tier: 1, label_ar: '1 kit for you', price: 77.4, anchor: 77.4, badge: null },
+      { tier: 2, label_ar: '2 kits', price: 96.8, anchor: 96.8, badge: null },
+      { tier: 3, label_ar: '3 kits', price: 119.4, anchor: 119.4, badge: 'Most popular' },
     ],
     includes: ['lumbar', 'neck', 'head-massager'],
-    post_upsell: { sku: 'knee-sleeves', title_ar: 'دعامة ضغط للركبة، زوج لأمك', anchor: 67, price: 48 },
+    post_upsell: { sku: 'knee-sleeves', title_ar: 'Compression knee sleeves (pair)', anchor: 48, price: 48 },
+    google_product_category: '2330',
+    brand: BRAND,
+    condition: 'new',
+    mpn: 'NF-BODY-KIT',
+    identifier_exists: false,
+    gtin: null,
+    shipping_weight_lb: 2.6,
   },
   {
     slug: 'mother-gift',
-    title_ar: 'هدية أمي',
-    subtitle_ar: 'أمك ما تشتكي، أنتِ اللي تعرفين ألم ركبها',
+    title_ar: 'Mom Gift Kit',
+    subtitle_ar: 'A thoughtful comfort box for the woman who rarely asks for help',
+    description_en:
+      'Nafas Mom Gift Kit includes a wireless warming belt, compression knee sleeves (pair), lower-back stretch arch, and gift-ready packaging. A practical present for everyday comfort at home. At-home comfort devices only, not medical devices.',
     base_price: 77.4,
     anchor_single: 112.9,
     tiers: [
-      { tier: 1, label_ar: 'بوكس واحد، هدية', price: 77.4, anchor: 112.9, badge: null },
-      { tier: 2, label_ar: 'بوكسين، لكِ ولأمك', price: 96.8, anchor: 154.8, badge: 'وفّري ١٨ د.ك' },
-      { tier: 3, label_ar: '3 بوكسات، للعائلة', price: 119.4, anchor: 232.3, badge: 'الأكثر طلباً' },
+      { tier: 1, label_ar: '1 gift-ready kit', price: 77.4, anchor: 77.4, badge: null },
+      { tier: 2, label_ar: '2 kits for you and mom', price: 96.8, anchor: 96.8, badge: null },
+      { tier: 3, label_ar: '3 kits for the family', price: 119.4, anchor: 119.4, badge: 'Most popular' },
     ],
     includes: ['period-belt', 'knee-sleeves', 'lumbar', 'gift-box'],
-    post_upsell: { sku: 'lumbar', title_ar: 'ممدد ظهر إضافي لأمك', anchor: 64, price: 44 },
+    post_upsell: { sku: 'lumbar', title_ar: 'Extra back stretch arch', anchor: 44, price: 44 },
+    google_product_category: '2330',
+    brand: BRAND,
+    condition: 'new',
+    mpn: 'NF-MOM-KIT',
+    identifier_exists: false,
+    gtin: null,
+    shipping_weight_lb: 2.8,
   },
 ]
 
 export const CROSS_SELLS = [
-  { sku: 'knee-sleeves', title_ar: 'دعامة ضغط للركبة، زوج', price: 48 },
-  { sku: 'lumbar', title_ar: 'ممدد ظهر إضافي', price: 44 },
-  { sku: 'head-massager', title_ar: 'عصابة مساج الرأس الكهربائية', price: 52 },
+  { sku: 'knee-sleeves', title_ar: 'Compression knee sleeves (pair)', price: 48 },
+  { sku: 'lumbar', title_ar: 'Extra back stretch arch', price: 44 },
+  { sku: 'head-massager', title_ar: 'Electric headband massager', price: 52 },
 ]
 
-/** Standalone piece pricing (internal list units → د.ك via currency). ~17–20 د.ك on hero SKUs. */
 export const SINGLE_SKU_PRICES: Record<string, { price: number; anchor: number }> = {
-  'period-belt': { price: 62, anchor: 72 },
-  lumbar: { price: 55, anchor: 64 },
-  neck: { price: 60, anchor: 69 },
-  'head-massager': { price: 64, anchor: 74 },
-  'knee-sleeves': { price: 58, anchor: 67 },
-  'gift-box': { price: 40, anchor: 48 },
+  'period-belt': { price: 62, anchor: 62 },
+  lumbar: { price: 55, anchor: 55 },
+  neck: { price: 60, anchor: 60 },
+  'head-massager': { price: 64, anchor: 64 },
+  'knee-sleeves': { price: 58, anchor: 58 },
+  'gift-box': { price: 40, anchor: 40 },
 }
 
 export function getSingleSkuPrice(sku: string) {
@@ -170,12 +215,10 @@ export function getProduct(slug: string) {
   return PRODUCTS.find((p) => p.slug === slug)
 }
 
-/** Storefront listing (excludes ad-only landing slug). */
 export function getCatalogProducts() {
   return PRODUCTS.filter((p) => p.slug !== 'test')
 }
 
-/** Lowest bundle tier-1 price (for homepage «من … د.ك»). */
 export const ENTRY_BUNDLE_PRICE_USD = Math.min(
   ...getCatalogProducts().map((p) => p.tiers[0]?.price ?? p.base_price),
 )

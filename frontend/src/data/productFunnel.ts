@@ -28,13 +28,13 @@ export const COMPLETE_SYSTEM_IMAGE = '/products/emotional/complete-system.png'
 
 export const COMPLETE_PACKAGE = {
   id: 'complete-nafas',
-  title_ar: 'النظام الكامل: دورة، جسم، وهدية أمي',
+  title_ar: 'Complete system: Cycle, Body & Mom Gift',
   subtitle_ar:
-    'ثلاث بوكسات في طلب واحد. للي تبين تغطين كل زاوية من أول مرة، وبسعر أوفر من الشراء منفصل.',
+    'Three kits in one order. Cover every zone from the start. better value than buying separately.',
   price: 193.5,
   anchor: 232.3,
   savings_usd: 38.8,
-  badge_ar: 'وفّري ١٢ د.ك',
+  badge_ar: 'Save $39',
 }
 
 export const PRODUCT_FUNNEL: Record<string, ProductFunnelConfig> = {
@@ -44,31 +44,31 @@ export const PRODUCT_FUNNEL: Record<string, ProductFunnelConfig> = {
         sku: 'head-massager',
         title_ar: SKU_LABELS['head-massager'],
         price: 52,
-        reason_ar: 'بعد المغص، صداع أو نوم متقطع؟ عصابة الرأس تكمل الروتين',
+        reason_ar: 'After a tough cycle day. headband massager rounds out the routine',
       },
       {
         sku: 'knee-sleeves',
         title_ar: SKU_LABELS['knee-sleeves'],
         price: 48,
-        reason_ar: 'ركبة متعبة بعد المشي أو لأمك؟ قطعة خفيفة تضاف للبوكس',
+        reason_ar: 'Tired knees after walking. or for mom? A light add-on for the kit',
       },
     ],
     siblings: [
       {
         slug: 'body-relief',
-        headline_ar: 'ظهرج ورقبتج من التكييف؟',
-        sub_ar: 'ممدد ومدلك وعصابة رأس، نظام يومي بعد الشغل',
-        badge: 'يكمل الدورة',
+        headline_ar: 'Desk back and neck tightness?',
+        sub_ar: 'Arch, adhesive massager, and headband. a daily after-work system',
+        badge: 'Pairs with Cycle',
       },
       {
         slug: 'mother-gift',
-        headline_ar: 'تبي تهادين أمك بنفس الطلب؟',
-        sub_ar: 'حزام وركبة وظهر وتغليف، هدية تُستخدم',
-        badge: 'الأكثر هدية',
+        headline_ar: 'Gift mom in the same order?',
+        sub_ar: 'Warming belt, knee sleeves, back arch, gift packaging',
+        badge: 'Most gifted',
       },
     ],
     bestDealTier: 2,
-    bestDealLabel_ar: '٣ بوكسات، وفّري أكثر لكِ ولأختج',
+    bestDealLabel_ar: '3 kits. better value for you and a sister',
   },
   'body-relief': {
     addons: [
@@ -76,31 +76,31 @@ export const PRODUCT_FUNNEL: Record<string, ProductFunnelConfig> = {
         sku: 'period-belt',
         title_ar: SKU_LABELS['period-belt'],
         price: 56,
-        reason_ar: 'ألم الدورة يجي فجأة؟ حزام حرارة يخلي البوكس جاهز',
+        reason_ar: 'Cycle days sneak up? A warming belt keeps the kit ready',
       },
       {
         sku: 'knee-sleeves',
         title_ar: SKU_LABELS['knee-sleeves'],
         price: 48,
-        reason_ar: 'ركبة بعد المشي أو الدرج؟ دعامة خفيفة مع النظام',
+        reason_ar: 'Knees after stairs or walks? Light sleeves with the system',
       },
     ],
     siblings: [
       {
         slug: 'cycle-relief',
-        headline_ar: 'المغص الشهري يوقفج أحياناً؟',
-        sub_ar: 'حزام حرارة وظهر ورقبة، الأكثر طلباً في الكويت',
-        badge: 'الأكثر طلباً',
+        headline_ar: 'Monthly discomfort that pauses your plans?',
+        sub_ar: 'Warming belt, back arch, neck massager. our most popular kit',
+        badge: 'Most popular',
       },
       {
         slug: 'mother-gift',
-        headline_ar: 'هدية لأمك بنفس الطلب',
-        sub_ar: 'بوكس جاهز: ركبة وراحة وتغليف',
-        badge: 'للعائلة',
+        headline_ar: 'A gift for mom in the same order',
+        sub_ar: 'Ready kit: knees, comfort tools, gift packaging',
+        badge: 'For family',
       },
     ],
     bestDealTier: 2,
-    bestDealLabel_ar: '٣ بوكسات، للبيت أو لمن تحبين',
+    bestDealLabel_ar: '3 kits for home',
   },
   'mother-gift': {
     addons: [
@@ -108,31 +108,31 @@ export const PRODUCT_FUNNEL: Record<string, ProductFunnelConfig> = {
         sku: 'neck',
         title_ar: SKU_LABELS.neck,
         price: 54,
-        reason_ar: 'أمك تسند رقبتها طويل؟ مدلك لاصق يكمل الهدية',
+        reason_ar: 'Mom rubs her neck after long days? Adhesive massager completes the gift',
       },
       {
         sku: 'head-massager',
         title_ar: SKU_LABELS['head-massager'],
         price: 56,
-        reason_ar: 'صداع بعد يوم طويل؟ عصابة قبل النوم',
+        reason_ar: 'Tension after a long day? Headband before bed',
       },
     ],
     siblings: [
       {
         slug: 'cycle-relief',
-        headline_ar: 'وأنتِ بعد، الدورة تستاهل نفس الاهتمام',
-        sub_ar: 'حزام وظهر ورقبة، راحة لج أيضاً',
-        badge: 'لج أيضاً',
+        headline_ar: 'And for you. cycle days deserve care too',
+        sub_ar: 'Warming belt, back, and neck. comfort for you as well',
+        badge: 'For you too',
       },
       {
         slug: 'body-relief',
-        headline_ar: 'ظهرج من الشغل والتكييف؟',
-        sub_ar: 'نظام الجسم: ممدد ومدلك وعصابة',
-        badge: 'للشغل',
+        headline_ar: 'Back from work and AC?',
+        sub_ar: 'Body kit: arch, adhesive massager, headband',
+        badge: 'For workdays',
       },
     ],
     bestDealTier: 2,
-    bestDealLabel_ar: '٣ بوكسات، للعائلة أو المناسبة القادمة',
+    bestDealLabel_ar: '3 kits for family',
   },
 }
 

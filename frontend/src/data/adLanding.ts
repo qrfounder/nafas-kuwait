@@ -1,5 +1,5 @@
 /**
- * Ad-safe landing at /product/test — TikTok & Snapchat policy aligned.
+ * Ad-safe landing at /product/test. TikTok & Snapchat policy aligned.
  * After approval, redirect /product/test → real slug in Mojourney (Redirects).
  */
 export const AD_LANDING_SLUG = 'test'
@@ -8,12 +8,14 @@ export const AD_LANDING_SLUG = 'test'
 export const isAdLandingSlug = (slug: string) => slug === AD_LANDING_SLUG
 
 export const AD_LANDING_COPY = {
-  brand: 'نفس',
-  title_ar: 'مجموعة نفس للراحة المنزلية',
-  subtitle_ar: 'ثلاث قطع للاستخدام اليومي في البيت: حرارة لاسلكية، ممدد ظهر، مدلك رقبة لاصق.',
+  brand: 'Nafas',
+  title_ar: 'Nafas Home Comfort Kit',
+  subtitle_ar:
+    'Three pieces for everyday home use: wireless warming belt, back stretch arch, and adhesive neck massager.',
   disclaimer_ar:
-    'منتجات للراحة والاسترخاء المنزلي فقط. ليست أدوية ولا أجهزة طبية ولا بديلاً عن استشارة الطبيب. النتائج تختلف من شخص لآخر.',
-  shipping_ar: 'توصيل داخل الكويت. الدفع عند الاستلام (كاش أو KNET حسب المندوب).',
-  confirm_ar: 'نؤكد الطلب والعنوان بمكالمة هاتفية قبل الشحن.',
-  company_ar: 'نفس — الكويت',
+    'For at-home comfort and relaxation only. Not medicine, not a medical device, and not a substitute for seeing a clinician. Results vary.',
+  shipping_ar:
+    'Ships across the United States. Prepaid with Stripe. Typical delivery 3–7 business days after payment.',
+  confirm_ar: 'You will receive an order confirmation email and tracking when your package ships.',
+  company_ar: 'Nafas. USA',
 } as const

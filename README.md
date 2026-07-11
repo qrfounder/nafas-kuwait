@@ -1,26 +1,15 @@
-# Nafas (نفس) — Kuwait COD DTC Store
+# Nafas — US DTC Store
 
-Khaleeji women's pain-relief bundles. COD-only checkout. TikTok/Snap ads → **naffas.shop**.
+At-home comfort kits for women. English USA storefront, Stripe checkout, US 3PL shipping. Shopping-ready for Google / Microsoft Merchant Center → **naffas.shop**.
 
 ## Structure
 
 | Path | Description |
 |------|-------------|
-| `frontend/` | Vite + React + TypeScript (RTL Arabic) |
-| `backend/` | FastAPI + PostgreSQL (`nafas_kw`) |
+| `frontend/` | Vite + React + TypeScript (en-US LTR) |
+| `backend/` | FastAPI + PostgreSQL |
 | `sheets/` | Google Apps Script + CSV template for orders |
-
-## Mojourney admin (`/mojourney`)
-
-Internal dashboard: orders, product URLs, UTM builder, pixel checklist.
-
-**Sign-in (default):** username `admin`, password `Huhu*201` — defined in `backend/app/config.py` and **overridable** with env `MOJOURNEY_ADMIN_USER` / `MOJOURNEY_ADMIN_PASSWORD`. Change the password before production.
-
-After login, the API issues a **signed session token** (12h) sent as `X-Admin-Key` — survives API restarts. Optional legacy: set **`ADMIN_API_KEY`** only (no password) to use a single long key in the UI instead.
-
-**Analytics →** visitor journey table: city/country plus funnel steps (page view, add to cart, cart, checkout, lead form, upsell yes/no, thank-you purchase).
-
-`GET /api/admin/ping` — no auth. `POST /api/admin/login` — JSON `{ "username", "password" }`. `POST /api/admin/logout` — clears server session when you send the current `X-Admin-Key`.
+| `docs/MERCHANT_CENTER_LINKING.md` | GMC / Bing linking checklist |
 
 ## Quick start (local)
 
@@ -28,7 +17,9 @@ After login, the API issues a **signed session token** (12h) sent as `X-Admin-Ke
 # Backend
 cd backend
 cp .env.example .env
+# Set STRIPE_SECRET_KEY=sk_test_... and STRIPE_WEBHOOK_SECRET=whsec_...
 pip install -r requirements.txt
+alembic upgrade head
 uvicorn app.main:app --reload --port 8000
 
 # Frontend
@@ -38,44 +29,31 @@ npm install
 npm run dev
 ```
 
+Stripe CLI (test webhooks):
+
+```bash
+stripe listen --forward-to localhost:8000/api/stripe/webhook
+```
+
+## Merchant feeds
+
+- API: `GET /api/feeds/google-merchant.xml`
+- Static: `frontend/public/feeds/google-merchant.xml`
+- Sitemap: `/sitemap.xml` · Robots: `/robots.txt`
+
+See [docs/MERCHANT_CENTER_LINKING.md](docs/MERCHANT_CENTER_LINKING.md).
+
+## Mojourney admin (`/mojourney`)
+
+Internal dashboard: orders, product URLs, UTM builder, pixel checklist.
+
+**Sign-in (default):** username `admin`, password from `MOJOURNEY_ADMIN_PASSWORD` (change before production).
+
 ## Docker (Easypanel)
 
 ```bash
 docker compose up --build
 ```
 
-- **API:** port 8000 — set `DATABASE_URL` to Hostinger Postgres `nafas_kw`
+- **API:** port 8000 — set `DATABASE_URL`, `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`
 - **Web:** port 8080 — set `VITE_API_URL` at build time
-
-## Deploy checklist (Easypanel)
-
-1. Create Postgres database `nafas_kw`
-2. Deploy `nafas-api` from `backend/Dockerfile` with backend `.env`
-3. Deploy `nafas-web` from `frontend/Dockerfile` with build args / `VITE_*`
-4. Deploy Google Apps Script from `sheets/apps-script.js` → set `GOOGLE_SHEETS_WEBHOOK_URL`
-5. Point `naffas.shop` to frontend; API subdomain to backend
-6. COD Network: import orders from Sheet (column `status`)
-
-### Critical for conversions (verify after every deploy)
-
-| Check | Command / URL |
-|-------|----------------|
-| API healthy | `curl -s https://api.naffas.shop/health` → `{"status":"ok"}` |
-| Store bootstrap | `curl -s https://api.naffas.shop/api/store/bootstrap` → JSON with `products` |
-| Frontend API URL | Build arg `VITE_API_URL=https://api.naffas.shop` (not localhost) |
-| CORS | Backend `FRONTEND_ORIGIN=https://naffas.shop` (match live domain, with or without `www`) |
-| Funnel data | Mojourney → Analytics → yesterday: `checkout_visit` vs `purchase` |
-
-If API returns **503**, the site can load but **no orders will submit**. Redeploy `nafas-api` and confirm Postgres is connected.
-
-## Marketing ops (manual)
-
-- COD Network Kuwait Gadget tariff: see `content/ops/codnetwork-pricing.md`
-- Ad scripts: `content/ar/ad-scripts.md`
-- Call-center upsell script: `content/ops/call-center-upsell.md`
-- UGC brief: `content/ugc/UGC_BRIEF.md`
-- Launch ads: `content/ops/LAUNCH_ADS.md`
-
-## Phase 2
-
-After 50+ delivered orders: evaluate profit/order; optional hijab store or premium kit — see plan summary.

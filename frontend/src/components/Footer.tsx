@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import { PaymentMethods } from './PaymentMethods'
 import { BusinessTrust } from './BusinessTrust'
 import { Logo } from './Logo'
+import { BUSINESS } from '../data/business'
 
 export function Footer() {
   return (
@@ -10,45 +11,59 @@ export function Footer() {
         <div>
           <Logo variant="footer" className="mb-4" />
           <p className="text-sm text-cream/70 leading-relaxed">
-            نظام راحة للمرأة في الكويت. ادفعي عند الباب وتأكيد هاتفي قبل الشحن.
+            At-home comfort kits for everyday use. Ships across the United States. Secure Stripe checkout.
+          </p>
+          <p className="mt-3 text-sm">
+            <a href={`mailto:${BUSINESS.supportEmail}`} className="text-cream hover:text-white underline">
+              {BUSINESS.supportEmail}
+            </a>
           </p>
         </div>
         <div>
-          <p className="font-semibold text-white text-sm mb-3">روابط</p>
+          <p className="font-semibold text-white text-sm mb-3">Links</p>
           <ul className="space-y-2 text-sm text-cream/75">
             <li>
               <Link to="/collection" className="hover:text-white transition-colors">
-                المجموعة
+                Shop
               </Link>
             </li>
             <li>
               <Link to="/about" className="hover:text-white transition-colors">
-                من نحن
+                About
               </Link>
             </li>
             <li>
               <Link to="/contact" className="hover:text-white transition-colors">
-                تواصل
+                Contact
               </Link>
             </li>
             <li>
               <Link to="/policies" className="hover:text-white transition-colors">
-                السياسات
+                Policies
+              </Link>
+            </li>
+            <li>
+              <Link to="/returns" className="hover:text-white transition-colors">
+                Returns
               </Link>
             </li>
           </ul>
         </div>
         <div>
-          <p className="font-semibold text-white text-sm mb-3">السياسات</p>
+          <p className="font-semibold text-white text-sm mb-3">Customer care</p>
           <ul className="space-y-2 text-sm text-cream/65 leading-relaxed">
             <li>
-              <Link to="/policies" className="hover:text-white transition-colors">
-                الشحن، الدفع، الاستبدال
+              <Link to="/policies#shipping" className="hover:text-white transition-colors">
+                Shipping (US · 3–7 business days)
               </Link>
             </li>
-            <li>تأكيد هاتفي قبل الشحن</li>
-            <li>استبدال خلال 7 أيام عند وجود عيب</li>
-            <li>منتجات راحة، ليست علاجاً طبياً</li>
+            <li>
+              <Link to="/returns" className="hover:text-white transition-colors">
+                30-day returns
+              </Link>
+            </li>
+            <li>Free shipping on orders $100+</li>
+            <li>Comfort products, not medical devices</li>
           </ul>
         </div>
       </div>
@@ -59,7 +74,7 @@ export function Footer() {
         </div>
       </div>
       <p className="text-center text-xs text-cream/45 pb-6">
-        © {new Date().getFullYear()} Nafas، naffas.shop
+        © {new Date().getFullYear()} {BUSINESS.legalName || BUSINESS.brandName} · naffas.shop · United States
       </p>
     </footer>
   )

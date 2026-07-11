@@ -1,44 +1,66 @@
 import { Link } from 'react-router-dom'
-import { OptimizedImage } from './OptimizedImage'
 
-const LOGO_SRC = '/brand/nafas-logo.png'
+/** Tight-cropped transparent PNGs (≈8.9:1). Heights map to header/footer CSS. */
+const LOGO = {
+  src: '/brand/nafas-logo-240.png',
+  srcSet: [
+    '/brand/nafas-logo-120.png 120w',
+    '/brand/nafas-logo-160.png 160w',
+    '/brand/nafas-logo-200.png 200w',
+    '/brand/nafas-logo-240.png 240w',
+    '/brand/nafas-logo-320.png 320w',
+    '/brand/nafas-logo-400.png 400w',
+    '/brand/nafas-logo-480.png 480w',
+  ].join(', '),
+}
+
+/** Intrinsic ratio of processed wordmark (240×27). */
+const INTRINSIC = { w: 240, h: 27 }
 
 type Props = {
-  /** Tighter header (e.g. thank-you, modals). */
   compact?: boolean
-  /** Dark footer: larger wordmark on `bg-ink`. */
   variant?: 'default' | 'footer'
   className?: string
 }
 
+/**
+ * Responsive wordmark: true alpha PNG, height-driven so text stays readable
+ * on mobile (~28px) through desktop (~36px).
+ */
 export function Logo({ compact = false, variant = 'default', className = '' }: Props) {
   const isFooter = variant === 'footer'
 
-  const imgH = isFooter
-    ? 'h-9 max-w-[9rem] sm:h-10 sm:max-w-[10rem]'
+  const box = isFooter
+    ? 'h-8 w-auto sm:h-9'
     : compact
-      ? 'h-6 max-w-[5.5rem]'
-      : 'h-10 max-w-[10rem] sm:h-11 sm:max-w-[12.5rem] md:h-12 md:max-w-[14rem]'
+      ? 'h-7 w-auto'
+      : 'h-[1.75rem] w-auto sm:h-8 md:h-8'
+
+  const sizes = isFooter
+    ? '(max-width: 640px) 180px, 200px'
+    : compact
+      ? '160px'
+      : '(max-width: 640px) 250px, 285px'
 
   return (
     <Link
       to="/"
-      className={`group inline-flex shrink-0 items-center justify-center ${className}`}
-      aria-label="نفس، راحة منزلية في الكويت"
+      className={`group inline-flex shrink-0 items-center ${className}`}
+      aria-label="Nafas home"
     >
-      <span className="inline-flex shrink-0 items-center justify-center transition-transform duration-200 group-hover:scale-[1.02]">
-        <OptimizedImage
-          src={LOGO_SRC}
-          alt="نفس"
-          width={200}
-          height={80}
-          className={`block shrink-0 object-contain object-center ${imgH}`}
-          decoding="async"
-          fetchPriority="high"
-          loading="eager"
-          sizes="200px"
-        />
-      </span>
+      <img
+        src={LOGO.src}
+        srcSet={LOGO.srcSet}
+        sizes={sizes}
+        alt="Nafas"
+        width={INTRINSIC.w}
+        height={INTRINSIC.h}
+        className={`block w-auto max-w-none object-contain object-left ${box} ${
+          isFooter ? 'brightness-0 invert' : ''
+        } transition-opacity duration-200 group-hover:opacity-75`}
+        decoding="async"
+        fetchPriority="high"
+      />
     </Link>
   )
 }

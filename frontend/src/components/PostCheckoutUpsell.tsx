@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { acceptUpsell } from '../lib/api'
 import { getLastEventId, trackPurchase } from '../lib/analytics'
 import { trackStoreEvent } from '../lib/visitorAnalytics'
-import { formatKwd } from '../lib/currency'
+import { formatUsd } from '../lib/currency'
 import { useNavigate } from 'react-router-dom'
 import { Logo } from './Logo'
 
@@ -72,17 +72,19 @@ export function PostCheckoutUpsell({
         <div className="flex justify-center mb-5">
           <Logo compact />
         </div>
-        <p className="text-gold-accent font-bold mb-2">إضافة اختيارية مع طلبج ({seconds} ث)</p>
+        <p className="text-gold-accent font-bold mb-2">Optional add-on for this order ({seconds}s)</p>
         <h3 className="font-display text-2xl font-bold mb-4">{upsell.title_ar}</h3>
-        <p className="text-ink/50 line-through text-lg">{formatKwd(upsell.anchor)}</p>
-        <p className="text-4xl font-bold text-rose-brand my-2">{formatKwd(upsell.price)}</p>
-        <p className="text-sm text-ink/70 mb-6">سعر خاص مع هالطلب فقط. تقدرين تتخطين بدون ما يتأخر الشحن.</p>
+        <p className="text-ink/50 line-through text-lg">{formatUsd(upsell.anchor)}</p>
+        <p className="text-4xl font-bold text-rose-brand my-2">{formatUsd(upsell.price)}</p>
+        <p className="text-sm text-ink/70 mb-6">
+          Special price with this order only. You can skip without delaying shipment.
+        </p>
         <div className="flex flex-col gap-3">
           <button type="button" disabled={loading} onClick={accept} className="btn-primary w-full">
-            نعم أضيفيه لطلبي
+            Yes, add it to my order
           </button>
           <button type="button" onClick={() => finish(false)} className="text-sm text-ink/60 underline">
-            لا شكراً
+            No thanks
           </button>
         </div>
       </div>

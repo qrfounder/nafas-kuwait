@@ -5,10 +5,10 @@ import { TrustBar } from './TrustBar'
 import { useCart } from '../context/CartContext'
 
 const nav = [
-  { to: '/', label: 'الرئيسية' },
-  { to: '/collection', label: 'المجموعة' },
-  { to: '/about', label: 'من نحن' },
-  { to: '/contact', label: 'تواصل' },
+  { to: '/', label: 'Home' },
+  { to: '/collection', label: 'Shop' },
+  { to: '/about', label: 'About' },
+  { to: '/contact', label: 'Contact' },
 ]
 
 export function Header() {
@@ -16,14 +16,14 @@ export function Header() {
   const [menuOpen, setMenuOpen] = useState(false)
 
   return (
-    <header className="sticky top-0 z-[90] bg-cream/98 backdrop-blur-sm border-b border-surface-border">
+    <header className="sticky top-0 z-[90] bg-cream/95 backdrop-blur-sm border-b border-surface-border">
       <TrustBar />
-      <div className="container-narrow grid h-14 grid-cols-[1fr_auto_1fr] items-center gap-2 md:gap-3">
+      <div className="container-narrow grid h-16 grid-cols-[1fr_auto_1fr] items-center gap-2 md:gap-3">
         <div className="flex min-w-0 items-center justify-self-start justify-start">
           <button
             type="button"
-            className="md:hidden p-2 -mr-1 text-ink"
-            aria-label="القائمة"
+            className="md:hidden p-2 -ml-1 text-ink"
+            aria-label="Menu"
             aria-expanded={menuOpen}
             onClick={() => setMenuOpen((o) => !o)}
           >
@@ -60,9 +60,9 @@ export function Header() {
             onClick={() => setCartOpen(true)}
             className="relative btn-primary shrink-0 py-2 px-4 text-sm"
           >
-            السلة
+            Cart
             {itemCount > 0 && (
-              <span className="absolute -top-2 -left-2 flex h-5 w-5 items-center justify-center rounded-full bg-gold-accent text-xs font-bold text-ink">
+              <span className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-white text-ink text-xs font-semibold ring-1 ring-ink/15">
                 {itemCount}
               </span>
             )}
@@ -91,7 +91,14 @@ export function Header() {
             onClick={() => setMenuOpen(false)}
             className="py-3 px-2 text-sm text-surface-muted"
           >
-            السياسات
+            Policies
+          </NavLink>
+          <NavLink
+            to="/returns"
+            onClick={() => setMenuOpen(false)}
+            className="py-3 px-2 text-sm text-surface-muted"
+          >
+            Returns
           </NavLink>
         </nav>
       )}

@@ -1,4 +1,3 @@
-import { usdToKwd } from './currency'
 import { trackStoreEvent } from './visitorAnalytics'
 
 declare global {
@@ -28,9 +27,9 @@ export function getLastEventId(): string {
   return window.__lastEventId || crypto.randomUUID()
 }
 
-/** Ad platforms: send KWD amounts to match storefront display. */
-function kwdPayload(usd: number) {
-  return { value: usdToKwd(usd), currency: 'KWD' as const }
+/** Ad platforms: send USD amounts to match storefront display. */
+function usdPayload(usd: number) {
+  return { value: usd, currency: 'USD' as const }
 }
 
 function loadScript(src: string, id: string, onload?: () => void): void {
@@ -129,7 +128,7 @@ export function initAnalyticsDeferred(): void {
 }
 
 export function trackViewContent(slug: string, valueUsd: number) {
-  const { value, currency } = kwdPayload(valueUsd)
+  const { value, currency } = usdPayload(valueUsd)
   trackStoreEvent('view_content', { product_slug: slug, value })
   const eventId = newEventId()
   window.fbq?.('track', 'ViewContent', { content_ids: [slug], value, currency }, { eventID: eventId })
@@ -139,7 +138,7 @@ export function trackViewContent(slug: string, valueUsd: number) {
 }
 
 export function trackAddToCart(valueUsd: number, slug: string) {
-  const { value, currency } = kwdPayload(valueUsd)
+  const { value, currency } = usdPayload(valueUsd)
   trackStoreEvent('add_to_cart', { product_slug: slug.split(':')[0], value })
   const eventId = newEventId()
   window.fbq?.('track', 'AddToCart', { value, currency, content_ids: [slug] }, { eventID: eventId })
@@ -149,7 +148,7 @@ export function trackAddToCart(valueUsd: number, slug: string) {
 }
 
 export function trackInitiateCheckout(valueUsd: number) {
-  const { value, currency } = kwdPayload(valueUsd)
+  const { value, currency } = usdPayload(valueUsd)
   trackStoreEvent('checkout_visit', { value })
   const eventId = newEventId()
   window.fbq?.('track', 'InitiateCheckout', { value, currency }, { eventID: eventId })
@@ -159,7 +158,7 @@ export function trackInitiateCheckout(valueUsd: number) {
 }
 
 export function trackPurchase(valueUsd: number, eventId: string) {
-  const { value, currency } = kwdPayload(valueUsd)
+  const { value, currency } = usdPayload(valueUsd)
   window.fbq?.('track', 'Purchase', { value, currency }, { eventID: eventId })
   window.ttq?.track('CompletePayment', { value, currency })
   window.snaptr?.('track', 'PURCHASE', { price: value, currency, client_dedup_id: eventId })

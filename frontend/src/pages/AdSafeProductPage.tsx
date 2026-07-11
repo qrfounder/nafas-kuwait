@@ -6,7 +6,7 @@ import { useStore } from '../context/StoreContext'
 import { useCart } from '../context/CartContext'
 import { Price } from '../components/Price'
 import { PaymentMethods } from '../components/PaymentMethods'
-import { formatKwd } from '../lib/currency'
+import { formatUsd } from '../lib/currency'
 import { trackAddToCart, trackViewContent } from '../lib/analytics'
 import { preserveScrollPosition, scrollToSection } from '../lib/scroll'
 import { ProductMobileStickyBar } from '../components/ProductMobileStickyBar'
@@ -29,11 +29,7 @@ export function AdSafeProductPage() {
   }, [product])
 
   if (!product || !selectedTier) {
-    return (
-      <p className="text-center py-20 text-surface-muted" dir="rtl">
-        الصفحة غير متاحة
-      </p>
-    )
+    return <p className="text-center py-20 text-surface-muted">Page unavailable</p>
   }
 
   const addBundle = () => {
@@ -47,7 +43,7 @@ export function AdSafeProductPage() {
   }
 
   return (
-    <div className="pb-28 md:pb-12" dir="rtl">
+    <div className="pb-28 md:pb-12">
       <div className="container-narrow py-6 max-w-2xl mx-auto">
         <p className="text-[11px] text-surface-muted text-center mb-2">{AD_LANDING_COPY.company_ar}</p>
         <h1 className="font-display text-2xl sm:text-3xl font-bold text-ink text-center leading-snug">
@@ -56,7 +52,7 @@ export function AdSafeProductPage() {
         <p className="mt-3 text-sm text-surface-muted text-center leading-relaxed">{AD_LANDING_COPY.subtitle_ar}</p>
 
         <section className="mt-6 rounded-xl border border-surface-border bg-white p-4">
-          <h2 className="text-sm font-bold text-ink mb-3">محتويات البوكس (وصف نصي)</h2>
+          <h2 className="text-sm font-bold text-ink mb-3">Kit contents (text description)</h2>
           <ul className="space-y-3 text-sm text-ink/90">
             {product.includes.map((sku) => (
               <li key={sku} className="flex gap-2 leading-relaxed">
@@ -76,7 +72,7 @@ export function AdSafeProductPage() {
 
         <div className="mt-6 rounded-xl border border-surface-border bg-cream/80 p-4 text-xs text-surface-muted leading-relaxed space-y-2">
           <p>
-            <strong className="text-ink">إخلاء مسؤولية:</strong> {AD_LANDING_COPY.disclaimer_ar}
+            <strong className="text-ink">Disclaimer:</strong> {AD_LANDING_COPY.disclaimer_ar}
           </p>
           <p>{AD_LANDING_COPY.shipping_ar}</p>
           <p>{AD_LANDING_COPY.confirm_ar}</p>
@@ -84,19 +80,21 @@ export function AdSafeProductPage() {
 
         <div
           id="purchase-offer"
-          className="mt-8 scroll-mt-24 rounded-2xl border-2 border-rose-brand/25 bg-white p-4 sm:p-5 shadow-sm"
+          className="mt-8 scroll-mt-24 border border-surface-border bg-white p-4 sm:p-5"
         >
-          <h2 className="text-sm font-bold text-ink text-center mb-1">اختاري الكمية</h2>
-          <p className="text-[11px] text-center text-surface-muted mb-4">الأسعار بالدينار الكويتي — الدفع عند الاستلام</p>
+          <h2 className="text-sm font-bold text-ink text-center mb-1">Choose quantity</h2>
+          <p className="text-[11px] text-center text-surface-muted mb-4">
+            Prices in USD. prepaid securely with Stripe
+          </p>
 
-          <div className="space-y-2" role="radiogroup" aria-label="كمية البوكس">
+          <div className="space-y-2" role="radiogroup" aria-label="Kit quantity">
             {product.tiers.map((t) => (
               <button
                 key={t.tier}
                 type="button"
                 role="radio"
                 aria-checked={selectedTier.tier === t.tier}
-                className={`block w-full text-right p-4 rounded-lg border cursor-pointer transition ${
+                className={`block w-full text-left p-4 rounded-lg border cursor-pointer transition ${
                   selectedTier.tier === t.tier
                     ? 'border-rose-brand bg-rose-light/30'
                     : 'border-surface-border hover:border-rose-brand/30'
@@ -112,7 +110,7 @@ export function AdSafeProductPage() {
           </div>
 
           <button type="button" onClick={addBundle} className="btn-primary w-full mt-4">
-            اطلبي الآن — {formatKwd(selectedTier.price)}
+            Order now. {formatUsd(selectedTier.price)}
           </button>
         </div>
 
@@ -122,23 +120,22 @@ export function AdSafeProductPage() {
 
         <nav className="mt-8 flex flex-wrap justify-center gap-4 text-xs text-surface-muted">
           <Link to="/policies" className="hover:text-rose-brand underline">
-            سياسات المتجر
+            Store policies
           </Link>
           <Link to="/contact" className="hover:text-rose-brand underline">
-            تواصل معنا
+            Contact us
           </Link>
           <Link to="/about" className="hover:text-rose-brand underline">
-            من نحن
+            About
           </Link>
         </nav>
-
       </div>
 
       <ProductMobileStickyBar
         offerSectionId="purchase-offer"
-        priceLabel={formatKwd(selectedTier.price)}
-        detailLine={`${selectedTier.label_ar}، ادفعي عند الباب`}
-        ctaLabel="اطلبي الآن"
+        priceLabel={formatUsd(selectedTier.price)}
+        detailLine={`${selectedTier.label_ar} · Stripe checkout`}
+        ctaLabel="Order now"
         onCta={scrollToOffer}
       />
     </div>

@@ -14,17 +14,17 @@ export const CHECKOUT_EXTRAS: Record<
 > = {
   priority_delivery: {
     sku: 'priority_delivery',
-    title_ar: 'أولوية في تجهيز الطلب',
+    title_ar: 'Priority fulfillment',
     desc_ar:
-      'نطلّع طلبج في مقدمة قائمة التجهيز خلال ٢٤ ساعة من تأكيد المكالمة. موعد وصول الطرد للبيت يختلف: غالباً بين يوم وسبعة أيام حسب المنطقة والمندوب.',
+      'We move your order to the front of the packing queue within 24 hours of payment. Delivery to your door still typically takes 3–7 business days depending on location and carrier.',
     price_usd: 7,
     recommended: true,
   },
   delivery_protection: {
     sku: 'delivery_protection',
-    title_ar: 'متابعة مُسرَّعة لو تلف بالشحن',
+    title_ar: 'Faster damage follow-up',
     desc_ar:
-      'استبدال أو إرجاع عند العيب أو التلف من سياسة المتجر لكل الطلبات. هالخيار يخصّص مسار أسرع في المتابعة لو صار ضرر أثناء النقل.',
+      'Replacement or return for defects is covered by our store policy for all orders. This option prioritizes your case if something arrives damaged in transit.',
     price_usd: 5,
   },
 }

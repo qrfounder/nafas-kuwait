@@ -1,6 +1,6 @@
 /**
  * Resolve API base URL. Build-time VITE_API_URL wins unless it points at localhost
- * while the storefront is on production — common Easypanel misconfig that blocks all orders.
+ * while the storefront is on production. common Easypanel misconfig that blocks all orders.
  */
 export function getApiBase(): string {
   const fromEnv = (import.meta.env.VITE_API_URL as string | undefined)?.replace(/\/$/, '')

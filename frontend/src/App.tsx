@@ -10,6 +10,7 @@ import { ProductPage } from './pages/ProductPage'
 import { AboutPage } from './pages/AboutPage'
 import { ContactPage } from './pages/ContactPage'
 import { PoliciesPage } from './pages/PoliciesPage'
+import { ReturnsPage } from './pages/ReturnsPage'
 import { ThankYouPage } from './pages/ThankYouPage'
 import { MojourneyPage } from './pages/MojourneyPage'
 
@@ -28,6 +29,7 @@ export default function App() {
           <Route path="/about" element={<AboutPage />} />
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/policies" element={<PoliciesPage />} />
+          <Route path="/returns" element={<ReturnsPage />} />
         </Route>
         <Route path="/thank-you" element={<ThankYouPage />} />
         <Route path="/mojourney" element={<MojourneyPage />} />

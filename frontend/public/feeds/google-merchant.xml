@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:g="http://base.google.com/ns/1.0">
+<channel>
+<title>Nafas</title>
+<link>https://naffas.shop</link>
+<description>Nafas USA comfort kits</description>
+<item>
+<g:id>cycle-relief</g:id>
+<g:title>Cycle Comfort Kit</g:title>
+<g:description>Nafas Cycle Comfort Kit includes a wireless warming belt, lower-back stretch arch, and adhesive neck &amp; shoulder massager. Built for everyday home comfort during your cycle. Ships in the USA. At-home comfort devices only, not medical devices.</g:description>
+<g:link>https://naffas.shop/product/cycle-relief</g:link>
+<g:image_link>https://naffas.shop/products/emotional/cycle-relief/hero-960.webp</g:image_link>
+<g:availability>in_stock</g:availability>
+<g:price>77.40 USD</g:price>
+<g:brand>Nafas</g:brand>
+<g:condition>new</g:condition>
+<g:mpn>NF-CYCLE-KIT</g:mpn>
+<g:identifier_exists>false</g:identifier_exists>
+<g:google_product_category>2330</g:google_product_category>
+<g:shipping_weight>2.4 lb</g:shipping_weight>
+<g:shipping>
+<g:country>US</g:country>
+<g:price>5.99 USD</g:price>
+</g:shipping>
+</item>
+<item>
+<g:id>body-relief</g:id>
+<g:title>Body Ease Kit</g:title>
+<g:description>Nafas Body Ease Kit includes a lower-back stretch arch, adhesive neck massager, and electric headband massager. For everyday muscle tension from sitting, AC offices, and phones. At-home comfort devices only, not medical devices.</g:description>
+<g:link>https://naffas.shop/product/body-relief</g:link>
+<g:image_link>https://naffas.shop/products/emotional/body-relief/hero-960.webp</g:image_link>
+<g:availability>in_stock</g:availability>
+<g:price>77.40 USD</g:price>
+<g:brand>Nafas</g:brand>
+<g:condition>new</g:condition>
+<g:mpn>NF-BODY-KIT</g:mpn>
+<g:identifier_exists>false</g:identifier_exists>
+<g:google_product_category>2330</g:google_product_category>
+<g:shipping_weight>2.6 lb</g:shipping_weight>
+<g:shipping>
+<g:country>US</g:country>
+<g:price>5.99 USD</g:price>
+</g:shipping>
+</item>
+<item>
+<g:id>mother-gift</g:id>
+<g:title>Mom Gift Kit</g:title>
+<g:description>Nafas Mom Gift Kit includes a wireless warming belt, compression knee sleeves (pair), lower-back stretch arch, and gift-ready packaging. A practical present for everyday comfort at home. At-home comfort devices only, not medical devices.</g:description>
+<g:link>https://naffas.shop/product/mother-gift</g:link>
+<g:image_link>https://naffas.shop/products/emotional/mother-gift/hero-960.webp</g:image_link>
+<g:availability>in_stock</g:availability>
+<g:price>77.40 USD</g:price>
+<g:brand>Nafas</g:brand>
+<g:condition>new</g:condition>
+<g:mpn>NF-MOM-KIT</g:mpn>
+<g:identifier_exists>false</g:identifier_exists>
+<g:google_product_category>2330</g:google_product_category>
+<g:shipping_weight>2.8 lb</g:shipping_weight>
+<g:shipping>
+<g:country>US</g:country>
+<g:price>5.99 USD</g:price>
+</g:shipping>
+</item>
+</channel>
+</rss>

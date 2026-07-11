@@ -17,6 +17,7 @@ class Order(Base):
 
     customer_name: Mapped[str] = mapped_column(String(200))
     customer_phone: Mapped[str] = mapped_column(String(20), index=True)
+    customer_email: Mapped[str | None] = mapped_column(String(254), nullable=True)
 
     governorate: Mapped[str | None] = mapped_column(String(64), nullable=True)
     area: Mapped[str | None] = mapped_column(String(128), nullable=True)
@@ -47,6 +48,8 @@ class Order(Base):
     ttclid: Mapped[str | None] = mapped_column(String(256), nullable=True)
 
     status: Mapped[str] = mapped_column(String(32), default="new")
+    payment_status: Mapped[str] = mapped_column(String(32), default="pending")  # pending|paid|failed|refunded
+    stripe_session_id: Mapped[str | None] = mapped_column(String(256), nullable=True, index=True)
 
     lines: Mapped[list["OrderLine"]] = relationship(back_populates="order", cascade="all, delete-orphan")
 

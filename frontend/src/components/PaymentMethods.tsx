@@ -35,13 +35,13 @@ export function PaymentMethods({ variant = 'row', showCaption = false }: Props) 
     <div className={variant === 'row' ? 'w-full' : ''}>
       {showCaption && (
         <p className="text-xs text-surface-muted text-center mb-3">
-          ادفعي عند الباب. كاش أو KNET مع المندوب. فيزا وماستركارد عند التسليم إذا متوفرة
+          Prepaid securely with Stripe. Major cards and digital wallets where available.
         </p>
       )}
       <div
         className={`flex flex-wrap items-center justify-center ${gap}`}
         role="list"
-        aria-label="طرق الدفع المقبولة"
+        aria-label="Accepted payment methods"
       >
         {methods.map((m) => (
           <span

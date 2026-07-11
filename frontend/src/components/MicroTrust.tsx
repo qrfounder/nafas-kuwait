@@ -1,8 +1,8 @@
 const ITEMS = [
-  'ادفعي عند الباب بعد ما تشوفين الطرد',
-  'نتصل قبل الشحن ونأكد العنوان',
-  'استبدال خلال ٧ أيام إذا في عيب',
-  'ما نطلب رقم بطاقة عند الطلب',
+  'Pay securely with Stripe at checkout',
+  'Ships across the United States',
+  'Free shipping on orders $100+',
+  '30-day returns on unused or defective items',
 ]
 
 export function MicroTrust() {

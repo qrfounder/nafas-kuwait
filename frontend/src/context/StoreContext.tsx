@@ -8,7 +8,8 @@ import {
   type ReactNode,
 } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { getCatalogProducts, PRODUCTS, type Product } from '../data/products'
+import { getCatalogProducts, PRODUCTS, SKU_HINTS, SKU_LABELS, type Product } from '../data/products'
+
 import { pingApiHealth } from '../lib/apiBase'
 import { fetchStoreBootstrap, type StoreBootstrap, type StoreProduct, type StoreSku } from '../lib/storeApi'
 import { initAnalyticsFromPixels } from '../lib/analytics'
@@ -27,15 +28,30 @@ type StoreContextValue = {
 const StoreContext = createContext<StoreContextValue | null>(null)
 
 function toProduct(p: StoreProduct): Product {
+  const base = PRODUCTS.find((x) => x.slug === p.slug)
+  // Prefer local English catalog for all shopper-facing copy (DB overrides may still be Arabic).
+  // Keep prices / active from bootstrap so Mojourney price edits still apply.
   return {
     slug: p.slug,
-    title_ar: p.title_ar,
-    subtitle_ar: p.subtitle_ar,
+    title_ar: base?.title_ar ?? p.title_ar,
+    subtitle_ar: base?.subtitle_ar ?? p.subtitle_ar,
+    description_en: base?.description_en ?? p.subtitle_ar,
     base_price: p.base_price,
     anchor_single: p.anchor_single,
-    tiers: p.tiers,
-    includes: p.includes,
-    post_upsell: p.post_upsell,
+    tiers: (base?.tiers ?? p.tiers).map((t, i) => ({
+      ...t,
+      price: p.tiers[i]?.price ?? t.price,
+      anchor: p.tiers[i]?.anchor ?? t.anchor,
+    })),
+    includes: base?.includes ?? p.includes,
+    post_upsell: base?.post_upsell ?? p.post_upsell,
+    google_product_category: base?.google_product_category ?? '469',
+    brand: base?.brand ?? 'Nafas',
+    condition: base?.condition ?? 'new',
+    mpn: base?.mpn ?? p.slug,
+    identifier_exists: base?.identifier_exists ?? false,
+    gtin: base?.gtin ?? null,
+    shipping_weight_lb: base?.shipping_weight_lb ?? 2,
   }
 }
 
@@ -100,7 +116,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     return getCatalogProducts()
   }, [bootstrap])
 
-  /** Stable references — avoid resetting product-page state on every render. */
+  /** Stable references. avoid resetting product-page state on every render. */
   const productBySlug = useMemo(() => {
     const map = new Map<string, Product>()
     for (const p of products) map.set(p.slug, p)
@@ -110,7 +126,18 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     return map
   }, [products])
 
-  const skus = useMemo(() => bootstrap?.skus ?? [], [bootstrap])
+  const skus = useMemo(() => {
+    const raw = bootstrap?.skus ?? []
+    return raw.map((s) => {
+      const hasAr = /[\u0600-\u06FF]/.test(s.label_ar || '') || /[\u0600-\u06FF]/.test(s.hint_ar || '')
+      if (!hasAr) return s
+      return {
+        ...s,
+        label_ar: SKU_LABELS[s.sku] ?? s.label_ar,
+        hint_ar: SKU_HINTS[s.sku] ?? s.hint_ar,
+      }
+    })
+  }, [bootstrap])
 
   const getSku = useCallback(
     (sku: string) => skus.find((s) => s.sku === sku && s.active),

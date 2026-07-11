@@ -4,7 +4,7 @@ import { AD_LANDING_SLUG } from '../data/adLanding'
 import { CROSS_SELLS, singlesInBundle, SKU_LABELS } from '../data/products'
 import { skuImage } from '../data/images'
 import { OptimizedImage } from './OptimizedImage'
-import { formatKwd } from '../lib/currency'
+import { formatUsd } from '../lib/currency'
 import { preserveScrollPosition } from '../lib/scroll'
 import { trackInitiateCheckout } from '../lib/analytics'
 import { trackStoreEvent } from '../lib/visitorAnalytics'
@@ -57,19 +57,19 @@ export function CartDrawer() {
   return (
     <>
       <div className="fixed inset-0 bg-ink/40 z-50" onClick={() => setCartOpen(false)} aria-hidden />
-      <aside className="fixed top-0 left-0 h-full w-full max-w-md bg-cream z-50 shadow-2xl flex flex-col">
+      <aside className="fixed top-0 right-0 h-full w-full max-w-md bg-cream z-50 shadow-2xl flex flex-col">
         <div className="p-4 border-b flex justify-between items-center">
-          <h2 className="font-display text-xl font-bold">سلتج</h2>
-          <button type="button" onClick={() => setCartOpen(false)} className="text-2xl leading-none">
+          <h2 className="font-display text-xl font-bold">Your cart</h2>
+          <button type="button" onClick={() => setCartOpen(false)} className="text-2xl leading-none" aria-label="Close cart">
             ×
           </button>
         </div>
         <p className="px-4 py-2 text-sm bg-cream border-b border-surface-border text-surface-muted">
-          تقدرين تكملين الطلب الآن أو ترجعين لاحقاً. ادفعي عند الباب بعد ما تشوفين الطرد.
+          Checkout when ready. Pay securely with Stripe, with no cash on delivery.
         </p>
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
           {lines.length === 0 ? (
-            <p className="text-center text-ink/60 py-8">السلة فاضية، اختاري باقتج من المنتج</p>
+            <p className="text-center text-ink/60 py-8">Your cart is empty. Pick a kit from the shop.</p>
           ) : (
             <>
               {product && purchaseMode === 'bundle' && tier && (
@@ -85,7 +85,7 @@ export function CartDrawer() {
                   <BundleContents includes={[singleSku]} boxCount={1} layout="buy-panel" textOnly={adLanding} />
                   {singleQty > 1 && (
                     <p className="text-xs text-rose-brand/90 font-medium text-center -mt-2 mb-1">
-                      الكمية في الطلب: {singleQty === 2 ? '٢' : '٣'} قطع من نفس المنتج
+                      Quantity: {singleQty} of the same piece
                     </p>
                   )}
                 </>
@@ -93,14 +93,14 @@ export function CartDrawer() {
               {lines.map((l) => (
                 <div key={l.sku + l.line_type} className="flex justify-between gap-2 border-b pb-3">
                   <span className="text-sm font-medium">{l.title_ar}</span>
-                  <span className="font-bold text-rose-brand">{formatKwd(l.price_usd)}</span>
+                  <span className="font-bold text-rose-brand">{formatUsd(l.price_usd)}</span>
                 </div>
               ))}
             </>
           )}
           {bundleExtras.length > 0 && (
             <div className="pt-4">
-              <p className="font-semibold mb-3 text-sm">أضيفي مع طلبج (اختياري):</p>
+              <p className="font-semibold mb-3 text-sm">Add to your order (optional):</p>
               <div className="space-y-2">
                 {bundleExtras.map((c) => {
                   const on = !!crossSells[c.sku]
@@ -110,7 +110,7 @@ export function CartDrawer() {
                       type="button"
                       role="checkbox"
                       aria-checked={on}
-                      className={`flex w-full items-center gap-3 p-3 rounded-xl border text-right transition ${
+                      className={`flex w-full items-center gap-3 p-3 rounded-xl border text-left transition ${
                         on
                           ? 'border-rose-brand bg-rose-light/30'
                           : 'border-rose-brand/20 hover:bg-white'
@@ -134,7 +134,7 @@ export function CartDrawer() {
                         />
                       )}
                       <span className="flex-1 text-sm">{c.title_ar}</span>
-                      <span className="text-rose-brand font-bold">+{formatKwd(c.price)}</span>
+                      <span className="text-rose-brand font-bold">+{formatUsd(c.price)}</span>
                     </button>
                   )
                 })}
@@ -143,7 +143,7 @@ export function CartDrawer() {
           )}
           {singleExtras.length > 0 && (
             <div className="pt-4">
-              <p className="font-semibold mb-3 text-sm">تكميل اختياري (قطعة إضافية):</p>
+              <p className="font-semibold mb-3 text-sm">Optional add-on (extra piece):</p>
               <div className="space-y-2">
                 {singleExtras.map((c) => {
                   const on = !!crossSells[c.sku]
@@ -153,7 +153,7 @@ export function CartDrawer() {
                       type="button"
                       role="checkbox"
                       aria-checked={on}
-                      className={`flex w-full items-center gap-3 p-3 rounded-xl border text-right transition ${
+                      className={`flex w-full items-center gap-3 p-3 rounded-xl border text-left transition ${
                         on
                           ? 'border-rose-brand bg-rose-light/30'
                           : 'border-rose-brand/20 hover:bg-white'
@@ -177,7 +177,7 @@ export function CartDrawer() {
                         />
                       )}
                       <span className="flex-1 text-sm">{c.title_ar}</span>
-                      <span className="text-rose-brand font-bold">+{formatKwd(c.price)}</span>
+                      <span className="text-rose-brand font-bold">+{formatUsd(c.price)}</span>
                     </button>
                   )
                 })}
@@ -187,8 +187,8 @@ export function CartDrawer() {
         </div>
         <div className="p-4 border-t bg-white space-y-3">
           <div className="flex justify-between text-lg font-bold">
-            <span>المجموع</span>
-            <span className="text-rose-brand">{formatKwd(subtotal)}</span>
+            <span>Subtotal</span>
+            <span className="text-rose-brand">{formatUsd(subtotal)}</span>
           </div>
           <button
             type="button"
@@ -200,7 +200,7 @@ export function CartDrawer() {
               setCheckoutOpen(true)
             }}
           >
-            إتمام الطلب، ادفعي عند الباب
+            Checkout · pay with Stripe
           </button>
         </div>
       </aside>

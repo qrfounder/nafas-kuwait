@@ -1,8 +1,11 @@
+import { Link } from 'react-router-dom'
 import { ProductImage } from '../components/ProductImage'
 import { TrustProcess } from '../components/TrustProcess'
 import { PaymentMethods } from '../components/PaymentMethods'
+import { BusinessTrust } from '../components/BusinessTrust'
 import { Logo } from '../components/Logo'
 import { IMAGES } from '../data/images'
+import { BUSINESS } from '../data/business'
 
 export function AboutPage() {
   return (
@@ -11,28 +14,41 @@ export function AboutPage() {
         <div className="flex justify-start mb-4">
           <Logo compact />
         </div>
-        <p className="section-label">من نحن</p>
-        <h1 className="section-title mb-8">نفس، من الكويت</h1>
+        <p className="section-label">About</p>
+        <h1 className="section-title mb-8">Nafas ships across the USA</h1>
         <div className="grid md:grid-cols-2 gap-10 items-start">
-          <ProductImage src={IMAGES.heroAlt} alt="عن نفس، راحة منزلية" aspect="4/3" />
+          <ProductImage src={IMAGES.heroAlt} alt="About Nafas. at-home comfort" aspect="4/3" />
           <div className="space-y-4 text-surface-muted leading-relaxed">
             <p>
-              <strong className="text-ink">نفس</strong> انولدت في الكويت من فكرة بسيطة: المرأة الخليجية تتألم
-              بصمت، بالدورة، بالظهر، بالرقبة، وما تبي صيدلية ولا كلام طبي معقد.
+              <strong className="text-ink">Nafas</strong> makes at-home comfort kits: heat, stretch, and
+              massage tools for everyday use. We keep product language honest: comfort devices, not medical
+              treatment.
             </p>
             <p>
-              <strong className="text-ink">ليش سمّيناها نفس؟</strong> لأن أول شي تبين بعد ما يرتاح جسمج هو إنك
-              تاخذين نفس عميق، من غير ألم يوقفج.
+              <strong className="text-ink">Why “Nafas”?</strong> It means breath. After a short comfort
+              session at home, many people simply want a calmer moment in their day.
             </p>
             <p>
-              نبيع <strong className="text-ink">نظام راحة</strong> مو قطعة: حرارة وتدليك لمناطق جسمج اللي تتعب كل
-              شهر وكل يوم. ادفعي عند الباب، توصيل لكل الكويت، وتأكيد هاتفي قبل ما يطلع طلبج.
+              Orders ship across the United States from our US warehouse / 3PL partners. Checkout is prepaid
+              with Stripe. Free shipping on orders $100+.{' '}
+              <Link to="/returns" className="text-rose-brand underline">
+                30-day returns
+              </Link>
+              .
             </p>
             <p className="text-sm border-t border-surface-border pt-4">
-              نفس ما تقدم علاجاً طبياً، منتجات راحة وتدليك للاستخدام المنزلي فقط.
+              Nafas products are at-home comfort and massage devices only, not intended to diagnose, treat,
+              cure, or prevent any disease. Contact{' '}
+              <a href={`mailto:${BUSINESS.supportEmail}`} className="text-rose-brand underline">
+                {BUSINESS.supportEmail}
+              </a>
+              .
             </p>
             <PaymentMethods variant="compact" />
           </div>
+        </div>
+        <div className="mt-10">
+          <BusinessTrust />
         </div>
       </div>
       <TrustProcess />

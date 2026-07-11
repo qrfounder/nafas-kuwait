@@ -15,9 +15,9 @@ export function ApiStatusBanner() {
       role="alert"
       className="border-b border-amber-300 bg-amber-50 px-4 py-3 text-center text-sm text-amber-950 leading-relaxed"
     >
-      <strong className="font-semibold">تنبيه:</strong> خادم الطلبات غير متصل حالياً. التصفح يعمل، لكن{' '}
-      <strong>إتمام الطلب موقوف مؤقتاً</strong> حتى يعود الخادم. إذا استمرّت المشكلة، تواصلي معنا عبر صفحة
-      التواصل.
+      <strong className="font-semibold">Notice:</strong> Our order server is temporarily unreachable.
+      Browsing still works, but <strong>checkout is paused</strong> until the server is back. If this
+      continues, contact us via the Contact page or email support@naffas.shop.
     </div>
   )
 }

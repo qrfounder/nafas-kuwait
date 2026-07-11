@@ -141,21 +141,19 @@ export function MojourneyBundleAdmin({ onError }: { onError: (msg: string) => vo
           </button>
 
           <label className="block text-xs text-slate-400">
-            Title (Arabic)
+            Title
             <input
               value={draft.title_ar}
               onChange={(e) => setDraft({ ...draft, title_ar: e.target.value })}
               className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-2 py-2 text-sm text-white"
-              dir="rtl"
             />
           </label>
           <label className="block text-xs text-slate-400">
-            Short description (Arabic)
+            Short description
             <input
               value={draft.subtitle_ar}
               onChange={(e) => setDraft({ ...draft, subtitle_ar: e.target.value })}
               className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-2 py-2 text-sm text-white"
-              dir="rtl"
             />
           </label>
           <div className="grid grid-cols-2 gap-3">

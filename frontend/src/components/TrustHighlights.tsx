@@ -1,8 +1,8 @@
 const ITEMS = [
-  { label: 'ادفعي عند الباب', detail: 'بدون بطاقة أونلاين' },
-  { label: 'تأكيد هاتفي', detail: 'قبل الشحن' },
-  { label: 'توصيل الكويت', detail: 'غالباً ١–٧ أيام' },
-  { label: 'استبدال 7 أيام', detail: 'عند وجود عيب' },
+  { label: 'Stripe checkout', detail: 'Cards & wallets' },
+  { label: 'Ships USA', detail: '3–7 business days' },
+  { label: 'Free shipping $100+', detail: 'Flat rate under $100' },
+  { label: '30-day returns', detail: 'Unused or defective' },
 ]
 
 export function TrustHighlights() {

@@ -4,8 +4,8 @@ export function TrustProcess() {
   return (
     <section className="section bg-white border-y border-surface-border">
       <div className="container-narrow">
-        <p className="section-label text-center">كيف يصل طلبج</p>
-        <h2 className="section-title text-center mb-10">عملية واضحة، بدون مفاجآت</h2>
+        <p className="section-label text-center">How your order works</p>
+        <h2 className="section-title text-center mb-10">Clear steps, no surprises</h2>
         <ol className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {ORDER_STEPS.map((step) => (
             <li key={step.step} className="card p-5">

@@ -21,5 +21,5 @@ def list_products(db: Session = Depends(get_db)):
 def get_product(slug: str, db: Session = Depends(get_db)):
     product = get_product_merged(db, slug)
     if not product:
-        raise HTTPException(404, "منتج غير موجود")
+        raise HTTPException(404, "Product not found")
     return product

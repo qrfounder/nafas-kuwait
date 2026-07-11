@@ -37,11 +37,18 @@ def list_skus_merged(db: Session, shop_url: str) -> list[dict]:
     out: list[dict] = []
     for sku in SKU_LABELS:
         row = rows.get(sku) or _default_row(sku)
+        label = row.label_ar
+        hint = row.hint_ar or ""
+        # Prefer English catalog if DB still has Arabic Kuwait copy
+        if any("\u0600" <= ch <= "\u06FF" for ch in (label or "")):
+            label = SKU_LABELS.get(sku, sku)
+        if any("\u0600" <= ch <= "\u06FF" for ch in (hint or "")):
+            hint = SKU_HINTS.get(sku, "")
         out.append(
             {
                 "sku": sku,
-                "label_ar": row.label_ar,
-                "hint_ar": row.hint_ar or "",
+                "label_ar": label,
+                "hint_ar": hint,
                 "price": row.price,
                 "anchor": row.anchor,
                 "quantity": row.quantity,

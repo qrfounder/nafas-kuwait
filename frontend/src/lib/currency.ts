@@ -1,24 +1,31 @@
-/** Internal list units × USD_TO_KWD → د.ك display (Kuwait COD). Keep in sync with `data/products.ts`. */
-export const USD_TO_KWD = 0.31
+/** Prices in the catalog are USD. Display is always USD for the US store. */
 
-export function usdToKwd(usd: number): number {
-  return Math.round(usd * USD_TO_KWD * 10) / 10
-}
-
-/** Primary price for Kuwait shoppers, e.g. "15.2 د.ك" */
-export function formatKwd(usd: number): string {
-  return `${usdToKwd(usd).toFixed(1)} د.ك`
-}
-
-/** Secondary reference for ad/ops alignment */
 export function formatUsd(usd: number): string {
-  return `$${usd}`
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: usd % 1 === 0 ? 0 : 2,
+    maximumFractionDigits: 2,
+  }).format(usd)
+}
+
+/** @deprecated Use formatUsd. kept for any leftover imports during migration */
+export function formatKwd(usd: number): string {
+  return formatUsd(usd)
 }
 
 export function formatPricePrimary(usd: number): string {
-  return formatKwd(usd)
+  return formatUsd(usd)
 }
 
 export function formatPriceWithUsdHint(usd: number): string {
-  return `${formatKwd(usd)} (≈ ${formatUsd(usd)})`
+  return formatUsd(usd)
+}
+
+/** Flat continental US shipping (Merchant Center shipping attribute). */
+export const US_SHIPPING_USD = 5.99
+export const FREE_SHIPPING_THRESHOLD_USD = 100
+
+export function shippingForSubtotal(subtotalUsd: number): number {
+  return subtotalUsd >= FREE_SHIPPING_THRESHOLD_USD ? 0 : US_SHIPPING_USD
 }

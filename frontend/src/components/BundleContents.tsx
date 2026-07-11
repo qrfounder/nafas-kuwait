@@ -14,13 +14,13 @@ type Props = {
 
 function tierNote(boxCount: number) {
   if (boxCount <= 1) return null
-  const ar =
+  const note =
     boxCount === 2
-      ? 'بوكسين: نفس القطع التالية في كل بوكس'
-      : `${boxCount} بوكسات: نفس القطع التالية في كل بوكس`
+      ? '2 kits: the same pieces below in each kit'
+      : `${boxCount} kits: the same pieces below in each kit`
   return (
     <p className="text-xs text-rose-brand/90 bg-rose-light/30 border border-rose-brand/15 rounded-lg px-3 py-2 leading-relaxed">
-      {ar}
+      {note}
     </p>
   )
 }
@@ -86,12 +86,13 @@ export function BundleContents({
   const count = includes.length
   const gridCols =
     count <= 2 ? 'grid-cols-2' : count === 3 ? 'grid-cols-3' : 'grid-cols-2 sm:grid-cols-4'
+  const pieceWord = count === 1 ? 'piece' : 'pieces'
 
   if (layout === 'preview') {
     return (
       <div
         className={`grid ${gridCols} gap-1.5 rounded-lg border border-surface-border bg-white p-2 aspect-[4/3]`}
-        aria-label="محتويات البوكس"
+        aria-label="Kit contents"
       >
         {includes.map((sku) => (
           <div key={sku} className="relative min-h-0 rounded-md overflow-hidden border border-surface-border/60">
@@ -106,7 +107,7 @@ export function BundleContents({
     return (
       <div>
         <p className="text-xs font-semibold text-ink mb-2">
-          {galleryTitle ?? (count === 1 ? 'القطعة اللي توصلج' : 'القطع اللي توصلج في البوكس')}
+          {galleryTitle ?? (count === 1 ? 'The piece that ships' : 'Pieces included in the kit')}
         </p>
         {tierNote(boxCount)}
         <div
@@ -119,7 +120,7 @@ export function BundleContents({
           ))}
         </div>
         <p className="text-[10px] text-surface-muted text-center mt-2">
-          قبل وبعد بالخلفية، المنتج بالوسط
+          Lifestyle scene in the background · product in focus
         </p>
       </div>
     )
@@ -130,10 +131,10 @@ export function BundleContents({
       <div className="rounded-xl border border-surface-border bg-white p-3 space-y-2">
         <div className="flex items-baseline justify-between gap-2">
           <p className="text-sm font-semibold text-ink">
-            {textOnly ? 'محتويات الطلب (وصف نصي)' : 'شنو يوصلج بالضبط'}
+            {textOnly ? 'Order contents (text description)' : 'Exactly what ships'}
           </p>
           <span className="text-[10px] text-surface-muted shrink-0">
-            {count} {count === 1 ? 'قطعة' : count === 2 ? 'قطعتين' : 'قطع'}
+            {count} {pieceWord}
           </span>
         </div>
         {tierNote(boxCount)}

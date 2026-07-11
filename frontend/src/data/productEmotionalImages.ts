@@ -1,5 +1,5 @@
 /**
- * Emotional scene images per bundle، Nafas brand (rose #8B3A52, cream #F7F5F2).
+ * Emotional scene images per bundle. Nafas brand (rose #8B3A52, cream #F7F5F2).
  * Generate via Nano Banana Pro using prompts in content/design/nanobanana-emotional-prompts.md
  */
 
@@ -30,113 +30,116 @@ export const PRODUCT_EMOTIONAL: Record<
   'cycle-relief': {
     hero: {
       src: e('cycle-relief', 'hero'),
-      alt: 'راحة بعد ألم الدورة، حزام حرارة نفس',
-      caption_ar: 'من الصمت إلى راحة تقدرين تشرحينها',
+      alt: 'At-home comfort kit. Nafas warming belt',
+      caption_ar: 'A calm home comfort routine',
       mood: 'hope',
     },
     'pain-before': {
       src: e('cycle-relief', 'pain-before'),
-      alt: 'ألم الدورة، تعب بصمت',
-      caption_ar: 'الألم اللي ما تقدرين تشرحينه لأحد',
+      alt: 'Quiet evening at home',
+      caption_ar: 'A slower day at home',
       mood: 'shame',
     },
     'pain-after': {
       src: e('cycle-relief', 'pain-after'),
-      alt: 'راحة بعد استخدام نظام نفس',
-      caption_ar: '١٥ دقيقة بالبيت، بدون صيدلية',
+      alt: 'Using a Nafas comfort kit at home',
+      caption_ar: 'A short session at home',
       mood: 'relief',
     },
     unboxing: {
       src: e('cycle-relief', 'unboxing'),
-      alt: 'بوكس نظام راحة الدورة من نفس',
-      caption_ar: '٣ قطع مختلفة، نظام واحد',
+      alt: 'Nafas Cycle Comfort Kit box',
+      caption_ar: 'Three different pieces, one kit',
       mood: 'hope',
     },
     transformation: {
       src: e('cycle-relief', 'transformation'),
-      alt: 'قبل وبعد، ألم الدورة وراحة نفس',
-      caption_ar: 'قبل، بعد',
+      alt: 'Nafas Cycle Comfort Kit lifestyle',
+      caption_ar: 'Home comfort tools',
       mood: 'relief',
     },
     whyBody:
-      'كل شهر نفس القصة: مغص يوقفج عن الشغل والخروج، وتتحملين بصمت لأن ما تبي تشرحين لأحد. مو عيب، بس يستاهل راحة بالبيت.',
-    boxBody: 'حزام حرارة لاسلكي + ممدد ظهر + مدلك رقبة، ثلاث قطع مختلفة، مو قطعة رخيصة من النون.',
+      'A simple home kit for monthly comfort days: gentle heat, a back stretch arch, and a small neck massager. Built for short sessions at home, not a substitute for medical care.',
+    boxBody:
+      'Wireless warming belt + back stretch arch + adhesive neck massager. three different tools in one kit.',
     howBody:
-      '١) حزام على البطن ٢) ممدد الظهر ١٠ دقائق ٣) مدلك الرقبة قبل النوم، روتين واحد يريحج.',
+      '1) Warming belt on the lower abdomen for a short session 2) Back arch for about 10 minutes 3) Neck massager before bed. Use only as feels comfortable.',
   },
   'body-relief': {
     hero: {
       src: e('body-relief', 'hero'),
-      alt: 'راحة الظهر والرقبة بعد التكييف، نفس',
-      caption_ar: 'التكييف يريحك من الحر ويضغط على ظهرك',
+      alt: 'Back and neck comfort after a long desk day. Nafas',
+      caption_ar: 'Desk days and home stretch tools',
       mood: 'relief',
     },
     'pain-before': {
       src: e('body-relief', 'pain-before'),
-      alt: 'ألم ظهر ورقبة من التكييف والشغل',
-      caption_ar: 'تعب ما يبان، بس أنتِ تعرفين',
+      alt: 'Desk setup at home',
+      caption_ar: 'Long sitting days',
       mood: 'fear',
     },
     'pain-after': {
       src: e('body-relief', 'pain-after'),
-      alt: 'استرخاء بعد ممدد الظهر ومدلك الرقبة',
-      caption_ar: 'بعد يوم طويل، تسترجعين جسمج',
+      alt: 'Using Nafas stretch and massage tools at home',
+      caption_ar: 'A short evening routine',
       mood: 'relief',
     },
     unboxing: {
       src: e('body-relief', 'unboxing'),
-      alt: 'بوكس راحة الجسم من نفس',
-      caption_ar: 'ظهر، رقبة، رأس، بوكس الشغل والبيت',
+      alt: 'Nafas Body Ease Kit box',
+      caption_ar: 'Back, neck, head. desk-day kit',
       mood: 'hope',
     },
     transformation: {
       src: e('body-relief', 'transformation'),
-      alt: 'قبل وبعد، ألم المكتب وراحة نفس',
-      caption_ar: 'قبل، بعد',
+      alt: 'Nafas Body Ease Kit lifestyle',
+      caption_ar: 'Home comfort tools',
       mood: 'relief',
     },
     whyBody:
-      'التكييف والتلفون والحجاب، ظهرك ورقبتك يدفعون السعر كل يوم. الخوف إن الألم يزيد وانتِ ما تقدرين توقفين الشغل.',
-    boxBody: 'ممدد ظهر (بدون كهرباء) + مدلك رقبة لاصق + عصابة رأس، نظام للي قاعدة طول اليوم.',
+      'For people who sit a lot: a back stretch arch, adhesive neck massager, and headband massager for short sessions after work. Everyday home comfort, not medical treatment.',
+    boxBody:
+      'Back stretch arch (no electricity) + adhesive neck massager + headband massager.',
     howBody:
-      'بعد الشغل: ممدد ١٥ دقيقة، مدلك رقبة، عصابة جبهة قبل النوم، بدون مسكنات كل ساعة.',
+      'After work: arch about 15 minutes, then neck massager, then headband before bed if you like. Stop if anything feels uncomfortable.',
   },
   'mother-gift': {
     hero: {
       src: e('mother-gift', 'hero'),
-      alt: 'هدية أمي، بوكس نفس',
-      caption_ar: 'أمك ما تشتكي، بس أنتِ تعرفين',
+      alt: 'A gift for mom. Nafas kit',
+      caption_ar: 'A practical gift she can use',
       mood: 'love',
     },
     'pain-before': {
       src: e('mother-gift', 'pain-before'),
-      alt: 'قلق على أمي وألم ركبتها',
-      caption_ar: 'ذنب الحب، تبي تريحينها',
+      alt: 'Thoughtful gift moment',
+      caption_ar: 'A gift that shows you noticed',
       mood: 'guilt',
     },
     'pain-after': {
       src: e('mother-gift', 'pain-after'),
-      alt: 'أم مرتاحة بعد هدية نفس',
-      caption_ar: 'هدية تستخدمها كل أسبوع',
+      alt: 'Opening a Nafas gift kit',
+      caption_ar: 'Ready to use at home',
       mood: 'love',
     },
     unboxing: {
       src: e('mother-gift', 'unboxing'),
-      alt: 'بوكس هدية أمي من نفس',
-      caption_ar: 'تغليف هدية + راحة حقيقية',
+      alt: 'Nafas Mom Gift Kit box',
+      caption_ar: 'Gift packaging + comfort tools',
       mood: 'hope',
     },
     transformation: {
       src: e('mother-gift', 'transformation'),
-      alt: 'قبل وبعد، هدية أمي من نفس',
-      caption_ar: 'قبل، بعد',
+      alt: 'Nafas Mom Gift Kit',
+      caption_ar: 'Gift-ready comfort kit',
       mood: 'love',
     },
     whyBody:
-      'أمك ما تقول تعبانة، بس تشوفينها تمسك ركبتها وتسكت. الهدية مو بس غلاف؛ رسالة إنكِ فاهمتها.',
-    boxBody: 'حزام حرارة + دعامة ركبة (زوج) + ممدد ظهر + تغليف هدية، بوكس واحد جاهز للهدية.',
+      'A practical gift box with a warming belt, compression knee sleeves, and a back stretch arch. plus gift-ready packaging. Home comfort tools, not medical devices.',
+    boxBody:
+      'Warming belt + compression knee sleeves (pair) + back stretch arch + gift packaging.',
     howBody:
-      'اهديه البوكس جاهز، حزام للبطن، دعامة للركبة، ممدد للظهر. راحة بالبيت بدون كلام طبي.',
+      'Gift ready to open: belt for short heat sessions at home, knee sleeves for walks, arch for the back. Comfort products only.',
   },
 }
 

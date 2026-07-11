@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useLocation, useNavigate, useParams } from 'react-router-dom'
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { ProductMobileStickyBar } from '../components/ProductMobileStickyBar'
 import { scrollToSection } from '../lib/scroll'
 import {
@@ -10,8 +10,6 @@ import {
   type Tier,
 } from '../data/products'
 import { getProductEmotional } from '../data/productEmotionalImages'
-import { EmotionalImage } from '../components/EmotionalImage'
-import { BeforeAfterPair } from '../components/BeforeAfterPair'
 import { WhatsInBox } from '../components/WhatsInBox'
 import { ProductShowcase } from '../components/ProductShowcase'
 import { PurchasePanel, type PurchaseMode } from '../components/PurchasePanel'
@@ -19,12 +17,10 @@ import { useCart } from '../context/CartContext'
 import { trackAddToCart, trackViewContent } from '../lib/analytics'
 import { MicroTrust } from '../components/MicroTrust'
 import { PaymentMethods } from '../components/PaymentMethods'
-import { ReviewsSection } from '../components/ReviewsSection'
-import { RatingSummary } from '../components/RatingSummary'
-import { formatKwd } from '../lib/currency'
-import { useScarcity } from '../hooks/useScarcity'
-import type { ReviewPage } from '../data/socialProof'
+import { StoreTrustNote } from '../components/StoreTrustNote'
+import { formatUsd } from '../lib/currency'
 import { useStore } from '../context/StoreContext'
+import { ProductJsonLd } from '../components/ProductJsonLd'
 
 export function ProductPage() {
   const { pathname, hash } = useLocation()
@@ -40,7 +36,6 @@ export function ProductPage() {
     product: cartProduct,
     purchaseMode: cartMode,
   } = useCart()
-  const { stockLeft } = useScarcity()
   const [selectedTier, setSelectedTier] = useState<Tier | null>(null)
   const [purchaseMode, setPurchaseMode] = useState<PurchaseMode>('bundle')
   const [selectedSingle, setSelectedSingle] = useState<string | null>(null)
@@ -50,7 +45,6 @@ export function ProductPage() {
     setSingleQty(1)
   }, [selectedSingle])
 
-  /** Init tier/single when product slug loads — not on every render (stable getProduct map). */
   useEffect(() => {
     if (!slug || !ready) return
     const p = getProduct(slug)
@@ -62,19 +56,16 @@ export function ProductPage() {
     trackViewContent(p.slug, p.base_price)
   }, [slug, ready, getProduct])
 
-  /** Legacy/shared links with #purchase-offer: land at top, drop hash from URL. */
   useEffect(() => {
     if (hash) navigate(pathname, { replace: true })
   }, [hash, pathname, navigate])
 
   if (!product || !selectedTier || !emotional) {
-    return <p className="text-center py-20 text-surface-muted">المنتج غير موجود</p>
+    return <p className="text-center py-20 text-surface-muted">Product not found</p>
   }
 
   const focusSku =
-    purchaseMode === 'single' && selectedSingle
-      ? selectedSingle
-      : product.includes[0]
+    purchaseMode === 'single' && selectedSingle ? selectedSingle : product.includes[0]
 
   const stickyPrice =
     purchaseMode === 'bundle'
@@ -103,28 +94,17 @@ export function ProductPage() {
     }
   }
 
-  const handleModeChange = (mode: PurchaseMode) => {
-    setPurchaseMode(mode)
-  }
-
-  const handleSingleChange = (sku: string) => {
-    setSelectedSingle(sku)
-    if (cartProduct?.slug === product.slug && cartMode === 'single') {
-      setSinglePiece(product, sku, singleQty)
-    }
-  }
-
-  const scrollToOffer = () => {
-    scrollToSection('purchase-offer', { behavior: 'smooth' })
-  }
-
   const stickyDetail =
     purchaseMode === 'single' && selectedSingle
-      ? `${SKU_LABELS[selectedSingle] ?? selectedSingle} ×${singleQty}، ادفعي عند الباب`
-      : `${selectedTier.label_ar}، ادفعي عند الباب`
+      ? `${SKU_LABELS[selectedSingle] ?? selectedSingle} ×${singleQty} · Stripe checkout`
+      : `${selectedTier.label_ar} · Stripe checkout`
 
   return (
     <div className="pb-32 md:pb-12">
+      <ProductJsonLd
+        product={product}
+        imageUrl={`https://naffas.shop/products/emotional/${product.slug}/hero-960.webp`}
+      />
       <div className="container-narrow py-6 grid md:grid-cols-2 gap-10 items-start">
         <ProductShowcase
           frame={emotional.hero}
@@ -133,30 +113,34 @@ export function ProductPage() {
           priority
         />
         <div>
-          <RatingSummary compact />
+          <StoreTrustNote compact />
           <h1 className="font-display text-3xl md:text-4xl font-bold mt-2 text-ink">{product.title_ar}</h1>
           <p className="text-surface-muted mt-2 leading-relaxed">{product.subtitle_ar}</p>
           <div
             id="purchase-offer"
-            className="relative z-40 mt-6 scroll-mt-24 rounded-2xl border-2 border-rose-brand/30 bg-gradient-to-b from-rose-light/60 via-rose-light/25 to-white p-4 sm:p-5 shadow-md ring-2 ring-rose-brand/10"
+            className="relative z-40 mt-6 scroll-mt-24 border border-surface-border bg-white p-4 sm:p-5"
           >
-            <p className="text-center text-[11px] font-bold uppercase tracking-wider text-rose-brand mb-1">
-              اختاري عرضج
+            <p className="text-center text-[11px] font-medium uppercase tracking-[0.14em] text-surface-muted mb-1">
+              Choose your offer
             </p>
             <p className="text-center text-xs text-surface-muted mb-4 leading-relaxed">
-              البوكس الكامل أو قطعة واحدة — ادفعي عند الباب
+              Full kit or a single piece. Pay securely with Stripe
             </p>
             <PurchasePanel
               product={product}
               mode={purchaseMode}
-              onModeChange={handleModeChange}
+              onModeChange={setPurchaseMode}
               selectedTier={selectedTier}
               onTierChange={handleTierChange}
               selectedSingle={selectedSingle}
-              onSingleChange={handleSingleChange}
+              onSingleChange={(sku) => {
+                setSelectedSingle(sku)
+                if (cartProduct?.slug === product.slug && cartMode === 'single') {
+                  setSinglePiece(product, sku, singleQty)
+                }
+              }}
               singleQty={singleQty}
               onSingleQtyChange={setSingleQty}
-              stockLeft={stockLeft}
               onAddBundle={addBundle}
               onAddSingle={addSingle}
             />
@@ -169,36 +153,22 @@ export function ProductPage() {
       </div>
 
       <section className="section container-narrow border-t border-surface-border">
-        <p className="section-label">قبل، بعد</p>
-        <h2 className="font-display text-2xl font-bold mb-6">نفس القصة، بس النهاية مختلفة</h2>
-        <BeforeAfterPair before={emotional['pain-before']} after={emotional['pain-after']} />
-        <EmotionalImage
-          frame={emotional.transformation}
-          aspect="21/9"
-          className="mt-6 hidden md:block"
-          showCaption
-        />
-      </section>
-
-      <section className="section container-narrow grid md:grid-cols-2 gap-10 items-center border-t border-surface-border">
-        <div>
-          <p className="section-label">ليش نفس؟</p>
-          <h2 className="font-display text-2xl font-bold">تعرفين هالإحساس؟</h2>
-          <p className="mt-4 text-surface-muted leading-relaxed">{emotional.whyBody}</p>
-        </div>
-        <EmotionalImage frame={emotional['pain-before']} aspect="4/3" variant="before" />
+        <p className="section-label">About this kit</p>
+        <h2 className="font-display text-2xl font-bold">What you are buying</h2>
+        <p className="mt-4 text-surface-muted leading-relaxed max-w-2xl">{emotional.whyBody}</p>
+        <p className="mt-3 text-xs text-surface-muted">{SKU_TRUST_LINE}</p>
       </section>
 
       <section className="section container-narrow border-t border-surface-border">
-        <p className="section-label">تأكيد المحتوى</p>
+        <p className="section-label">What’s included</p>
         <h2 className="font-display text-2xl font-bold">
           {purchaseMode === 'single' && selectedSingle
-            ? `القطعة اللي اختارتيها: ${SKU_LABELS[selectedSingle] ?? selectedSingle}`
-            : 'محتويات البوكس الكامل'}
+            ? `Your piece: ${SKU_LABELS[selectedSingle] ?? selectedSingle}`
+            : 'Full kit contents'}
         </h2>
         <p className="mt-3 text-surface-muted leading-relaxed max-w-xl">
           {purchaseMode === 'single'
-            ? 'هذي القطعة اللي توصلج إذا اخترتي «قطعة واحدة». تبين البوكس كامل؟ ارجعي لقسم «اختاري عرضج» فوق.'
+            ? 'This is the piece that ships if you chose “Single piece.” Want the full kit? Scroll back to “Choose your offer.”'
             : emotional.boxBody}
         </p>
         <div className="mt-8">
@@ -208,30 +178,30 @@ export function ProductPage() {
             <WhatsInBox includes={product.includes} boxCount={selectedTier.tier} />
           )}
         </div>
-        <p className="text-xs text-surface-muted mt-4 leading-relaxed">{SKU_TRUST_LINE}</p>
       </section>
 
-      <section className="section container-narrow grid md:grid-cols-2 gap-10 items-center border-t border-surface-border">
-        <EmotionalImage frame={emotional['pain-after']} aspect="4/3" variant="after" />
-        <div>
-          <p className="section-label">كيف تستخدمينه؟</p>
-          <h2 className="font-display text-2xl font-bold">روتين ١٥-٢٠ دقيقة بالبيت</h2>
-          <p className="mt-4 text-surface-muted leading-relaxed">{emotional.howBody}</p>
-          <p className="mt-3 text-xs text-surface-muted border-t border-surface-border pt-3">
-            راحة منزلية فقط، مو علاج طبي. النتيجة تختلف من شخص لشخص.
-          </p>
-        </div>
+      <section className="section container-narrow border-t border-surface-border">
+        <p className="section-label">How to use</p>
+        <h2 className="font-display text-2xl font-bold">Suggested home routine</h2>
+        <p className="mt-4 text-surface-muted leading-relaxed max-w-2xl">{emotional.howBody}</p>
+        <p className="mt-3 text-xs text-surface-muted border-t border-surface-border pt-3">
+          At-home comfort devices only, not medical treatment. Experience varies. See a clinician for
+          medical concerns.
+        </p>
+        <p className="mt-4 text-sm text-surface-muted">
+          <Link to="/returns" className="text-rose-brand underline">
+            30-day returns
+          </Link>
+          {' · '}
+          <Link to="/policies#shipping" className="text-rose-brand underline">
+            Shipping
+          </Link>
+          {' · '}
+          <Link to="/contact" className="text-rose-brand underline">
+            Contact
+          </Link>
+        </p>
       </section>
-
-      {slug && (
-        <ReviewsSection
-          page={slug as ReviewPage}
-          title="تعليقات على هالمنتج"
-          subtitle="عميلات جربن نفس البوكس أو قطعة وحدة. اقرئي اللي يشبه سؤالج قبل ما تطلبين."
-          className="section border-t border-surface-border"
-          sectionId="product-reviews"
-        />
-      )}
 
       <section className="container-narrow py-8 border-t border-surface-border">
         <PaymentMethods variant="row" showCaption />
@@ -239,10 +209,10 @@ export function ProductPage() {
 
       <ProductMobileStickyBar
         offerSectionId="purchase-offer"
-        priceLabel={formatKwd(stickyPrice)}
+        priceLabel={formatUsd(stickyPrice)}
         detailLine={stickyDetail}
-        ctaLabel="اختاري عرضج"
-        onCta={scrollToOffer}
+        ctaLabel="Choose your offer"
+        onCta={() => scrollToSection('purchase-offer', { behavior: 'smooth' })}
       />
     </div>
   )

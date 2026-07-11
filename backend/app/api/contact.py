@@ -16,5 +16,5 @@ class ContactIn(BaseModel):
 
 @router.post("")
 async def contact(body: ContactIn):
-    logger.info("Contact form: %s ،  %s", body.name, body.message[:80])
-    return {"ok": True, "message": "وصلتنا رسالتج ،  بنرد عليج قريب"}
+    logger.info("Contact form: %s — %s", body.name, body.message[:80])
+    return {"ok": True, "message": "Thanks — we received your message and will reply soon."}

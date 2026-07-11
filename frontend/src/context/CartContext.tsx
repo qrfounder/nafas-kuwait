@@ -21,7 +21,7 @@ interface CartContextValue {
   product: Product | null
   tier: Tier | null
   singleSku: string | null
-  /** Quantity for single-SKU line (١–٣). Only used when purchaseMode === 'single'. */
+  /** Quantity for single-SKU line (1–3). Only used when purchaseMode === 'single'. */
   singleQty: number
   purchaseMode: PurchaseMode | null
   crossSells: Record<string, boolean>
@@ -47,7 +47,7 @@ function buildBundleLines(product: Product, tier: Tier): CartLine[] {
   return [
     {
       sku: product.slug,
-      title_ar: `${product.title_ar}، ${tier.label_ar}`,
+      title_ar: `${product.title_ar}, ${tier.label_ar}`,
       qty: tier.tier,
       price_usd: tier.price,
       line_type: 'product',
@@ -58,9 +58,7 @@ function buildBundleLines(product: Product, tier: Tier): CartLine[] {
 function singleLineTitle(sku: string, qty: number): string {
   const name = SKU_LABELS[sku] ?? sku
   if (qty <= 1) return name
-  const ar = ['٠', '١', '٢', '٣', '٤', '٥']
-  const q = ar[qty] ?? String(qty)
-  return `${name} (${q} قطع)`
+  return `${name} (${qty} pieces)`
 }
 
 function buildSingleLine(sku: string, qty: number): CartLine | null {

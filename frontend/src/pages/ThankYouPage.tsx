@@ -34,44 +34,44 @@ export function ThankYouPage() {
           <div className="w-16 h-16 rounded-full bg-success/15 text-success text-3xl flex items-center justify-center mx-auto mb-5 shadow-sm">
             ✓
           </div>
-          <h1 className="font-display text-2xl sm:text-3xl font-bold text-ink">تم استلام طلبج</h1>
+          <h1 className="font-display text-2xl sm:text-3xl font-bold text-ink">Thank you. Order confirmed</h1>
           {order && (
             <p className="mt-3 text-sm text-ink/75">
-              رقم الطلب:{' '}
+              Order number:{' '}
               <strong className="text-rose-brand font-mono tracking-tight" dir="ltr">
                 {order}
               </strong>
             </p>
           )}
           {upsell && (
-            <p className="mt-2 text-sm font-medium text-rose-brand">تمت إضافة العرض الإضافي لطلبج</p>
+            <p className="mt-2 text-sm font-medium text-rose-brand">Your optional add-on was added to this order.</p>
           )}
         </div>
 
-        <div className="mt-8 rounded-2xl border border-rose-brand/20 bg-rose-light/20 px-4 py-4 text-right">
-          <p className="text-sm font-semibold text-ink">الخطوة الجاية: مكالمة من مركز الاتصال</p>
+        <div className="mt-8 rounded-2xl border border-rose-brand/20 bg-rose-light/20 px-4 py-4 text-left">
+          <p className="text-sm font-semibold text-ink">What happens next</p>
           <p className="mt-2 text-[13px] leading-relaxed text-ink/85">
-            خلّي جوالج <strong className="text-rose-brand">شغال وقريب</strong>، نتصل خلال{' '}
-            <strong className="text-rose-brand">ساعة تقريباً</strong> في أوقات الدوام لنؤكد عنوان التوصيل ونرتب
-            الشحن. لو الرقم مشغول أو مغلق، يتأخر الطلب.
+            Your payment was received through <strong className="text-rose-brand">Stripe</strong>. We will
+            prepare your order and email tracking when it ships.
           </p>
           <p className="mt-3 text-[12px] leading-relaxed text-surface-muted">
-            موعد وصول الطرد للبيت غالباً بين <strong className="text-ink/80">يوم وسبعة أيام</strong> بعد ما نكمّل
-            المكالمة، حسب منطقتج والمندوب.
+            Typical delivery across the United States is{' '}
+            <strong className="text-ink/80">3–7 business days</strong> after payment, depending on your
+            location and carrier.
           </p>
         </div>
 
         <p className="mt-6 text-sm text-ink/80 leading-relaxed text-center">
-          الاستبدال أو الإرجاع عند العيب أو التلف ضمن سياسة المتجر لكل الطلبات. الإضافات الاختيارية بالطلب (إن
-          وجدت) تعني أولوية في التجهيز أو متابعة أسرع للتلف أثناء الشحن، مو بدال الحقوق الأساسية.
+          Returns and replacements for defective or unused items follow our 30-day store policy. Optional
+          checkout add-ons (if any) do not replace those rights.
         </p>
 
         <p className="mt-4 text-xs text-surface-muted text-center leading-relaxed">
-          الدفع عند استلام الطرد فقط، كاش أو KNET حسب المندوب.
+          Prepaid securely with Stripe, with no cash on delivery.
         </p>
 
         <div className="mt-10">
-          <p className="text-xs font-semibold text-surface-muted text-center mb-3">ملخص الرحلة</p>
+          <p className="text-xs font-semibold text-surface-muted text-center mb-3">Order journey</p>
           <ol className="space-y-2.5">
             {ORDER_STEPS.map((s) => (
               <li
@@ -81,7 +81,7 @@ export function ThankYouPage() {
                 <span className="w-8 h-8 rounded-full bg-rose-light text-rose-brand flex items-center justify-center text-xs font-bold shrink-0">
                   {s.step}
                 </span>
-                <div className="min-w-0 text-right flex-1">
+                <div className="min-w-0 text-left flex-1">
                   <p className="font-semibold text-ink text-sm">{s.title}</p>
                   <p className="text-surface-muted text-xs mt-1 leading-relaxed">{s.desc}</p>
                 </div>
@@ -92,10 +92,10 @@ export function ThankYouPage() {
 
         <div className="mt-10 flex flex-col sm:flex-row gap-3 justify-center items-stretch">
           <Link to="/collection" className="btn-primary text-center py-3">
-            تسوقي أكثر
+            Continue shopping
           </Link>
           <Link to="/contact" className="btn-outline text-center py-3">
-            تواصلي معنا
+            Contact us
           </Link>
         </div>
       </div>

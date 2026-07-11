@@ -3,9 +3,8 @@ import type { Product, Tier } from '../data/products'
 import { singlesInBundle, SKU_HINTS, SKU_LABELS } from '../data/products'
 import { useStore } from '../context/StoreContext'
 import { BundleContents } from './BundleContents'
-import { InventoryNote } from './InventoryNote'
 import { Price } from './Price'
-import { formatKwd } from '../lib/currency'
+import { formatUsd } from '../lib/currency'
 import { skuImage, skuShowcaseImage } from '../data/images'
 import { preserveScrollPosition } from '../lib/scroll'
 import { OptimizedImage } from './OptimizedImage'
@@ -20,10 +19,9 @@ type Props = {
   onTierChange: (tier: Tier) => void
   selectedSingle: string | null
   onSingleChange: (sku: string) => void
-  /** Quantity when adding a single SKU (١–٣). */
+  /** Quantity when adding a single SKU (1–3). */
   singleQty: number
   onSingleQtyChange: (qty: 1 | 2 | 3) => void
-  stockLeft: number
   onAddBundle: () => void
   onAddSingle: (sku: string) => void
 }
@@ -38,7 +36,6 @@ export function PurchasePanel({
   onSingleChange,
   singleQty,
   onSingleQtyChange,
-  stockLeft,
   onAddBundle,
   onAddSingle,
 }: Props) {
@@ -57,19 +54,19 @@ export function PurchasePanel({
 
   const modeTabClass = (active: boolean) =>
     [
-      'relative flex flex-1 flex-col items-center justify-center gap-1 rounded-xl px-3 py-3.5 text-center transition-all duration-200 min-h-[4.5rem]',
+      'relative flex flex-1 flex-col items-center justify-center gap-1 rounded-none px-3 py-3.5 text-center transition-colors duration-200 min-h-[4.5rem]',
       active
-        ? 'border-2 border-rose-brand bg-white text-ink shadow-md shadow-rose-brand/15 ring-2 ring-rose-brand/20'
-        : 'border border-surface-border/90 bg-white/50 text-surface-muted hover:border-rose-brand/40 hover:bg-rose-light/30 hover:text-ink hover:shadow-sm',
+        ? 'border border-ink bg-white text-ink'
+        : 'border border-surface-border bg-cream/40 text-surface-muted hover:border-ink/40 hover:text-ink',
     ].join(' ')
 
   return (
     <div className="space-y-4">
-      <p className="text-center text-[11px] font-semibold text-surface-muted">اختاري طريقة الطلب</p>
+      <p className="text-center text-[11px] font-medium tracking-wide text-surface-muted">How do you want to order?</p>
       <div
-        className="grid grid-cols-2 gap-2 sm:gap-3 rounded-2xl border border-rose-brand/15 bg-cream/80 p-2 shadow-inner"
+        className="grid grid-cols-2 gap-2 sm:gap-3 border border-surface-border bg-cream/50 p-2"
         role="tablist"
-        aria-label="طريقة الشراء"
+        aria-label="Purchase mode"
       >
         <button
           type="button"
@@ -90,11 +87,11 @@ export function PurchasePanel({
             }`}
             aria-hidden
           >
-            بوكس
+            Kit
           </span>
-          <span className="text-sm font-bold leading-tight">البوكس الكامل</span>
+          <span className="text-sm font-bold leading-tight">Bundle</span>
           <span className={`text-[10px] leading-snug ${mode === 'bundle' ? 'text-rose-brand/90' : 'text-surface-muted'}`}>
-            كل القطع مع بعض
+            All pieces together
           </span>
         </button>
         <button
@@ -116,11 +113,11 @@ export function PurchasePanel({
             }`}
             aria-hidden
           >
-            ١
+            1
           </span>
-          <span className="text-sm font-bold leading-tight">قطعة واحدة</span>
+          <span className="text-sm font-bold leading-tight">Single piece</span>
           <span className={`text-[10px] leading-snug ${mode === 'single' ? 'text-rose-brand/90' : 'text-surface-muted'}`}>
-            اختاري قطعة بس
+            One item only
           </span>
         </button>
       </div>
@@ -134,25 +131,24 @@ export function PurchasePanel({
             layout="buy-panel"
             priority
           />
-          <InventoryNote stockLeft={stockLeft} compact />
-          <div className="space-y-2" role="radiogroup" aria-label="كمية البوكس">
-            <p className="font-semibold text-sm text-ink">اختاري الكمية:</p>
+          <div className="space-y-2" role="radiogroup" aria-label="Kit quantity">
+            <p className="font-semibold text-sm text-ink">Choose quantity:</p>
             {product.tiers.map((t) => (
               <button
                 key={t.tier}
                 type="button"
                 role="radio"
                 aria-checked={selectedTier.tier === t.tier}
-                className={`block w-full text-right p-4 rounded-lg border cursor-pointer transition relative ${
+                className={`block w-full text-left p-4 rounded-none border cursor-pointer transition relative ${
                   selectedTier.tier === t.tier
-                    ? 'border-rose-brand bg-rose-light/40'
-                    : 'border-surface-border hover:border-rose-brand/30'
+                    ? 'border-ink bg-rose-light/30'
+                    : 'border-surface-border hover:border-ink/40'
                 }`}
                 onClick={() => preserveScrollPosition(() => onTierChange(t))}
               >
                 {t.tier === 3 && (
-                  <span className="absolute -top-2 left-4 text-[10px] bg-gold-accent/90 text-ink px-2 py-0.5 rounded font-semibold">
-                    الأكثر طلباً
+                  <span className="absolute -top-2 left-4 text-[10px] bg-ink text-white px-2 py-0.5 font-medium tracking-wide uppercase">
+                    Most popular
                   </span>
                 )}
                 <div className="flex justify-between items-center">
@@ -170,16 +166,16 @@ export function PurchasePanel({
             ))}
           </div>
           <button type="button" onClick={onAddBundle} className="btn-primary w-full">
-            أضيفي البوكس ({formatKwd(selectedTier.price)})
+            Add kit ({formatUsd(selectedTier.price)})
           </button>
         </>
       ) : (
         <>
           <p className="text-sm text-surface-muted leading-relaxed">
-            تبين قطعة وحدة بس؟ اختاري اللي يناسب ألمج. الصورة هي المنتج اللي يوصلج.
+            Want just one piece? Pick what fits. The photo shows what ships.
           </p>
           <fieldset className="relative z-10 space-y-2 max-md:pb-2 border-0 p-0 m-0 min-w-0">
-            <legend className="sr-only">اختاري قطعة واحدة</legend>
+            <legend className="sr-only">Choose a single piece</legend>
             {singles.map((item) => {
               const active = selectedSingle === item.sku
               const inputId = `single-${product.slug}-${item.sku}`
@@ -187,10 +183,10 @@ export function PurchasePanel({
                 <label
                   key={item.sku}
                   htmlFor={inputId}
-                  className={`relative flex w-full cursor-pointer gap-3 rounded-xl border p-3 text-right transition touch-manipulation items-start ${
+                  className={`relative flex w-full cursor-pointer gap-3 rounded-none border p-3 text-left transition touch-manipulation items-start ${
                     active
-                      ? 'border-rose-brand bg-rose-light/40 ring-2 ring-rose-brand/30'
-                      : 'border-surface-border bg-white hover:border-rose-brand/30 active:bg-rose-light/20'
+                      ? 'border-ink bg-rose-light/30'
+                      : 'border-surface-border bg-white hover:border-ink/40'
                   }`}
                 >
                   <input
@@ -232,14 +228,14 @@ export function PurchasePanel({
           </fieldset>
           {selectedSingle && (
             <div className="mt-4 space-y-2">
-              <p className="text-sm font-semibold text-ink">اختاري الكمية</p>
+              <p className="text-sm font-semibold text-ink">Choose quantity</p>
               <p className="text-[11px] text-surface-muted leading-relaxed">
-                نفس القطعة: مناسب لو تبين وحدة زيادة لأختج أو لأمك، بدون ما تشتري البوكس كامل مرتين.
+                Same piece: useful if you want an extra for someone else without buying the full kit twice.
               </p>
               <div
                 className="flex rounded-xl border border-surface-border bg-cream p-1 gap-1"
                 role="group"
-                aria-label="كمية القطعة"
+                aria-label="Piece quantity"
               >
                 {([1, 2, 3] as const).map((q) => (
                   <button
@@ -250,7 +246,7 @@ export function PurchasePanel({
                       singleQty === q ? 'bg-white text-ink shadow-sm' : 'text-surface-muted'
                     }`}
                   >
-                    {q === 1 ? '١' : q === 2 ? '٢' : '٣'}
+                    {q}
                   </button>
                 ))}
               </div>
@@ -265,12 +261,12 @@ export function PurchasePanel({
             {selectedSingle
               ? (() => {
                   const unit = singles.find((s) => s.sku === selectedSingle)!.price
-                  return `أضيفي ${SKU_LABELS[selectedSingle]} (${formatKwd(unit * singleQty)})`
+                  return `Add ${SKU_LABELS[selectedSingle]} (${formatUsd(unit * singleQty)})`
                 })()
-              : 'اختاري قطعة'}
+              : 'Choose a piece'}
           </button>
           <p className="text-[11px] text-center text-surface-muted">
-            تبين بوكس كامل أو قطع مختلفة مع بعض؟ ارجعي للبوكس الكامل، أوفر لج.
+            Want a full kit or mixed pieces? Switch back to Bundle. usually a better value.
           </p>
         </>
       )}

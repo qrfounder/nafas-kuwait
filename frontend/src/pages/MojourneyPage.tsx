@@ -345,11 +345,11 @@ export function MojourneyPage() {
           <div className="grid sm:grid-cols-3 gap-4">
             <div className="rounded-xl border border-slate-800 bg-slate-900/50 p-5">
               <p className="text-xs text-slate-500 mb-1">Total orders</p>
-              <p className="text-3xl font-bold text-white">{summary?.total ?? '—'}</p>
+              <p className="text-3xl font-bold text-white">{summary?.total ?? '. '}</p>
             </div>
             <div className="rounded-xl border border-slate-800 bg-slate-900/50 p-5">
               <p className="text-xs text-slate-500 mb-1">Last 24 hours</p>
-              <p className="text-3xl font-bold text-amber-200">{summary?.last_24h ?? '—'}</p>
+              <p className="text-3xl font-bold text-amber-200">{summary?.last_24h ?? '. '}</p>
             </div>
             <div className="rounded-xl border border-slate-800 bg-slate-900/50 p-5">
               <p className="text-xs text-slate-500 mb-2">By status</p>
@@ -388,7 +388,7 @@ export function MojourneyPage() {
           </div>
           <p className="text-sm text-slate-400 max-w-2xl leading-relaxed">
             Ad landing URL:{' '}
-            <span className="font-mono text-amber-200/90">{baseUrl}/product/{AD_LANDING_SLUG}</span> — after
+            <span className="font-mono text-amber-200/90">{baseUrl}/product/{AD_LANDING_SLUG}</span>. after
             approval, redirect it in <strong className="text-slate-200">Redirects</strong>.
           </p>
         </div>
@@ -428,7 +428,7 @@ export function MojourneyPage() {
                   </td>
                   <td className="px-3 py-2.5 tabular-nums">{o.total_usd.toFixed(2)}</td>
                   <td className="px-3 py-2.5 text-xs text-slate-400 max-w-[140px] truncate" title={o.utm_campaign || ''}>
-                    {o.utm_source || '—'} / {o.utm_campaign || '—'}
+                    {o.utm_source || '. '} / {o.utm_campaign || '. '}
                   </td>
                   <td className="px-3 py-2.5 text-xs">{o.status}</td>
                 </tr>

@@ -11,21 +11,8 @@ export type PaymentMethod = {
   height: number
 }
 
+/** Stripe checkout: major cards + wallets (no COD / KNET). */
 export const PAYMENT_METHODS: PaymentMethod[] = [
-  {
-    id: 'cod',
-    src: '/payments/cod.svg',
-    alt: 'الدفع عند الاستلام، كاش',
-    width: 38,
-    height: 24,
-  },
-  {
-    id: 'knet',
-    src: '/payments/knet.svg',
-    alt: 'KNET الكويت',
-    width: 38,
-    height: 24,
-  },
   {
     id: 'visa',
     src: '/payments/visa.svg',
@@ -56,7 +43,7 @@ export const PAYMENT_METHODS: PaymentMethod[] = [
   },
 ]
 
-/** Kuwait checkout: COD + KNET + cards (no Amex/Apple in compact strip). */
+/** Compact strip: cards most shoppers recognize. */
 export const PAYMENT_METHODS_COMPACT = PAYMENT_METHODS.filter((m) =>
-  ['cod', 'knet', 'visa', 'mastercard'].includes(m.id),
+  ['visa', 'mastercard', 'amex', 'apple-pay'].includes(m.id),
 )

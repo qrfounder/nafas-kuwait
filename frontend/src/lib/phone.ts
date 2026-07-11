@@ -1,38 +1,38 @@
-/** Kuwait: 8-digit national number (mobile or landline) → stored as 965XXXXXXXX */
+/** US phone: 10-digit national number → stored as 1XXXXXXXXXX (E.164 without +). */
 
-const KW_LOCAL_RE = /^[2-9]\d{7}$/
+const US_LOCAL_RE = /^[2-9]\d{2}[2-9]\d{6}$/
 
-export function normalizeKuwaitPhone(raw: string): string | null {
+export function normalizeUsPhone(raw: string): string | null {
   let digits = raw.replace(/\D/g, '')
   if (!digits) return null
 
-  if (digits.startsWith('00965')) digits = digits.slice(2)
-  if (digits.startsWith('965')) {
-    if (digits.length === 11 && KW_LOCAL_RE.test(digits.slice(3))) return digits
-    if (digits.length > 11) digits = digits.slice(0, 11)
-    if (digits.length === 11 && KW_LOCAL_RE.test(digits.slice(3))) return digits
+  if (digits.startsWith('001')) digits = digits.slice(3)
+  if (digits.startsWith('1') && digits.length === 11) {
+    const national = digits.slice(1)
+    if (US_LOCAL_RE.test(national)) return digits
     return null
   }
 
-  if (digits.startsWith('0') && digits.length === 9) digits = digits.slice(1)
-
-  if (digits.length === 8 && KW_LOCAL_RE.test(digits)) return `965${digits}`
-
-  if (digits.length > 8) {
-    if (digits.startsWith('965') && digits.length >= 11) {
-      const cand = digits.slice(0, 11)
-      if (KW_LOCAL_RE.test(cand.slice(3))) return cand
-    }
-  }
+  if (digits.length === 10 && US_LOCAL_RE.test(digits)) return `1${digits}`
 
   return null
 }
 
-export function validateKuwaitPhone(raw: string): { ok: boolean; error: string; normalized?: string } {
-  const normalized = normalizeKuwaitPhone(raw)
+export function validateUsPhone(raw: string): { ok: boolean; error: string; normalized?: string } {
+  const normalized = normalizeUsPhone(raw)
   if (normalized) return { ok: true, error: '', normalized }
   return {
     ok: false,
-    error: 'أدخلي رقم جوال أو أرضي كويتي (8 أرقام). مثال: 51234567 أو 22334455',
+    error: 'Enter a valid US phone number (10 digits). Example: 4155552671',
   }
+}
+
+/** @deprecated Use validateUsPhone */
+export function validateKuwaitPhone(raw: string) {
+  return validateUsPhone(raw)
+}
+
+/** @deprecated Use normalizeUsPhone */
+export function normalizeKuwaitPhone(raw: string) {
+  return normalizeUsPhone(raw)
 }

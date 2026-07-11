@@ -10,6 +10,13 @@ export class ApiRequestError extends Error {
   }
 }
 
+/** Stripe checkout create-order response. */
+export type OrderOut = {
+  order_number?: string
+  checkout_url?: string
+  [key: string]: unknown
+}
+
 async function parseJsonSafe(res: Response): Promise<unknown> {
   const ct = res.headers.get('content-type') || ''
   if (!ct.includes('application/json')) return null
@@ -21,13 +28,13 @@ async function parseJsonSafe(res: Response): Promise<unknown> {
 }
 
 function detailMessage(data: unknown): string {
-  if (!data || typeof data !== 'object') return 'فشل الطلب'
+  if (!data || typeof data !== 'object') return 'Request failed'
   const d = (data as { detail?: unknown }).detail
   if (typeof d === 'string') return d
   if (Array.isArray(d) && d[0] && typeof d[0] === 'object' && 'msg' in d[0]) {
     return String((d[0] as { msg: string }).msg)
   }
-  return 'فشل الطلب'
+  return 'Request failed'
 }
 
 async function apiPost(path: string, body: Record<string, unknown>) {
@@ -41,7 +48,7 @@ async function apiPost(path: string, body: Record<string, unknown>) {
     })
   } catch {
     throw new ApiRequestError(
-      'تعذّر الاتصال بالخادم. تحققي من الإنترنت وحاولي مرة أخرى، أو تواصلي معنا على واتساب.',
+      'Could not reach the server. Check your connection and try again, or email support@naffas.shop.',
       'network',
     )
   }
@@ -51,19 +58,19 @@ async function apiPost(path: string, body: Record<string, unknown>) {
     const msg = detailMessage(data)
     throw new ApiRequestError(
       res.status === 422
-        ? 'تحققي من الاسم (حرفين على الأقل) ورقم الجوال أو الأرضي (8 أرقام كويتية).'
+        ? 'Please check your name (at least 2 characters) and a valid US phone number.'
         : msg,
       res.status === 422 ? 'validation' : 'server',
     )
   }
   if (!data || typeof data !== 'object') {
-    throw new ApiRequestError('استجابة غير متوقعة من الخادم. حاولي مرة أخرى.', 'server')
+    throw new ApiRequestError('Unexpected server response. Please try again.', 'server')
   }
   return data as Record<string, unknown>
 }
 
-export async function createOrder(body: Record<string, unknown>) {
-  return apiPost('/api/orders', body)
+export async function createOrder(body: Record<string, unknown>): Promise<OrderOut> {
+  return (await apiPost('/api/orders', body)) as OrderOut
 }
 
 export async function acceptUpsell(orderNumber: string, body: Record<string, unknown>) {
@@ -76,7 +83,7 @@ export async function acceptUpsell(orderNumber: string, body: Record<string, unk
       body: JSON.stringify(body),
     })
   } catch {
-    throw new ApiRequestError('تعذّر الاتصال بالخادم.', 'network')
+    throw new ApiRequestError('Could not reach the server.', 'network')
   }
   const data = await parseJsonSafe(res)
   if (!res.ok) {

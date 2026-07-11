@@ -5,30 +5,37 @@
 @layer base {
   body {
     @apply bg-cream text-ink font-body antialiased text-[15px] leading-relaxed;
+    background-image:
+      radial-gradient(ellipse 80% 50% at 50% -20%, rgba(26, 26, 26, 0.03), transparent),
+      linear-gradient(180deg, #F7F5F1 0%, #F3F0EB 100%);
+    background-attachment: fixed;
+  }
+  ::selection {
+    @apply bg-ink text-white;
   }
 }
 
 @layer components {
   .section-label {
-    @apply text-[11px] font-semibold tracking-wide text-surface-muted uppercase mb-2;
+    @apply text-[11px] font-medium tracking-[0.18em] text-surface-muted uppercase mb-2;
   }
   .section-title {
-    @apply font-display text-2xl md:text-3xl font-bold text-ink leading-snug;
+    @apply font-display text-3xl md:text-[2rem] font-medium text-ink leading-snug tracking-[-0.01em];
   }
   .card {
-    @apply bg-surface-card rounded-xl border border-surface-border shadow-card;
+    @apply bg-surface-card rounded-none border border-surface-border;
   }
   .btn-primary {
-    @apply inline-flex items-center justify-center bg-rose-brand text-white font-semibold px-6 py-3.5 rounded-lg hover:bg-[#7A3348] transition-colors shadow-sm text-[15px];
+    @apply inline-flex items-center justify-center bg-rose-brand text-white font-medium px-7 py-3.5 rounded-none hover:bg-[#333333] transition-colors text-[13px] tracking-[0.06em] uppercase;
   }
   .btn-outline {
-    @apply inline-flex items-center justify-center border border-surface-border bg-white text-ink font-medium px-6 py-3 rounded-lg hover:border-rose-brand/40 hover:bg-rose-light/30 transition-colors;
+    @apply inline-flex items-center justify-center border border-ink/25 bg-white text-ink font-medium px-7 py-3 rounded-none hover:border-ink hover:bg-rose-light/50 transition-colors text-[13px] tracking-[0.04em];
   }
   .btn-ghost {
-    @apply text-sm font-medium text-surface-muted hover:text-rose-brand transition-colors;
+    @apply text-sm font-medium text-surface-muted hover:text-ink transition-colors;
   }
   .section {
-    @apply py-14 md:py-20;
+    @apply py-16 md:py-24;
   }
   .container-narrow {
     @apply max-w-6xl mx-auto px-4 sm:px-6;

@@ -58,7 +58,7 @@ export function AdminShell({ section, onSection, onLogout, apiStatus, children }
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col md:flex-row" dir="ltr">
       <aside className="border-b md:border-b-0 md:border-r border-slate-800 md:w-64 shrink-0 md:min-h-screen p-4 flex flex-col gap-4">
         <div className="px-2">
-          <p className="text-[10px] uppercase tracking-widest text-slate-500">Nafas Kuwait</p>
+          <p className="text-[10px] uppercase tracking-widest text-slate-500">Nafas USA</p>
           <p className="font-display text-lg font-bold text-white">Mojourney Admin</p>
         </div>
 

@@ -1,11 +1,8 @@
 import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useCart } from '../context/CartContext'
-import { Stars } from './Stars'
-import { TRUST_STATS } from '../data/socialProof'
 
 type Props = {
-  /** Section to scroll to (e.g. purchase-offer). */
   offerSectionId: string
   priceLabel: string
   detailLine: string
@@ -13,10 +10,7 @@ type Props = {
   onCta: () => void
 }
 
-/**
- * Mobile-only bar while browsing a product (reviews, story sections).
- * Hidden when the offer block is on screen, or when cart/checkout is open.
- */
+/** Mobile sticky CTA: price + checkout only (no fabricated ratings). */
 export function ProductMobileStickyBar({
   offerSectionId,
   priceLabel,
@@ -48,20 +42,10 @@ export function ProductMobileStickyBar({
     <div
       className="md:hidden fixed bottom-0 inset-x-0 z-[100] border-t border-surface-border bg-white shadow-[0_-4px_24px_rgba(0,0,0,0.12)] pb-[env(safe-area-inset-bottom)]"
       role="region"
-      aria-label="ملخص السعر والتقييم"
+      aria-label="Price summary"
     >
       <div className="max-w-6xl mx-auto px-4 py-2.5 space-y-2">
-        <div
-          className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[10px] leading-snug"
-          aria-label={`تقييم ${TRUST_STATS.rating} من 5`}
-        >
-          <Stars count={5} />
-          <span className="font-semibold text-ink">{TRUST_STATS.rating}</span>
-          <span className="text-surface-muted">
-            ({TRUST_STATS.count}+ طلب{TRUST_STATS.kuwaitOnly ? '، الكويت' : ''})
-          </span>
-        </div>
-
+        <p className="text-[10px] text-surface-muted leading-snug">Ships USA · Stripe checkout · 30-day returns</p>
         <div className="flex items-center justify-between gap-3">
           <div className="min-w-0">
             <span className="font-bold text-rose-brand block text-lg leading-tight">{priceLabel}</span>
