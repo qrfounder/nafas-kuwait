@@ -34,6 +34,7 @@ export interface Product {
 
 /** Accurate SKU names. home comfort devices, not medical devices. */
 export const SKU_LABELS: Record<string, string> = {
+  HIMRJP10: 'خلطة أجدادنا',
   'period-belt': 'Wireless warming belt (USB rechargeable)',
   lumbar: 'Lower-back stretch arch',
   neck: 'Adhesive pulse massager for neck & shoulders',
@@ -43,6 +44,7 @@ export const SKU_LABELS: Record<string, string> = {
 }
 
 export const SKU_HINTS: Record<string, string> = {
+  HIMRJP10: 'كريم المفاصل والعظام. ادفع عند الاستلام داخل المملكة.',
   'period-belt': 'Wireless; 3 heat & vibration modes; USB charging',
   lumbar: 'Plastic arch; 3 height levels; no electricity',
   neck: 'Small adhesive pad with pulses, not a large pillow',
@@ -171,6 +173,7 @@ export const CROSS_SELLS = [
 ]
 
 export const SINGLE_SKU_PRICES: Record<string, { price: number; anchor: number }> = {
+  HIMRJP10: { price: 179, anchor: 340 },
   'period-belt': { price: 62, anchor: 62 },
   lumbar: { price: 55, anchor: 55 },
   neck: { price: 60, anchor: 60 },

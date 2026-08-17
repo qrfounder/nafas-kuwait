@@ -113,6 +113,7 @@ CROSS_SELLS = {
 }
 
 SKU_LABELS = {
+    "HIMRJP10": "خلطة أجدادنا",
     "period-belt": "Wireless warming belt (USB rechargeable)",
     "lumbar": "Lower-back stretch arch",
     "neck": "Adhesive pulse massager for neck & shoulders",
@@ -122,6 +123,7 @@ SKU_LABELS = {
 }
 
 SKU_HINTS = {
+    "HIMRJP10": "كريم المفاصل والعظام. ادفع عند الاستلام داخل المملكة.",
     "period-belt": "Wireless; 3 heat & vibration modes; USB charging",
     "lumbar": "Plastic arch; 3 height levels; no electricity",
     "neck": "Small adhesive pad with pulses, not a large pillow",
@@ -131,6 +133,7 @@ SKU_HINTS = {
 }
 
 SINGLE_SKU_PRICES = {
+    "HIMRJP10": {"price": 179, "anchor": 340},
     "period-belt": {"price": 62, "anchor": 62},
     "lumbar": {"price": 55, "anchor": 55},
     "neck": {"price": 60, "anchor": 60},
@@ -140,3 +143,5 @@ SINGLE_SKU_PRICES = {
 }
 
 DEFAULT_SKU_QUANTITY = 50
+ADMIN_VISIBLE_SKUS = ("HIMRJP10",)
+KSA_PRODUCT_SKU = "HIMRJP10"

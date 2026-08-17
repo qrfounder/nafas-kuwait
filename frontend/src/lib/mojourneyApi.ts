@@ -116,6 +116,27 @@ export async function fetchAdminOrders(key: string): Promise<AdminOrderRow[]> {
   return parseAdminJson(res)
 }
 
+export async function downloadAdminOrdersCsv(key: string, limit: string): Promise<void> {
+  const res = await fetch(`${getApiBase()}/api/admin/orders/export?limit=${encodeURIComponent(limit)}`, {
+    headers: { 'X-Admin-Key': key },
+  })
+  if (!res.ok) {
+    const data = (await res.json().catch(() => ({}))) as { detail?: string }
+    throw new Error(typeof data.detail === 'string' ? data.detail : 'Export failed')
+  }
+  const blob = await res.blob()
+  const dispo = res.headers.get('Content-Disposition')
+  const name = dispo?.match(/filename="([^"]+)"/)?.[1] || 'naffas-orders.csv'
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = name
+  document.body.appendChild(a)
+  a.click()
+  a.remove()
+  URL.revokeObjectURL(url)
+}
+
 export type AdminPixels = {
   shop_url: string
   meta_pixel_id: string

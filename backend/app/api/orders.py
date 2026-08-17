@@ -98,7 +98,7 @@ async def create_cod_order(body: CodOrderIn, background: BackgroundTasks, db: Se
     items_json = json.dumps(
         [
             {
-                "sku": "khalta-ajdadna",
+                "sku": "HIMRJP10",
                 "title_ar": "خلطة أجدادنا",
                 "qty": body.qty,
                 "price_sar": price,
@@ -116,7 +116,7 @@ async def create_cod_order(body: CodOrderIn, background: BackgroundTasks, db: Se
         area=body.city,
         block=None,
         street=None,
-        product_slug="khalta-ajdadna",
+        product_slug="HIMRJP10",
         offer_tier=offer_tier,
         subtotal_usd=price,
         total_usd=price,
@@ -136,7 +136,7 @@ async def create_cod_order(body: CodOrderIn, background: BackgroundTasks, db: Se
     db.add(
         OrderLine(
             order=order,
-            sku="khalta-ajdadna",
+            sku="HIMRJP10",
             title_ar=f"خلطة أجدادنا × {body.qty}",
             qty=body.qty,
             price_usd=price,

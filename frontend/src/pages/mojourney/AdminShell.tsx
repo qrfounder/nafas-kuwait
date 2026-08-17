@@ -24,7 +24,7 @@ const NAV_GROUPS: { label: string; items: { id: AdminSection; label: string; hin
     label: 'Catalog',
     items: [
       { id: 'orders', label: 'Orders' },
-      { id: 'products', label: 'Products', hint: 'SKUs + bundles' },
+      { id: 'products', label: 'Products', hint: 'HIMRJP10' },
       { id: 'redirects', label: 'Redirects', hint: 'URLs & ads' },
     ],
   },

@@ -9,6 +9,13 @@ from app.data.products import (
 from app.models.sku_inventory import SkuInventory
 
 
+def sku_image_url(shop_url: str, sku: str) -> str:
+    base = shop_url.rstrip("/")
+    if sku == "HIMRJP10":
+        return f"{base}/landing/product-xicamel.jpg"
+    return f"{base}/products/{sku}.webp"
+
+
 def _default_row(sku: str) -> SkuInventory:
     prices = SINGLE_SKU_PRICES.get(sku, {"price": 0, "anchor": 0})
     return SkuInventory(
@@ -40,9 +47,9 @@ def list_skus_merged(db: Session, shop_url: str) -> list[dict]:
         label = row.label_ar
         hint = row.hint_ar or ""
         # Prefer English catalog if DB still has Arabic Kuwait copy
-        if any("\u0600" <= ch <= "\u06FF" for ch in (label or "")):
+        if sku != "HIMRJP10" and any("\u0600" <= ch <= "\u06FF" for ch in (label or "")):
             label = SKU_LABELS.get(sku, sku)
-        if any("\u0600" <= ch <= "\u06FF" for ch in (hint or "")):
+        if sku != "HIMRJP10" and any("\u0600" <= ch <= "\u06FF" for ch in (hint or "")):
             hint = SKU_HINTS.get(sku, "")
         out.append(
             {
@@ -53,7 +60,7 @@ def list_skus_merged(db: Session, shop_url: str) -> list[dict]:
                 "anchor": row.anchor,
                 "quantity": row.quantity,
                 "active": row.active,
-                "image_url": f"{base}/products/{sku}.webp",
+                "image_url": sku_image_url(base, sku),
                 "has_override": sku in rows,
             }
         )

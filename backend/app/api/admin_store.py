@@ -3,7 +3,7 @@ import uuid
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from app.data.products import PRODUCTS
+from app.data.products import ADMIN_VISIBLE_SKUS, PRODUCTS
 from app.database import get_db
 from app.models.store import ProductOverride, Redirect
 from app.schemas.store import (
@@ -16,7 +16,7 @@ from app.schemas.store import (
     RedirectOut,
     SkuInventoryIn,
 )
-from app.services.sku_catalog import list_skus_merged
+from app.services.sku_catalog import list_skus_merged, sku_image_url
 from app.services.store_catalog import expand_macros, get_settings, list_products_merged, merge_product, public_shop_url
 from app.models.sku_inventory import SkuInventory
 
@@ -177,35 +177,33 @@ def delete_redirect(
 @router.get("/products", response_model=list[AdminProductOut])
 def admin_products(_: None = Depends(_require_admin_key), db: Session = Depends(get_db)):
     cfg = get_settings(db)
-    base_url = cfg.shop_url.rstrip("/")
-    overrides = {o.slug: o for o in db.query(ProductOverride).all()}
-    out: list[AdminProductOut] = []
-    for slug, base in PRODUCTS.items():
-        o = overrides.get(slug)
-        merged = merge_product(base, o)
-        out.append(
-            AdminProductOut(
-                slug=slug,
-                title_ar=merged["title_ar"],
-                subtitle_ar=merged["subtitle_ar"],
-                base_price=merged["base_price"],
-                anchor_single=merged["anchor_single"],
-                active=merged.get("active", True),
-                tiers=merged["tiers"],
-                product_url=f"{base_url}/product/{slug}",
-                has_override=o is not None,
-                post_upsell=merged.get("post_upsell"),
-                includes=merged.get("includes", []),
-            )
+    base_url = public_shop_url(cfg.shop_url)
+    return [
+        AdminProductOut(
+            slug="HIMRJP10",
+            title_ar="خلطة أجدادنا",
+            subtitle_ar="كريم المفاصل والعظام. ادفع عند الاستلام داخل المملكة.",
+            base_price=179,
+            anchor_single=340,
+            active=True,
+            tiers=[
+                {"tier": 1, "label_ar": "علبة واحدة", "price": 179, "anchor": 179, "badge": None},
+                {"tier": 2, "label_ar": "٣ علب", "price": 280, "anchor": 280, "badge": "الأكثر مبيعاً"},
+                {"tier": 3, "label_ar": "٥ علب", "price": 340, "anchor": 340, "badge": "الأوفر"},
+            ],
+            product_url=f"{base_url}/product/official",
+            has_override=False,
+            post_upsell=None,
+            includes=["HIMRJP10"],
         )
-    return out
+    ]
 
 
 @router.get("/skus", response_model=list[AdminSkuOut])
 def admin_skus(_: None = Depends(_require_admin_key), db: Session = Depends(get_db)):
     cfg = get_settings(db)
     rows = list_skus_merged(db, cfg.shop_url.rstrip("/"))
-    return [AdminSkuOut(**r) for r in rows]
+    return [AdminSkuOut(**r) for r in rows if r["sku"] in ADMIN_VISIBLE_SKUS]
 
 
 @router.put("/skus/{sku}", response_model=AdminSkuOut)
@@ -215,9 +213,9 @@ def update_sku(
     _: None = Depends(_require_admin_key),
     db: Session = Depends(get_db),
 ):
-    from app.data.products import SKU_LABELS
+    from app.data.products import ADMIN_VISIBLE_SKUS, SKU_LABELS
 
-    if sku not in SKU_LABELS:
+    if sku not in ADMIN_VISIBLE_SKUS or sku not in SKU_LABELS:
         raise HTTPException(404, "SKU not in catalog")
     row = db.query(SkuInventory).filter(SkuInventory.sku == sku).first()
     if not row:
@@ -243,7 +241,7 @@ def update_sku(
         anchor=row.anchor,
         quantity=row.quantity,
         active=row.active,
-        image_url=f"{base}/products/{sku}.webp",
+        image_url=sku_image_url(base, sku),
         has_override=True,
     )
 

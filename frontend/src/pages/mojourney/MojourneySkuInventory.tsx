@@ -5,7 +5,6 @@ import {
   saveAdminSku,
   type AdminSku,
 } from '../../lib/mojourneyApi'
-import { formatKwd } from '../../lib/currency'
 
 type Draft = {
   label_ar: string
@@ -110,7 +109,7 @@ export function MojourneySkuInventory({ onError }: { onError: (msg: string) => v
                 <td className="px-3 py-2 text-slate-200 max-w-[200px] truncate">
                   {r.label_ar}
                 </td>
-                <td className="px-3 py-2 tabular-nums text-slate-300">{formatKwd(r.price)}</td>
+                <td className="px-3 py-2 tabular-nums text-slate-300">{r.price} ر.س</td>
                 <td className="px-3 py-2 tabular-nums">
                   <span className={r.quantity <= 10 ? 'text-amber-400' : 'text-slate-300'}>{r.quantity}</span>
                 </td>
@@ -162,7 +161,7 @@ export function MojourneySkuInventory({ onError }: { onError: (msg: string) => v
               />
             </label>
             <label className="text-xs text-slate-400 block">
-              Price (USD)
+              Price (SAR)
               <input
                 type="number"
                 value={draft.price}

@@ -4,6 +4,7 @@ import { AdminShell, type AdminSection } from './mojourney/AdminShell'
 import { MojourneyAnalytics } from './mojourney/MojourneyAnalytics'
 import { MojourneyLiveView } from './mojourney/MojourneyLiveView'
 import { MojourneyPixels } from './mojourney/MojourneyPixels'
+import { MojourneyOrders } from './mojourney/MojourneyOrders'
 import { MojourneyProductsHub } from './mojourney/MojourneyProductsHub'
 import { MojourneyRedirects } from './mojourney/MojourneyRedirects'
 import { AD_LANDING_SLUG } from '../data/adLanding'
@@ -420,43 +421,7 @@ export function MojourneyPage() {
 
       {section === 'analytics' && <MojourneyAnalytics onError={setError} />}
 
-      {section === 'orders' && (
-        <div className="overflow-x-auto rounded-xl border border-slate-800">
-          <table className="min-w-full text-sm text-left">
-            <thead className="bg-slate-900 text-slate-400 text-xs uppercase tracking-wide">
-              <tr>
-                <th className="px-3 py-3 font-medium">Date</th>
-                <th className="px-3 py-3 font-medium">Order</th>
-                <th className="px-3 py-3 font-medium">Name</th>
-                <th className="px-3 py-3 font-medium">Phone</th>
-                <th className="px-3 py-3 font-medium">City</th>
-                <th className="px-3 py-3 font-medium">Pack</th>
-                <th className="px-3 py-3 font-medium">SAR</th>
-                <th className="px-3 py-3 font-medium">Status</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-800">
-              {orders?.map((o) => (
-                <tr key={o.order_number} className="hover:bg-slate-900/40">
-                  <td className="px-3 py-2.5 whitespace-nowrap text-slate-300">
-                    {new Date(o.created_at).toLocaleString()}
-                  </td>
-                  <td className="px-3 py-2.5 font-mono text-xs text-amber-200/90">{o.order_number}</td>
-                  <td className="px-3 py-2.5 text-slate-200">{o.customer_name}</td>
-                  <td className="px-3 py-2.5 font-mono text-xs">{o.customer_phone}</td>
-                  <td className="px-3 py-2.5 text-slate-300">{o.area || '—'}</td>
-                  <td className="px-3 py-2.5 text-slate-300">
-                    {o.offer_tier === 3 ? '5' : o.offer_tier === 2 ? '3' : '1'}
-                  </td>
-                  <td className="px-3 py-2.5 tabular-nums">{o.total_usd.toFixed(0)}</td>
-                  <td className="px-3 py-2.5 text-xs">{o.status}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          {orders && orders.length === 0 && <p className="p-6 text-slate-500 text-sm">No orders in database yet.</p>}
-        </div>
-      )}
+      {section === 'orders' && <MojourneyOrders orders={orders} onError={setError} />}
 
         {section === 'products' && <MojourneyProductsHub onError={setError} />}
       {section === 'redirects' && <MojourneyRedirects onError={setError} />}

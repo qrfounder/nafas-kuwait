@@ -1,8 +1,11 @@
+import csv
+import io
 import logging
 import secrets
 from datetime import datetime, timedelta
 
-from fastapi import APIRouter, Depends, Header, HTTPException
+from fastapi import APIRouter, Depends, Header, HTTPException, Query
+from fastapi.responses import StreamingResponse
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
@@ -125,3 +128,67 @@ def admin_orders(
     orders = q.all()
     logger.info("Admin orders list: %s rows", len(orders))
     return [AdminOrderRow.model_validate(o) for o in orders]
+
+
+_PACK_QTY = {1: "1", 2: "3", 3: "5"}
+_EXPORT_LIMITS = {"25", "50", "100", "250", "500", "all"}
+
+
+@router.get("/orders/export")
+def export_orders(
+    _: None = Depends(_require_admin_key),
+    db: Session = Depends(get_db),
+    limit: str = Query("100"),
+):
+    raw = (limit or "100").strip().lower()
+    if raw not in _EXPORT_LIMITS:
+        raise HTTPException(400, "limit must be 25, 50, 100, 250, 500, or all")
+    q = db.query(Order).order_by(Order.created_at.desc())
+    if raw != "all":
+        q = q.limit(int(raw))
+    else:
+        q = q.limit(20_000)
+    rows = q.all()
+
+    buf = io.StringIO()
+    buf.write("\ufeff")
+    writer = csv.writer(buf)
+    writer.writerow(
+        [
+            "Date",
+            "Order",
+            "Name",
+            "Phone",
+            "City",
+            "SKU",
+            "Pack",
+            "SAR",
+            "Status",
+            "UTM source",
+            "UTM campaign",
+            "Source",
+        ]
+    )
+    for o in rows:
+        writer.writerow(
+            [
+                o.created_at.strftime("%Y-%m-%d %H:%M") if o.created_at else "",
+                o.order_number,
+                o.customer_name,
+                o.customer_phone,
+                o.area or "",
+                o.product_slug or "",
+                _PACK_QTY.get(o.offer_tier, str(o.offer_tier)),
+                f"{o.total_usd:.0f}",
+                o.status,
+                o.utm_source or "",
+                o.utm_campaign or "",
+                o.source or "",
+            ]
+        )
+    filename = f"naffas-orders-{datetime.utcnow().strftime('%Y%m%d-%H%M')}.csv"
+    return StreamingResponse(
+        iter([buf.getvalue()]),
+        media_type="text/csv; charset=utf-8",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )
