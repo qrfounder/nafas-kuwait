@@ -49,8 +49,9 @@ export type StoreBootstrap = {
 
 let cached: StoreBootstrap | null = null
 
-export async function fetchStoreBootstrap(): Promise<StoreBootstrap> {
-  const res = await fetch(`${getApiBase()}/api/store/bootstrap`)
+export async function fetchStoreBootstrap(opts?: { lite?: boolean }): Promise<StoreBootstrap> {
+  const q = opts?.lite ? '?lite=1' : ''
+  const res = await fetch(`${getApiBase()}/api/store/bootstrap${q}`)
   if (!res.ok) throw new Error('Could not load store settings')
   const data = (await res.json()) as StoreBootstrap
   cached = data

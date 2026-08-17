@@ -61,17 +61,24 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [apiReachable, setApiReachable] = useState(true)
   const location = useLocation()
   const navigate = useNavigate()
+  const landing =
+    location.pathname === '/' || location.pathname === '/product/official'
 
   useEffect(() => {
     let cancelled = false
     void (async () => {
       let apiOk = false
       try {
-        const b = await fetchStoreBootstrap()
+        const b = await fetchStoreBootstrap({ lite: landing })
         if (cancelled) return
         setBootstrap(b)
         initAnalyticsFromPixels(b.pixels)
         apiOk = true
+        if (landing) {
+          void fetchStoreBootstrap({ lite: false }).then((full) => {
+            if (!cancelled) setBootstrap(full)
+          })
+        }
       } catch {
         if (cancelled) return
         setBootstrap(null)

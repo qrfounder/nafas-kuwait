@@ -12,7 +12,8 @@ export function LiveHeartbeat() {
     if (location.pathname.startsWith('/mojourney') || location.pathname.startsWith('/mojo')) return
 
     const path = location.pathname + location.search
-    const product_slug = product?.slug ?? null
+    const onLanding = location.pathname === '/' || location.pathname === '/product/official'
+    const product_slug = onLanding ? 'khalta-ajdadna' : product?.slug ?? null
 
     const tick = () => {
       const stage = inferLiveStage({ path, itemCount, checkoutOpen })

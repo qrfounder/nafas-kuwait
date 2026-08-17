@@ -151,7 +151,7 @@ def list_redirects_resolved(db: Session) -> list[dict]:
     ]
 
 
-def bootstrap_payload(db: Session) -> dict:
+def bootstrap_payload(db: Session, *, lite: bool = False) -> dict:
     cfg = get_settings(db)
     return {
         "shop_url": cfg.shop_url.rstrip("/"),
@@ -161,7 +161,7 @@ def bootstrap_payload(db: Session) -> dict:
             "snap": cfg.snap_pixel_id or "",
         },
         "redirects": list_redirects_resolved(db),
-        "products": list_products_merged(db, include_ad_landing=False),
-        "skus": list_skus_merged(db, cfg.shop_url.rstrip("/")),
+        "products": [] if lite else list_products_merged(db, include_ad_landing=False),
+        "skus": [] if lite else list_skus_merged(db, cfg.shop_url.rstrip("/")),
         "macro_help": MACRO_HELP,
     }
