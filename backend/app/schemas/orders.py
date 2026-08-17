@@ -74,6 +74,13 @@ class CodOrderIn(BaseModel):
     customer_phone: str
     city: str = Field(min_length=2, max_length=128)
     qty: int
+    event_id: str | None = None
+    fbp: str | None = None
+    fbc: str | None = None
+    ttclid: str | None = None
+    source: str | None = None
+    utm_source: str | None = None
+    utm_campaign: str | None = None
 
     @field_validator("qty")
     @classmethod

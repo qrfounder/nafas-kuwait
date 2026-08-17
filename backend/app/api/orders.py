@@ -4,7 +4,7 @@ import uuid
 from datetime import datetime
 
 import stripe
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.config import settings
@@ -12,9 +12,11 @@ from app.database import get_db
 from app.models.order import Order, OrderLine
 from app.schemas.orders import COD_PACKS, CodOrderIn, CreateOrderIn, OrderOut, UpsellIn
 from app.services.order_pricing import PricedLine, price_order
-from app.services.phone_sa import validate_saudi_phone
+from app.services.phone_sa import saudi_e164_digits, validate_saudi_phone
 from app.services.phone_us import validate_us_phone
 from app.services.store_catalog import get_product_merged
+from app.services.capi import fire_purchase_events
+from app.services.sheets_webhook import order_to_sheet_row, send_order_to_sheet
 
 logger = logging.getLogger(__name__)
 
@@ -84,7 +86,7 @@ def _create_checkout_session(
 
 
 @router.post("/cod", response_model=OrderOut)
-async def create_cod_order(body: CodOrderIn, db: Session = Depends(get_db)):
+async def create_cod_order(body: CodOrderIn, background: BackgroundTasks, db: Session = Depends(get_db)):
     ok, phone, err = validate_saudi_phone(body.customer_phone)
     if not ok:
         raise HTTPException(400, err)
@@ -92,6 +94,7 @@ async def create_cod_order(body: CodOrderIn, db: Session = Depends(get_db)):
     price = COD_PACKS[body.qty]
     offer_tier = _OFFER_TIER[body.qty]
     order_num = f"KB-{datetime.utcnow().strftime('%y%m%d')}{uuid.uuid4().hex[:4].upper()}"
+    event_id = (body.event_id or "").strip() or str(uuid.uuid4())
     items_json = json.dumps(
         [
             {
@@ -119,7 +122,13 @@ async def create_cod_order(body: CodOrderIn, db: Session = Depends(get_db)):
         total_usd=price,
         items_json=items_json,
         currency_display="SAR",
-        source="cod-landing",
+        source=body.source or "cod-landing",
+        utm_source=body.utm_source,
+        utm_campaign=body.utm_campaign,
+        event_id=event_id,
+        fbp=body.fbp,
+        fbc=body.fbc,
+        ttclid=body.ttclid,
         status="new",
         payment_status="cod",
     )
@@ -136,6 +145,19 @@ async def create_cod_order(body: CodOrderIn, db: Session = Depends(get_db)):
     )
     db.commit()
     db.refresh(order)
+
+    source_url = f"{settings.shop_public_url.rstrip('/')}/product/official"
+    background.add_task(
+        _notify_cod_purchase,
+        event_id=event_id,
+        value=price,
+        phone_e164=saudi_e164_digits(phone or ""),
+        customer_name=body.customer_name.strip(),
+        fbp=body.fbp,
+        fbc=body.fbc,
+        source_url=source_url,
+        sheet_row=order_to_sheet_row(order),
+    )
     return OrderOut(
         order_id=str(order.id),
         order_number=order_num,
@@ -143,6 +165,30 @@ async def create_cod_order(body: CodOrderIn, db: Session = Depends(get_db)):
         post_upsell=None,
         checkout_url=None,
     )
+
+
+async def _notify_cod_purchase(
+    *,
+    event_id: str,
+    value: float,
+    phone_e164: str,
+    customer_name: str,
+    fbp: str | None,
+    fbc: str | None,
+    source_url: str,
+    sheet_row: dict,
+) -> None:
+    await fire_purchase_events(
+        event_id=event_id,
+        value=value,
+        phone_digits=phone_e164,
+        customer_name=customer_name,
+        fbp=fbp,
+        fbc=fbc,
+        source_url=source_url,
+        currency="SAR",
+    )
+    await send_order_to_sheet(sheet_row)
 
 
 @router.post("", response_model=OrderOut)

@@ -1,6 +1,16 @@
 import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
 import { useLocation } from 'react-router-dom'
 import { getApiBase } from '../lib/apiBase'
+import {
+  getAttribution,
+  initAnalyticsFromPixels,
+  newEventId,
+  trackAddToCart,
+  trackInitiateCheckout,
+  trackPurchase,
+  trackViewContent,
+} from '../lib/analytics'
+import { normalizeSaudiPhone } from '../lib/phone'
 import { trackStoreEvent } from '../lib/visitorAnalytics'
 import './KsaLanding.css'
 
@@ -18,6 +28,7 @@ const CITIES = [
   'خميس مشيط',
   'تبوك',
   'بريدة',
+  'عنيزة',
   'حائل',
   'جازان',
   'نجران',
@@ -26,6 +37,15 @@ const CITIES = [
   'القطيف',
   'سكاكا',
   'عرعر',
+  'الباحة',
+  'حفر الباطن',
+  'الخرج',
+  'المجمعة',
+  'بيشة',
+  'القريات',
+  'الخفجي',
+  'رابغ',
+  'أخرى',
 ]
 
 const OFFERS = [
@@ -92,6 +112,24 @@ export function KsaLandingPage() {
   }, [])
 
   useEffect(() => {
+    getAttribution()
+    initAnalyticsFromPixels({})
+    let sent = false
+    const fire = () => {
+      if (sent) return
+      if (!window.fbq && !window.ttq && !window.snaptr) return
+      sent = true
+      trackViewContent('khalta-ajdadna', 179, 'SAR')
+    }
+    window.addEventListener('nafas-pixels-ready', fire, { once: true })
+    const t = window.setTimeout(fire, 1200)
+    return () => {
+      window.removeEventListener('nafas-pixels-ready', fire)
+      window.clearTimeout(t)
+    }
+  }, [])
+
+  useEffect(() => {
     const onScroll = () => {
       if (scrolled.current) return
       const doc = document.documentElement
@@ -107,12 +145,7 @@ export function KsaLandingPage() {
   function pickOffer(next: number) {
     setQty(next)
     setErrs((e) => ({ ...e, pack: false }))
-    trackStoreEvent('add_to_cart', {
-      path: landingPath,
-      product_slug: 'khalta-ajdadna',
-      value: OFFERS.find((o) => o.qty === next)?.price,
-      metadata: { step: 'choose_offer', qty: next },
-    })
+    trackAddToCart(OFFERS.find((o) => o.qty === next)?.price ?? 179, 'khalta-ajdadna', 'SAR')
   }
 
   function markForm() {
@@ -123,29 +156,43 @@ export function KsaLandingPage() {
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault()
+    if (busy) return
     const nameBad = name.trim().length < 2
-    const phoneBad = !/^05\d{8}$/.test(phone.trim())
+    const normalizedPhone = normalizeSaudiPhone(phone)
+    const phoneBad = !normalizedPhone
     const cityBad = !city.trim()
     const packBad = qty == null
     setErrs({ name: nameBad, phone: phoneBad, city: cityBad, pack: packBad })
-    trackStoreEvent('checkout_visit', {
-      path: landingPath,
-      product_slug: 'khalta-ajdadna',
-      metadata: { step: 'cta_click', valid: !(nameBad || phoneBad || cityBad || packBad) },
-    })
-    if (nameBad || phoneBad || cityBad || packBad) return
+    const invalid = nameBad || phoneBad || cityBad || packBad
+    if (invalid) return
+    if (normalizedPhone && normalizedPhone !== phone.trim()) setPhone(normalizedPhone)
+
+    const chosen = OFFERS.find((o) => o.qty === qty)!
+    const eventId = newEventId()
+    trackInitiateCheckout(chosen.price, 'SAR')
+    const attr = getAttribution()
 
     setBusy(true)
     setSubmitErr('')
+    const ctrl = new AbortController()
+    const kill = window.setTimeout(() => ctrl.abort(), 12000)
     try {
       const res = await fetch(`${getApiBase()}/api/orders/cod`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        signal: ctrl.signal,
         body: JSON.stringify({
           customer_name: name.trim(),
-          customer_phone: phone.trim(),
+          customer_phone: normalizedPhone,
           city: city.trim(),
           qty,
+          event_id: eventId,
+          utm_source: attr.utm_source,
+          utm_campaign: attr.utm_campaign,
+          source: attr.source,
+          fbp: attr.fbp,
+          fbc: attr.fbc,
+          ttclid: attr.ttclid,
         }),
       })
       const data = (await res.json().catch(() => ({}))) as { order_number?: string; detail?: unknown }
@@ -160,24 +207,29 @@ export function KsaLandingPage() {
         setSubmitErr(msg)
         return
       }
-      const chosen = OFFERS.find((o) => o.qty === qty)!
       setThanks({
         order: data.order_number,
         name: name.trim(),
-        phone: phone.trim(),
+        phone: normalizedPhone,
         city: city.trim(),
         qty: chosen.qty,
         price: chosen.price,
       })
+      trackPurchase(chosen.price, eventId, 'SAR')
       trackStoreEvent('purchase', {
         path: '/thank-you',
         product_slug: 'khalta-ajdadna',
         value: chosen.price,
         metadata: { step: 'thank_you', order_number: data.order_number, qty: chosen.qty },
       })
-    } catch {
-      setSubmitErr('تعذر الاتصال. تأكد من الشبكة وحاول مرة أخرى.')
+    } catch (err) {
+      setSubmitErr(
+        err instanceof DOMException && err.name === 'AbortError'
+          ? 'الاتصال أخذ وقت طويل. حاول مرة أخرى.'
+          : 'تعذر الاتصال. تأكد من الشبكة وحاول مرة أخرى.',
+      )
     } finally {
+      window.clearTimeout(kill)
       setBusy(false)
     }
   }
@@ -198,7 +250,14 @@ export function KsaLandingPage() {
           <h1>ودّع ألم المفاصل. الخلطة جاهزة من العلبة</h1>
           <p className="lede">سنام الجمل + مستخلص سم النحل + كولاجين. بدون نار، بدون سوق، ادفع عند الباب من 179 ر.س.</p>
           <div className="hero-photo">
-            <img src="/landing/product-xicamel.png" alt="علبة وكريم خلطة أجدادنا للمفاصل والعظام" />
+            <img
+              src="/landing/product-xicamel.jpg"
+              alt="علبة وكريم خلطة أجدادنا للمفاصل والعظام"
+              width={1200}
+              height={800}
+              fetchPriority="high"
+              decoding="async"
+            />
           </div>
           <div className="rating" aria-label="تقييم 4.8 من 5 بناءً على 186 تقييم">
             <div className="rating-stars">★★★★★</div>
@@ -245,7 +304,14 @@ export function KsaLandingPage() {
             </a>
           </div>
           <div className="photo-frame">
-            <img src="/landing/product-xicamel.png" alt="كريم خلطة أجدادنا للمفاصل والعظام" />
+            <img
+              src="/landing/product-xicamel.jpg"
+              alt="كريم خلطة أجدادنا للمفاصل والعظام"
+              width={1200}
+              height={800}
+              loading="lazy"
+              decoding="async"
+            />
           </div>
         </section>
 
@@ -430,7 +496,7 @@ export function KsaLandingPage() {
                 name="phone"
                 inputMode="tel"
                 autoComplete="tel"
-                placeholder="05xxxxxxxx"
+                placeholder="05xxxxxxxx أو 9665xxxxxxxx"
                 value={phone}
                 className={errs.phone ? 'invalid' : ''}
                 onChange={(e) => {
@@ -482,7 +548,7 @@ export function KsaLandingPage() {
           <div className="reviews">
             <article className="review">
               <div className="who">
-                <img className="av" src="/landing/review-3.jpg" alt="أبو عبدالله" style={{ objectPosition: '50% 18%' }} />
+                <img className="av" src="/landing/review-3.jpg" alt="أبو عبدالله" style={{ objectPosition: '50% 18%' }} loading="lazy" decoding="async" />
                 <div>
                   <strong>أبو عبدالله، الرياض</strong>
                   <div className="stars">★★★★★</div>
@@ -492,7 +558,7 @@ export function KsaLandingPage() {
             </article>
             <article className="review">
               <div className="who">
-                <img className="av" src="/landing/review-woman2.jpg" alt="نورة" style={{ objectPosition: '50% 12%' }} />
+                <img className="av" src="/landing/review-woman2.jpg" alt="نورة" style={{ objectPosition: '50% 12%' }} loading="lazy" decoding="async" />
                 <div>
                   <strong>نورة، جدة</strong>
                   <div className="stars">★★★★★</div>
@@ -502,7 +568,7 @@ export function KsaLandingPage() {
             </article>
             <article className="review">
               <div className="who">
-                <img className="av" src="/landing/review-2.jpg" alt="منى" style={{ objectPosition: '50% 20%' }} />
+                <img className="av" src="/landing/review-2.jpg" alt="منى" style={{ objectPosition: '50% 20%' }} loading="lazy" decoding="async" />
                 <div>
                   <strong>منى، الخبر</strong>
                   <div className="stars">★★★★★</div>
@@ -657,7 +723,7 @@ export function KsaLandingPage() {
             <div className="next-steps" style={{ textAlign: 'center' }}>
               <h2>الطلب اللي في الطريق</h2>
               <div className="hero-photo">
-                <img src="/landing/product-xicamel.png" alt="كريم خلطة أجدادنا" />
+                <img src="/landing/product-xicamel.jpg" alt="كريم خلطة أجدادنا" width={1200} height={800} loading="lazy" />
               </div>
             </div>
             <div className="next-steps">
