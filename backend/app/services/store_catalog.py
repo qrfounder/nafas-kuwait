@@ -1,6 +1,7 @@
 import json
 import re
 from copy import deepcopy
+from urllib.parse import urlparse
 
 from sqlalchemy.orm import Session
 
@@ -16,12 +17,25 @@ MACRO_HELP = {
 }
 
 
+def _is_local_url(url: str) -> bool:
+    host = (url or "").lower()
+    return "localhost" in host or "127.0.0.1" in host or "0.0.0.0" in host
+
+
+def public_shop_url(stored: str | None = None) -> str:
+    public = (settings.shop_public_url or "https://naffas.shop").rstrip("/")
+    stored = (stored or "").rstrip("/")
+    if not stored or _is_local_url(stored):
+        return public
+    return stored
+
+
 def get_settings(db: Session) -> StoreSettings:
     row = db.query(StoreSettings).filter(StoreSettings.id == 1).first()
     if not row:
         row = StoreSettings(
             id=1,
-            shop_url=settings.frontend_origin.rstrip("/") or "https://naffas.shop",
+            shop_url=public_shop_url(),
             meta_pixel_id=settings.meta_pixel_id or None,
             tiktok_pixel_id=settings.tiktok_pixel_id or None,
             snap_pixel_id=settings.snap_pixel_id or None,
@@ -29,11 +43,16 @@ def get_settings(db: Session) -> StoreSettings:
         db.add(row)
         db.commit()
         db.refresh(row)
+        return row
+    if _is_local_url(row.shop_url):
+        row.shop_url = public_shop_url()
+        db.commit()
+        db.refresh(row)
     return row
 
 
 def expand_macros(target: str, shop_url: str) -> str:
-    base = shop_url.rstrip("/")
+    base = public_shop_url(shop_url)
     out = target.strip()
     out = out.replace("{{shop_url}}", base)
     out = out.replace("{{shop}}", base)
@@ -45,6 +64,12 @@ def expand_macros(target: str, shop_url: str) -> str:
     out = re.sub(r"\{\{product:([\w-]+)\}\}", repl, out)
     if out.startswith("/"):
         return f"{base}{out}"
+    if out.startswith("http") and _is_local_url(out):
+        parsed = urlparse(out)
+        path = parsed.path or "/"
+        if parsed.query:
+            path = f"{path}?{parsed.query}"
+        return f"{base}{path}"
     return out
 
 

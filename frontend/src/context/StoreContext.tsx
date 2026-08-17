@@ -103,6 +103,19 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     if (!hit) return
     const dest = hit.to_path
     if (dest.startsWith('http')) {
+      try {
+        const u = new URL(dest)
+        const local = u.hostname === 'localhost' || u.hostname === '127.0.0.1'
+        const here = window.location.hostname.replace(/^www\./, '')
+        const there = u.hostname.replace(/^www\./, '')
+        if (local || there === here) {
+          const destPath = `${u.pathname}${u.search}${u.hash}` || '/'
+          navigate(destPath, { replace: true })
+          return
+        }
+      } catch {
+        /* use full URL below */
+      }
       window.location.replace(dest)
       return
     }

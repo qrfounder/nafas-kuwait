@@ -17,7 +17,7 @@ from app.schemas.store import (
     SkuInventoryIn,
 )
 from app.services.sku_catalog import list_skus_merged
-from app.services.store_catalog import expand_macros, get_settings, list_products_merged, merge_product
+from app.services.store_catalog import expand_macros, get_settings, list_products_merged, merge_product, public_shop_url
 from app.models.sku_inventory import SkuInventory
 
 from app.api.admin import _require_admin_key
@@ -53,7 +53,7 @@ def put_pixels(
     db: Session = Depends(get_db),
 ):
     cfg = get_settings(db)
-    cfg.shop_url = body.shop_url.rstrip("/") or cfg.shop_url
+    cfg.shop_url = public_shop_url(body.shop_url)
     cfg.meta_pixel_id = body.meta_pixel_id.strip() or None
     cfg.tiktok_pixel_id = body.tiktok_pixel_id.strip() or None
     cfg.snap_pixel_id = body.snap_pixel_id.strip() or None
