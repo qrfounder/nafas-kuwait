@@ -1,25 +1,53 @@
-from urllib.parse import quote, unquote
-from pydantic import field_validator
+from pydantic import model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from sqlalchemy.engine.url import URL, make_url
 
 
-def _encode_db_password(url: str) -> str:
-    """Quote the password so characters like * do not break SQLAlchemy or Alembic."""
-    if "://" not in url or "@" not in url:
-        return url
-    scheme, rest = url.split("://", 1)
-    creds, host = rest.rsplit("@", 1)
-    if ":" not in creds:
-        return url
-    user, password = creds.split(":", 1)
-    password = quote(unquote(password), safe="")
-    return f"{scheme}://{user}:{password}@{host}"
+def build_database_url(
+    *,
+    database_url: str = "",
+    postgres_host: str = "",
+    postgres_port: int = 5432,
+    postgres_user: str = "",
+    postgres_password: str = "",
+    postgres_db: str = "",
+) -> str:
+    """Build a SQLAlchemy URL. Discrete POSTGRES_* vars beat a stale DATABASE_URL."""
+    if postgres_user and postgres_password and postgres_db:
+        url = URL.create(
+            drivername="postgresql",
+            username=postgres_user,
+            password=postgres_password,
+            host=postgres_host or "db",
+            port=postgres_port or 5432,
+            database=postgres_db,
+            query={"sslmode": "disable"},
+        )
+        return url.render_as_string(hide_password=False)
+
+    raw = (database_url or "").strip()
+    if not raw:
+        return ""
+
+    url = make_url(raw)
+    query = dict(url.query)
+    query.setdefault("sslmode", "disable")
+    return url.set(query=query).render_as_string(hide_password=False)
 
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        extra="ignore",
+        env_ignore_empty=True,
+    )
 
-    database_url: str = "postgresql://nafas:nafas@localhost:5432/nafas"
+    database_url: str = ""
+    postgres_host: str = ""
+    postgres_port: int = 5432
+    postgres_user: str = ""
+    postgres_password: str = ""
+    postgres_db: str = ""
     google_sheets_webhook_url: str = ""
     meta_pixel_id: str = ""
     meta_capi_access_token: str = ""
@@ -38,10 +66,17 @@ class Settings(BaseSettings):
     mojourney_admin_user: str = "admin"
     mojourney_admin_password: str = ""
 
-    @field_validator("database_url")
-    @classmethod
-    def encode_database_url(cls, v: str) -> str:
-        return _encode_db_password(v.strip())
+    @model_validator(mode="after")
+    def assemble_database_url(self) -> "Settings":
+        self.database_url = build_database_url(
+            database_url=self.database_url,
+            postgres_host=self.postgres_host,
+            postgres_port=self.postgres_port,
+            postgres_user=self.postgres_user,
+            postgres_password=self.postgres_password,
+            postgres_db=self.postgres_db,
+        )
+        return self
 
 
 settings = Settings()
