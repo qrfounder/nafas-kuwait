@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
+import { useLocation } from 'react-router-dom'
 import { getApiBase } from '../lib/apiBase'
 import { trackStoreEvent } from '../lib/visitorAnalytics'
 import './KsaLanding.css'
@@ -63,6 +64,7 @@ type ThanksData = {
 }
 
 export function KsaLandingPage() {
+  const landingPath = useLocation().pathname.replace(/\/$/, '') || '/'
   const [qty, setQty] = useState<number | null>(null)
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
@@ -96,17 +98,17 @@ export function KsaLandingPage() {
       if (doc.scrollHeight <= window.innerHeight) return
       if (window.scrollY / (doc.scrollHeight - window.innerHeight) < 0.5) return
       scrolled.current = true
-      trackStoreEvent('view_content', { path: '/', product_slug: 'khalta-ajdadna', metadata: { step: 'scroll' } })
+      trackStoreEvent('view_content', { path: landingPath, product_slug: 'khalta-ajdadna', metadata: { step: 'scroll' } })
     }
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
-  }, [])
+  }, [landingPath])
 
   function pickOffer(next: number) {
     setQty(next)
     setErrs((e) => ({ ...e, pack: false }))
     trackStoreEvent('add_to_cart', {
-      path: '/',
+      path: landingPath,
       product_slug: 'khalta-ajdadna',
       value: OFFERS.find((o) => o.qty === next)?.price,
       metadata: { step: 'choose_offer', qty: next },
@@ -116,7 +118,7 @@ export function KsaLandingPage() {
   function markForm() {
     if (formStarted.current) return
     formStarted.current = true
-    trackStoreEvent('checkout_form_start', { path: '/', product_slug: 'khalta-ajdadna', metadata: { step: 'fill_form' } })
+    trackStoreEvent('checkout_form_start', { path: landingPath, product_slug: 'khalta-ajdadna', metadata: { step: 'fill_form' } })
   }
 
   async function onSubmit(e: FormEvent) {
@@ -127,7 +129,7 @@ export function KsaLandingPage() {
     const packBad = qty == null
     setErrs({ name: nameBad, phone: phoneBad, city: cityBad, pack: packBad })
     trackStoreEvent('checkout_visit', {
-      path: '/',
+      path: landingPath,
       product_slug: 'khalta-ajdadna',
       metadata: { step: 'cta_click', valid: !(nameBad || phoneBad || cityBad || packBad) },
     })

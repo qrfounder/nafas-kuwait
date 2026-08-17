@@ -95,7 +95,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!bootstrap?.redirects?.length) return
     const path = location.pathname.replace(/\/$/, '') || '/'
-    if (path === '/') return
+    if (path === '/' || path === '/product/official') return
     const hit = bootstrap.redirects.find((r) => {
       const from = r.from_path.replace(/\/$/, '') || '/'
       return from === path

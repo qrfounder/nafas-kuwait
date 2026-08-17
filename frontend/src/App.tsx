@@ -22,6 +22,7 @@ export default function App() {
       <LiveHeartbeat />
       <Routes>
         <Route path="/" element={<KsaLandingPage />} />
+        <Route path="/product/official" element={<KsaLandingPage />} />
         <Route element={<Layout />}>
           <Route path="/collection" element={<CollectionPage />} />
           <Route path="/product/test" element={<AdSafeProductPage />} />
