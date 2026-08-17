@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react'
 import { MojourneySkuInventory } from './MojourneySkuInventory'
 
 export function MojourneyProductsHub({ onError }: { onError: (msg: string) => void }) {
