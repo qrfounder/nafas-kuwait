@@ -8,7 +8,7 @@ export function AnalyticsTracker() {
   const lastPath = useRef<string | null>(null)
 
   useEffect(() => {
-    if (location.pathname.startsWith('/mojourney')) return
+    if (location.pathname.startsWith('/mojourney') || location.pathname.startsWith('/mojo')) return
     const path = location.pathname + location.search
     if (lastPath.current === path) return
     lastPath.current = path

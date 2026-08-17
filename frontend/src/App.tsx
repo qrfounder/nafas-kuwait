@@ -32,6 +32,7 @@ export default function App() {
           <Route path="/returns" element={<ReturnsPage />} />
         </Route>
         <Route path="/thank-you" element={<ThankYouPage />} />
+        <Route path="/mojo" element={<MojourneyPage />} />
         <Route path="/mojourney" element={<MojourneyPage />} />
       </Routes>
     </>

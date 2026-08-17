@@ -36,6 +36,21 @@ export function MojourneyPage() {
   const [apiKey, setApiKey] = useState('')
   const [loginMode, setLoginMode] = useState<LoginMode>('loading')
   const [unlocked, setUnlocked] = useState(() => Boolean(getStoredAdminKey()))
+
+  useEffect(() => {
+    const html = document.documentElement
+    const prevLang = html.lang
+    const prevDir = html.dir
+    const prevTitle = document.title
+    html.lang = 'en'
+    html.dir = 'ltr'
+    document.title = 'Mojourney Admin'
+    return () => {
+      html.lang = prevLang
+      html.dir = prevDir
+      document.title = prevTitle
+    }
+  }, [])
   const sectionFromHash = (): AdminSection => {
     const id = (typeof window !== 'undefined' ? window.location.hash : '').replace(/^#/, '')
     const allowed: AdminSection[] = [

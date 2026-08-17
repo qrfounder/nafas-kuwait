@@ -9,7 +9,7 @@ export function LiveHeartbeat() {
   const { itemCount, checkoutOpen, product } = useCart()
 
   useEffect(() => {
-    if (location.pathname.startsWith('/mojourney')) return
+    if (location.pathname.startsWith('/mojourney') || location.pathname.startsWith('/mojo')) return
 
     const path = location.pathname + location.search
     const product_slug = product?.slug ?? null
