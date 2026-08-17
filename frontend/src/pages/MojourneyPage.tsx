@@ -28,7 +28,7 @@ function copyText(text: string) {
   void navigator.clipboard.writeText(text).catch(() => {})
 }
 
-type LoginMode = 'loading' | 'password' | 'apikey' | 'none'
+type LoginMode = 'loading' | 'password' | 'apikey' | 'none' | 'unreachable'
 
 export function MojourneyPage() {
   const [username, setUsername] = useState('admin')
@@ -122,7 +122,7 @@ export function MojourneyPage() {
         else setLoginMode('none')
       })
       .catch(() => {
-        if (!cancelled) setLoginMode('none')
+        if (!cancelled) setLoginMode('unreachable')
       })
     return () => {
       cancelled = true
@@ -250,6 +250,13 @@ export function MojourneyPage() {
         <div className="w-full max-w-md rounded-2xl border border-slate-800 bg-slate-900/80 p-8 shadow-xl">
           <h1 className="font-display text-2xl font-bold text-white mb-1">Mojourney Admin</h1>
           {loginMode === 'loading' && <p className="text-sm text-slate-400 mb-6">Loading…</p>}
+          {loginMode === 'unreachable' && (
+            <p className="text-sm text-rose-200/90 mb-6">
+              The API is not reachable at <span className="font-mono text-xs">https://api.naffas.shop</span> (502).
+              Open the <strong>api</strong> service in EasyPanel, check logs, set the domain to port <strong>8000</strong>,
+              then redeploy. The login form appears only after that service is healthy.
+            </p>
+          )}
           {loginMode === 'none' && (
             <p className="text-sm text-rose-200/90 mb-6">
               {ping && !ping.ok ? (
