@@ -407,9 +407,9 @@ export function MojourneyPage() {
                 <th className="px-3 py-3 font-medium">Order</th>
                 <th className="px-3 py-3 font-medium">Name</th>
                 <th className="px-3 py-3 font-medium">Phone</th>
-                <th className="px-3 py-3 font-medium">Product</th>
-                <th className="px-3 py-3 font-medium">USD</th>
-                <th className="px-3 py-3 font-medium">UTM</th>
+                <th className="px-3 py-3 font-medium">City</th>
+                <th className="px-3 py-3 font-medium">Pack</th>
+                <th className="px-3 py-3 font-medium">SAR</th>
                 <th className="px-3 py-3 font-medium">Status</th>
               </tr>
             </thead>
@@ -422,14 +422,11 @@ export function MojourneyPage() {
                   <td className="px-3 py-2.5 font-mono text-xs text-amber-200/90">{o.order_number}</td>
                   <td className="px-3 py-2.5 text-slate-200">{o.customer_name}</td>
                   <td className="px-3 py-2.5 font-mono text-xs">{o.customer_phone}</td>
+                  <td className="px-3 py-2.5 text-slate-300">{o.area || '—'}</td>
                   <td className="px-3 py-2.5 text-slate-300">
-                    {o.product_slug}
-                    {o.upsell_accepted && <span className="text-emerald-400 text-xs ml-1">+upsell</span>}
+                    {o.offer_tier === 3 ? '5' : o.offer_tier === 2 ? '3' : '1'}
                   </td>
-                  <td className="px-3 py-2.5 tabular-nums">{o.total_usd.toFixed(2)}</td>
-                  <td className="px-3 py-2.5 text-xs text-slate-400 max-w-[140px] truncate" title={o.utm_campaign || ''}>
-                    {o.utm_source || '. '} / {o.utm_campaign || '. '}
-                  </td>
+                  <td className="px-3 py-2.5 tabular-nums">{o.total_usd.toFixed(0)}</td>
                   <td className="px-3 py-2.5 text-xs">{o.status}</td>
                 </tr>
               ))}

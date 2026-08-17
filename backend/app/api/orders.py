@@ -10,14 +10,17 @@ from sqlalchemy.orm import Session
 from app.config import settings
 from app.database import get_db
 from app.models.order import Order, OrderLine
-from app.schemas.orders import CreateOrderIn, OrderOut, UpsellIn
+from app.schemas.orders import COD_PACKS, CodOrderIn, CreateOrderIn, OrderOut, UpsellIn
 from app.services.order_pricing import PricedLine, price_order
+from app.services.phone_sa import validate_saudi_phone
 from app.services.phone_us import validate_us_phone
 from app.services.store_catalog import get_product_merged
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/orders", tags=["orders"])
+
+_OFFER_TIER = {1: 1, 3: 2, 5: 3}
 
 
 def _order_number() -> str:
@@ -77,6 +80,68 @@ def _create_checkout_session(
             "&session_id={CHECKOUT_SESSION_ID}"
         ),
         cancel_url=f"{origin}/collection?checkout=cancelled",
+    )
+
+
+@router.post("/cod", response_model=OrderOut)
+async def create_cod_order(body: CodOrderIn, db: Session = Depends(get_db)):
+    ok, phone, err = validate_saudi_phone(body.customer_phone)
+    if not ok:
+        raise HTTPException(400, err)
+
+    price = COD_PACKS[body.qty]
+    offer_tier = _OFFER_TIER[body.qty]
+    order_num = f"KB-{datetime.utcnow().strftime('%y%m%d')}{uuid.uuid4().hex[:4].upper()}"
+    items_json = json.dumps(
+        [
+            {
+                "sku": "khalta-ajdadna",
+                "title_ar": "خلطة أجدادنا",
+                "qty": body.qty,
+                "price_sar": price,
+                "line_type": "product",
+            }
+        ],
+        ensure_ascii=False,
+    )
+    order = Order(
+        order_number=order_num,
+        customer_name=body.customer_name.strip(),
+        customer_email=None,
+        customer_phone=phone,
+        governorate="SA",
+        area=body.city,
+        block=None,
+        street=None,
+        product_slug="khalta-ajdadna",
+        offer_tier=offer_tier,
+        subtotal_usd=price,
+        total_usd=price,
+        items_json=items_json,
+        currency_display="SAR",
+        source="cod-landing",
+        status="new",
+        payment_status="cod",
+    )
+    db.add(order)
+    db.add(
+        OrderLine(
+            order=order,
+            sku="khalta-ajdadna",
+            title_ar=f"خلطة أجدادنا × {body.qty}",
+            qty=body.qty,
+            price_usd=price,
+            line_type="product",
+        )
+    )
+    db.commit()
+    db.refresh(order)
+    return OrderOut(
+        order_id=str(order.id),
+        order_number=order_num,
+        total_usd=price,
+        post_upsell=None,
+        checkout_url=None,
     )
 
 

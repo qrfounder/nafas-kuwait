@@ -66,6 +66,31 @@ class CreateOrderIn(BaseModel):
         return s
 
 
+COD_PACKS = {1: 179.0, 3: 280.0, 5: 340.0}
+
+
+class CodOrderIn(BaseModel):
+    customer_name: str = Field(min_length=2, max_length=200)
+    customer_phone: str
+    city: str = Field(min_length=2, max_length=128)
+    qty: int
+
+    @field_validator("qty")
+    @classmethod
+    def pack_qty(cls, v: int) -> int:
+        if v not in COD_PACKS:
+            raise ValueError("اختر عرض 1 أو 3 أو 5 علب")
+        return v
+
+    @field_validator("city")
+    @classmethod
+    def strip_city(cls, v: str) -> str:
+        s = v.strip()
+        if not s:
+            raise ValueError("اختَر المدينة")
+        return s
+
+
 class UpsellIn(BaseModel):
     upsell_sku: str
     upsell_price_usd: float

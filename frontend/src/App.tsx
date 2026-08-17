@@ -3,7 +3,7 @@ import { AnalyticsTracker } from './components/AnalyticsTracker'
 import { LiveHeartbeat } from './components/LiveHeartbeat'
 import { ScrollToTop } from './components/ScrollToTop'
 import { Layout } from './components/Layout'
-import { HomePage } from './pages/HomePage'
+import { KsaLandingPage } from './pages/KsaLandingPage'
 import { CollectionPage } from './pages/CollectionPage'
 import { AdSafeProductPage } from './pages/AdSafeProductPage'
 import { ProductPage } from './pages/ProductPage'
@@ -21,8 +21,8 @@ export default function App() {
       <AnalyticsTracker />
       <LiveHeartbeat />
       <Routes>
+        <Route path="/" element={<KsaLandingPage />} />
         <Route element={<Layout />}>
-          <Route path="/" element={<HomePage />} />
           <Route path="/collection" element={<CollectionPage />} />
           <Route path="/product/test" element={<AdSafeProductPage />} />
           <Route path="/product/:slug" element={<ProductPage />} />
