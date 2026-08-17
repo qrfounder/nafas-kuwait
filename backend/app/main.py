@@ -77,6 +77,11 @@ app.include_router(admin_live.router)
 app.include_router(admin_live.admin_router)
 
 
+@app.get("/")
 @app.get("/health")
 def health():
-    return {"status": "ok", "brand": "nafas"}
+    return {
+        "status": "ok",
+        "brand": "nafas",
+        "password_login": bool(settings.mojourney_admin_password),
+    }
